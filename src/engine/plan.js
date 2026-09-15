@@ -21,6 +21,7 @@ import {
   isConcentrationUnit, isVolumeUnit, DIMENSION,
 } from './units.js';
 import { ENGINE_VERSION, URS_VERSION, TOOL_ID } from './version.js';
+import { vesselDepartureBound, compoundBound, ROUND_TRIP_ULP_PER_STEP, ACHIEVED_BOUND_PER_STEP_WORST, ACHIEVED_BOUND_PER_STEP_EXACT_CLOSURE } from './tolerances.js';
 
 export const VOLUME_SF = 3; // C3-UN-04
 export const CONCENTRATION_SF = 6; // C3-UN-05
@@ -517,7 +518,7 @@ function computeVessels(n, ctx, defect) {
   const stockVessel = {
     label: 'S', kind: 'stock', sourceLabel: null, stepsFromStock: 0,
     cExact: n.stock.num, cAchieved: n.stock.num, cTargetEntered: n.stock.entered, unit: n.stock.unit,
-    vol: null, onward: [], receiving: null,
+    vol: null, onward: [], receiving: null, bound: 0,
   };
   plan.vessels.push(stockVessel);
 
@@ -605,6 +606,8 @@ function feedPoint(n, plan, src, p, T, extra) {
     viaIntermediate: src.kind === 'intermediate' ? src : null,
   };
   if (undiluted) v.cExact = src.cExact; // T = V exactly: no division performed
+  v.boundOwn = vesselDepartureBound({ Td: vol.Td, Dd: vol.Dd, closure: vol.closureTarget, basis, undiluted, zero: false });
+  v.bound = compoundBound(src.bound, v.boundOwn);
   src.onward.push({ to: v.label, Td: vol.Td, T: vol.T });
   p.vessel = v;
   return v;
@@ -623,6 +626,8 @@ function newIntermediateVessel(plan, src, inter, destLabels) {
     factorFromSource: inter.g,
     vol: inter.vol, onward: [], receiving: 'diluent', destinations: destLabels,
   };
+  v.boundOwn = vesselDepartureBound({ Td: inter.vol.Td, Dd: inter.vol.Dd, closure: inter.vol.closureTarget, basis: 'final', undiluted: false, zero: false });
+  v.bound = compoundBound(src.bound, v.boundOwn);
   src.onward.push({ to: label, Td: inter.vol.Td, T: inter.vol.T });
   plan.intermediates.push(v);
   return v;
@@ -1017,7 +1022,7 @@ function assemble(ctx, n, plan) {
       origin: n.targetOrigin, declaredFactor: n.declaredFactor ?? null, count: n.count ?? null,
       values: (n.targets || []).map((t, i) => ({ label: `P${i + 1}`, value: t.entered, unit: t.unit, derivedFromTop: !!t.derivedFromTop, internal: t.num })) },
     volume: n.volume ? { value: n.volume.entered, unit: n.volume.unit } : null,
-    basis: n.basis ? { key: n.basis, label: BASIS[n.basis].label, short: BASIS[n.basis].short, statedVolumeIs: ADDITIVITY.statedVolumeIs[n.basis], fixedByImport: !!(n.imported && n.imported.fixed && n.imported.fixed.includes('basis')) } : null,
+    basis: n.basis ? { key: n.basis, label: BASIS[n.basis].label, short: BASIS[n.basis].short, statedVolumeIs: ADDITIVITY.statedVolumeIs[n.basis], fixedByImport: !!(n.imported && n.imported.fixed && n.imported.fixed.includes('basis') && !n.overrides.some((o) => o.field === 'basis')) } : null,
     route: n.multiPoint ? (n.route ? { key: n.route, label: n.route === 'serial' ? 'serial — each point from the previous' : 'independent — each point from stock' } : null) : { key: null, label: 'not applicable — a single point is planned', notApplicable: true },
     diluent: n.diluent || null,
     capability: {
@@ -1031,7 +1036,7 @@ function assemble(ctx, n, plan) {
 
   const result = {
     schema: 'ligant.bench-tools.result',
-    schemaVersion: '1-c3-draft',
+    schemaVersion: '1-c3',
     tool: TOOL_ID,
     engineVersion: ENGINE_VERSION,
     ursVersion: URS_VERSION,
@@ -1056,8 +1061,8 @@ function assemble(ctx, n, plan) {
     scope: 'Research use. Not qualified for GxP decision-making.',
     plansNotVerifies: 'This tool plans preparation. It does not verify what was prepared.',
     tolerances: {
-      roundTrip: { status: 'open', openItem: 6, value: null, statement: 'Round-trip tolerance, exact concentration: to be derived (open item 6).' },
-      achievedBound: { status: 'open', openItem: 7, value: null, statement: 'Achieved-concentration bound: to be derived (open item 7).' },
+      roundTrip: { status: 'derived', ulpPerStep: ROUND_TRIP_ULP_PER_STEP, statement: `Round-trip tolerance, exact concentration: ${ROUND_TRIP_ULP_PER_STEP} ULP of the target per step from stock, a planned intermediate counting as a step (derived over the stated operation set; docs/tolerance-memo.md).` },
+      achievedBound: { status: 'derived', perStepWorst: ACHIEVED_BOUND_PER_STEP_WORST, perStepExactClosure: ACHIEVED_BOUND_PER_STEP_EXACT_CLOSURE, statement: 'Achieved-concentration bound: per vessel (1 + h_T/(Tᵈ − h_T))/(1 − h_D/V) − 1 with h the half-unit of the last displayed place; compounded along the chain as Π(1 + bᵢ) − 1; worst case 1.01 × 10⁻² per step at leading digit 1, 5.03 × 10⁻³ where closure is exact or under the diluent-volume basis.' },
       closureResidual: { status: 'derived', statement: '±½ unit in the last displayed place of the one derived volume per vessel; zero under the diluent-volume basis.' },
     },
     vessels: [],
@@ -1100,7 +1105,7 @@ function assemble(ctx, n, plan) {
         exact: { value: v.cExact, unit: n.display.concUnit, display: v.isZero ? '0' : concDisp(v.cExact) },
         achieved: { value: v.cAchieved, unit: n.display.concUnit, display: v.isZero ? '0' : concDisp(v.cAchieved) },
         achievedDeparture: v.isZero || v.cExactNominal === 0 ? null : { relative: v.cAchieved / v.cExactNominal - 1 },
-        bound: { status: 'open', openItem: 7, value: null },
+        bound: v.isZero ? { status: 'derived', relative: null, display: null } : { status: 'derived', relative: v.bound, own: v.boundOwn, display: sf3sci(v.bound) },
       };
       rec.factorFromSource = v.isZero ? null : { value: v.factorFromSource, display: sf6(v.factorFromSource), exact: vol.totalUnrounded / vol.T, exactDisplay: vol.T === 0 ? null : sf6(vol.totalUnrounded / vol.T) };
       const onwardTotalDec = v.onward.reduce((acc, o) => Dec.add(acc, o.Td), Dec.ZERO);
@@ -1140,6 +1145,17 @@ function assemble(ctx, n, plan) {
   }));
   result.stockConsumed = { ...qs(stockConsumed(plan), plan.vessels[0].onward.reduce((a, o) => a + o.T, 0)), neverRounded: true };
   return result;
+}
+
+/** Relative bound as 3 sf in scientific notation, e.g. "1.01 × 10⁻²". */
+function sf3sci(x) {
+  if (x === 0) return '0';
+  const r = Dec.roundSig(Dec.fromNumberExact(x), 3);
+  const digits = r.mant.toString();
+  const exp = r.exp + digits.length - 1;
+  const mant = `${digits[0]}.${digits.slice(1)}`;
+  const sup = String(exp).replace('-', '⁻').replace(/\d/g, (d) => '⁰¹²³⁴⁵⁶⁷⁸⁹'[d]);
+  return `${mant} × 10${sup}`;
 }
 
 function relationsFor(basis) {

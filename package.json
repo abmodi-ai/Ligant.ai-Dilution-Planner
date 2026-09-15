@@ -13,7 +13,8 @@
     "test:coverage": "node --test --experimental-test-coverage \"test/**/*.test.js\"",
     "measure:rounding": "node scripts/measure-rounding.mjs",
     "sample:empirical": "node scripts/empirical-sample.mjs",
-    "check:viewport": "node scripts/viewport-check.mjs"
+    "check:viewport": "node scripts/viewport-check.mjs",
+    "verify:reimpl": "node verify/dump-reference-set.mjs > verify/reference-set.json && python3 verify/reimplementation.py verify/reference-set.json"
   },
   "devDependencies": {
     "vite": "^8.3.0"

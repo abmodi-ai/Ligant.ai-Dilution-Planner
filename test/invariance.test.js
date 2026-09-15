@@ -5,11 +5,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { plan, vessel, codes, unroundedSnapshot, sameBits, sameBitsAndConcentration, halfUlp3sf, ulpDistance, D } from './helpers.js';
 
-// Preliminary shape from URS §6 (NOT the tolerance; open item 6): 2–3 ULP per
-// step, of order (2n + 1) ULP at point n. Used here only to show that the
-// inserted defects of C3-IV-03 are detected by a margin that no plausible
-// derived tolerance could absorb.
-const PRELIMINARY_ROUND_TRIP_ULP = (stepsFromStock) => 2 * stepsFromStock + 1;
+import { roundTripToleranceUlp, worstCaseChain, ACHIEVED_BOUND_PER_STEP_WORST } from '../src/engine/tolerances.js';
+
+// The derived round-trip tolerance (docs/tolerance-memo.md): 6 ULP per step from stock.
+const PRELIMINARY_ROUND_TRIP_ULP = (stepsFromStock) => roundTripToleranceUlp(stepsFromStock);
 
 function roundTripErrorsUlp(r) {
   return r.vessels.filter((v) => v.kind === 'point' && !v.isZero).map((v) => {
@@ -59,7 +58,7 @@ test('C3-IV-01 closure: at every vessel with a derived volume, Tᵈ + Dᵈ = clo
   assert.ok(checked > 100, `checked ${checked} vessels`);
 });
 
-test('C3-IV-02 round trip — preliminary shape (2n+1 ULP) as a placeholder; the derived tolerance is open item 6', () => {
+test('C3-IV-02 round trip within the derived tolerance (6 ULP per step from stock)', () => {
   const cases = [
     {},
     SERIAL3,
@@ -77,15 +76,15 @@ test('C3-IV-02 round trip — preliminary shape (2n+1 ULP) as a placeholder; the
   }
 });
 
-test('C3-IV-03 the invariance tests can fail: floor and nudge are detected by C3-IV-02; the clamp is detected by C3-IV-08 (a)', () => {
+test('C3-IV-03 the invariance tests can fail: floor and nudge are detected by C3-IV-02 and exceed the derived tolerance; the clamp is detected by C3-IV-08 (a)', () => {
   // Floor: transfers below m are floored to m — the exact concentration departs from the target by a factor.
   const floored = plan({ target: { form: 'single', value: '1', unit: 'µg/mL' } }, { defect: 'floor' });
   const eF = roundTripErrorsUlp(floored)[0];
-  assert.ok(eF.ulp > 1e6, `floor: ${eF.ulp} ULP`);
-  // Nudge: 1 ppb on the transfer — ~4.5 × 10^6 ULP, far outside any ULP-scale tolerance.
+  assert.ok(eF.ulp > roundTripToleranceUlp(eF.steps) * 1e5, `floor: ${eF.ulp} ULP vs tolerance ${roundTripToleranceUlp(eF.steps)}`);
+  // Nudge: 1 ppb on the transfer — ~4.5 × 10^6 ULP, far outside the 6 ULP per step tolerance.
   const nudged = plan({}, { defect: 'nudge' });
   const eN = roundTripErrorsUlp(nudged)[0];
-  assert.ok(eN.ulp > 1e5, `nudge: ${eN.ulp} ULP`);
+  assert.ok(eN.ulp > roundTripToleranceUlp(eN.steps) * 1e4, `nudge: ${eN.ulp} ULP vs tolerance ${roundTripToleranceUlp(eN.steps)}`);
   // Clamp: a transfer above the declared maximum is clamped to it — detected by threshold independence (a).
   const withMax = plan({ target: { form: 'single', value: '500', unit: 'µg/mL' }, maxTransfer: { value: '20', unit: 'µL' } }, { defect: 'clamp' });
   const without = plan({ target: { form: 'single', value: '500', unit: 'µg/mL' } }, { defect: 'clamp' });
@@ -238,4 +237,35 @@ test('C3-ST-08 determinism: same inputs, same outputs, including the choice of i
     const a = JSON.stringify(plan(i)), b = JSON.stringify(plan(i));
     assert.equal(a, b);
   }
+});
+
+
+test('acceptance 7 — the achieved point value departs from the target by no more than the stated bound; the bound matches the registered derivation and compounds along the chain', () => {
+  let checked = 0;
+  const stocks = ['1000', '3.7', '250', '0.987', '19.9'];
+  const targetsSets = [['10', '1', '0.1'], ['123', '45.6', '7.89', '0.123'], ['0.5', '0.05'], ['900', '450'], ['1.99', '1.01', '0.199']];
+  const volumes = ['100', '875', '1000', '40', '12.5', '1', '10.1'];
+  for (const stock of stocks) for (const values of targetsSets) for (const volume of volumes) for (const basis of ['final', 'diluent', 'available']) for (const route of ['serial', 'independent']) {
+    if (basis === 'available' && route !== 'serial') continue;
+    const r = plan({ stock: { value: stock, unit: 'mg/mL' }, target: { form: 'list', values, unit: 'mg/mL' }, volume: { value: volume, unit: 'µL' }, basis, route });
+    if (r.status !== 'plan') continue;
+    for (const v of r.vessels) {
+      if (v.kind === 'stock' || v.isZero) continue;
+      const b = v.concentration.bound;
+      assert.equal(b.status, 'derived');
+      assert.ok(typeof b.display === 'string' && /10/.test(b.display), `${v.label}: bound displayed`);
+      if (v.kind === 'point') {
+        const dep = Math.abs(v.concentration.achievedDeparture.relative);
+        assert.ok(dep <= b.relative + 1e-15, `${v.label}: |departure| ${dep} ≤ bound ${b.relative} (${stock} ${values} ${volume} ${basis} ${route})`);
+        // Compounding: the bound is the source's bound compounded with the vessel's own term.
+        const src = v.sourceLabel === 'S' ? 0 : vessel(r, v.sourceLabel).concentration.bound.relative;
+        assert.ok(Math.abs((1 + src) * (1 + b.own) - 1 - b.relative) < 1e-15, `${v.label}: compounding`);
+        // Never above the registered worst case for its chain length.
+        assert.ok(b.relative <= worstCaseChain(v.stepsFromStock) + 1e-15, `${v.label}: ${b.relative} ≤ worst case ${worstCaseChain(v.stepsFromStock)}`);
+        checked += 1;
+      }
+    }
+  }
+  assert.ok(checked > 200, `checked ${checked} points`);
+  assert.ok(Math.abs(ACHIEVED_BOUND_PER_STEP_WORST - 1.0101e-2) < 1e-5);
 });

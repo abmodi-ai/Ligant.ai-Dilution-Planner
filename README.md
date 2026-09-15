@@ -12,6 +12,7 @@ npm run test:coverage
 npm run measure:rounding   # D2 record
 npm run sample:empirical   # evidence for the tolerance memo (§9 item 3)
 npm run check:viewport     # acceptance 29 technique against a running server
+npm run verify:reimpl      # acceptance 3: dump the reference set and compare with the Python reimplementation
 ```
 
 Any static server works too (`npm run serve`).
@@ -29,9 +30,11 @@ Any static server works too (`npm run serve`).
 | `src/ui/` | Form, on-screen plan, bench sheet, tool page statements |
 | `src/config.js` | Title, slug, publisher, repository URL, citation — single strings |
 | `test/` | Executable fixtures C3-FX-01…16 and invariance tests |
-| `docs/` | Day-one records (D1, D2, D5), operation sequence (B7), proposed open items (B9), deployment |
+| `docs/` | Day-one records (D1, D2, D5), operation sequence (B7), tolerance memo, decisions, proposed open items (B9), deployment, conformance audit |
+| `verify/` | Independent Python reimplementation and the reference set it is compared against (acceptance 3) |
+| `src/import/` | Import boundary: pasted C4/C1 result object → C3 input |
 | `fonts/` | Self-hosted Inter and IBM Plex Mono (OFL) |
 
 ## Status
 
-Engine, fixtures that can run now, UI, bench sheet and copy-to-notebook are built. Waiting on: the tolerance memo (open items 6, 7 — FX-03, acceptance 3, 6, 7; the register rows stay open on the page), a real C4 object (item 2 — FX-09, acceptance 19), the slug (item 10 — deployed verification, acceptance 22, 28, 29), and the shared-format definition (item 8 — see `docs/D1-shared-object.md`). `docs/conformance-audit.md` is the row-by-row status.
+Complete for everything a developer can establish. The open items were decided under owner delegation on 15 September 2026 (`docs/decisions.md`): tolerances derived and registered (`docs/tolerance-memo.md`), pasted-object import for C4/C1, the C3 result object adopted as shipped, slug `dilution-planner`. An independent Python reimplementation (`verify/`) agrees with the engine on the reference set. Remaining for people and deployment: acceptance 22, 28, 29 at the public address (`docs/deployment.md`) and the first-time-user observation (acceptance 27). `docs/conformance-audit.md` is the row-by-row status.

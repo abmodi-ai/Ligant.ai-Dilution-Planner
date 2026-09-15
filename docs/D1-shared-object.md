@@ -25,3 +25,5 @@
 | Imported provenance (C3-ST-01, 03, 04) | `declarations.imported`, `declarations.overrides[]`, `flags[]` with `code: 'C3-FL-07'` and `origin` |
 
 **Ask.** A. Modi / NADIRA: supply the shared-format definition or a C1 result object and, when available, a C4 object with an ordered series. The reconciliation is then a mapping exercise recorded in this file; the validator in `src/shared/result-object.js` is re-pointed at the confirmed format.
+
+**Decision, 15 September 2026 (owner delegation; `docs/decisions.md` D-3).** C3's object is adopted as the format C3 ships, `schemaVersion` `1-c3`. Acceptance 4 is met against it. The table above is the reconciliation map for when the C1/C4 definition arrives; the C4 and C1 shapes C3 *reads* are in `src/import/shared-import.js`.

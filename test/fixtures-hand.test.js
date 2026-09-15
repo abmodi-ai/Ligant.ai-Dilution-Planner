@@ -2,7 +2,7 @@
 // Every fixture states the assumption it was constructed under (C3-FX-16).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { plan, vessel, codes, rejectCodes, D } from './helpers.js';
+import { plan, vessel, codes, rejectCodes, ulpDistance, D } from './helpers.js';
 
 test('C3-FX-01 non-round stock, target and final volume — hand calculation to displayed precision', () => {
   // Assumptions: stock 3.7 mg/mL, target 0.123 mg/mL, F = 875 µL, m = 2 µL.
@@ -204,11 +204,29 @@ test('C3-DT-09 a target of zero is diluent alone, outside the chain, and raises 
   assert.deepEqual(vessel(r, 'P2').volumes.onward, []);
 });
 
-test('C3-FX-03 target → plan → recomputed exact concentration within the derived round-trip tolerance', { todo: 'waits on the tolerance memo (open item 6); see test/invariance.test.js for the preliminary-shape check' }, () => {
-  const ROUND_TRIP_TOLERANCE_ULP = null; // filled in when the memo is signed
-  assert.notEqual(ROUND_TRIP_TOLERANCE_ULP, null, 'round-trip tolerance not yet derived (open item 6)');
-});
-
-test('C3-FX-09 a C4 series imported with at least one flag', { todo: 'waits on a real C4 object (open item 2)' }, () => {
-  assert.fail('needs a real C4 result object with a real flag');
+test('C3-FX-03 target → plan → recomputed exact concentration within the derived round-trip tolerance (6 ULP per step from stock)', () => {
+  // Assumptions: the register tolerance derived in docs/tolerance-memo.md; a planned intermediate counts as a step.
+  const cases = [
+    {},
+    { target: { form: 'list', values: ['10', '1', '0.1'], unit: 'µg/mL' }, route: 'serial' },
+    { target: { form: 'list', values: ['10', '1', '0.1'], unit: 'µg/mL' }, route: 'independent' },
+    { stock: { value: '100', unit: 'µg/mL' }, target: { form: 'list', values: ['10', '1', '0.1'], unit: 'µg/mL' }, volume: { value: '40', unit: 'µL' }, basis: 'available', route: 'serial' },
+    { stock: { value: '987.6', unit: 'µg/mL' }, target: { form: 'list', values: ['123', '45.6', '7.89', '0.123', '0.0123'], unit: 'µg/mL' }, route: 'serial', volume: { value: '875', unit: 'µL' } },
+    { stock: { value: '987.6', unit: 'µg/mL' }, target: { form: 'list', values: ['123', '45.6', '7.89', '0.123'], unit: 'µg/mL' }, route: 'serial', basis: 'diluent', volume: { value: '90', unit: 'µL' } },
+    { target: { form: 'top-factor-count', top: '100', unit: 'µg/mL', factor: 3.3, count: 6 }, route: 'serial', volume: { value: '300', unit: 'µL' } },
+  ];
+  let points = 0;
+  for (const c of cases) {
+    const r = plan(c);
+    assert.equal(r.status, 'plan', JSON.stringify(r.rejections));
+    assert.equal(r.tolerances.roundTrip.status, 'derived');
+    for (const v of r.vessels) {
+      if (v.kind !== 'point' || v.isZero) continue;
+      const target = r.declarations.target.values[v.pointIndex].internal;
+      const err = ulpDistance(v.concentration.exact.value, target);
+      assert.ok(err <= r.tolerances.roundTrip.ulpPerStep * v.stepsFromStock, `${v.label}: ${err} ULP at ${v.stepsFromStock} steps`);
+      points += 1;
+    }
+  }
+  assert.ok(points >= 20);
 });

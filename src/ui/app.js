@@ -8,6 +8,7 @@ import { CONFIG } from '../config.js';
 import { renderDeclarations, renderPlanRegion, renderDerivation } from './render.js';
 import { renderBenchSheet } from './sheet.js';
 import { renderPageContent } from './page-content.js';
+import { parseSharedObject } from '../import/shared-import.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -69,6 +70,83 @@ function pointCount(input) {
 }
 
 let lastResult = null;
+let importState = null; // { mapped, applied: { field: value } } while an import is active
+
+const IMPORT_FIELD_IDS = {
+  stock: ['stock-value', 'stock-unit'], stockProvenance: ['stock-provenance'],
+  target: ['target-single-value', 'target-list-values', 'target-unit'], targetProvenance: ['target-provenance'],
+  volume: ['volume-value', 'volume-unit'], basis: [],
+};
+
+function applyImport(mapped) {
+  const f = mapped.fields;
+  if (f.stock) { $('stock-value').value = f.stock.value; $('stock-unit').value = f.stock.unit; }
+  if (f.stockProvenance) $('stock-provenance').value = f.stockProvenance;
+  if (f.target) {
+    if (f.target.form === 'single') { document.querySelector('input[name="target-form"][value="single"]').checked = true; $('target-single-value').value = f.target.value; }
+    else { document.querySelector('input[name="target-form"][value="list"]').checked = true; $('target-list-values').value = f.target.values.join('\n'); }
+    $('target-unit').value = f.target.unit;
+  }
+  if (f.targetProvenance) $('target-provenance').value = f.targetProvenance;
+  if (f.targetOrigin) { $('target-origin-tool').value = f.targetOrigin.tool; $('target-origin-id').value = f.targetOrigin.resultId; }
+  if (f.volume) { $('volume-value').value = f.volume.value; $('volume-unit').value = f.volume.unit; }
+  if (f.basis) document.querySelector(`input[name="basis"][value="${f.basis}"]`).checked = true;
+}
+
+function setImportLock(locked, fixed) {
+  for (const field of fixed) {
+    for (const id of IMPORT_FIELD_IDS[field] || []) $(id).disabled = locked;
+    if (field === 'basis') for (const el of document.querySelectorAll('input[name="basis"]')) el.disabled = locked;
+    if (field === 'target') for (const el of document.querySelectorAll('input[name="target-form"]')) el.disabled = locked;
+  }
+}
+
+function importedSnapshot(mapped) {
+  const f = mapped.fields;
+  const snap = {};
+  if (f.stock) snap.stock = `${f.stock.value} ${f.stock.unit}`;
+  if (f.stockProvenance) snap.stockProvenance = f.stockProvenance;
+  if (f.target) snap.target = f.target.form === 'single' ? `${f.target.value} ${f.target.unit}` : `${f.target.values.join(', ')} ${f.target.unit}`;
+  if (f.volume) snap.volume = `${f.volume.value} ${f.volume.unit}`;
+  if (f.basis) snap.basis = f.basis;
+  return snap;
+}
+
+function currentSnapshot(input) {
+  const t = input.target;
+  return {
+    stock: `${input.stock.value} ${input.stock.unit}`, stockProvenance: input.stockProvenance,
+    target: t.form === 'single' ? `${t.value} ${t.unit}` : t.form === 'list' ? `${t.values.join(', ')} ${t.unit}` : `top ${t.top} ${t.unit}, factor ${t.factor}, ${t.count} points`,
+    volume: `${input.volume.value} ${input.volume.unit}`, basis: input.basis,
+  };
+}
+
+function syncImport() {
+  const text = $('import-text').value.trim();
+  const status = $('import-status');
+  if (!text) {
+    if (importState) { setImportLock(false, importState.mapped.fixed); importState = null; }
+    $('import-override-label').hidden = true;
+    status.textContent = 'Nothing is fetched; the object is read here and nowhere else. A C4 series fixes the targets, the staining volume and the final-volume basis; a C1 value fixes the stock. Every imported flag is restated on the output.';
+    return;
+  }
+  const mapped = parseSharedObject(text);
+  if (mapped.error) {
+    if (importState) { setImportLock(false, importState.mapped.fixed); importState = null; }
+    $('import-override-label').hidden = true;
+    status.textContent = `Import not accepted: ${mapped.error}`;
+    return;
+  }
+  if (!importState || importState.text !== text) {
+    applyImport(mapped);
+    importState = { text, mapped, imported: importedSnapshot(mapped) };
+    $('import-override').checked = false;
+  }
+  const override = $('import-override').checked;
+  setImportLock(!override, mapped.fixed);
+  $('import-override-label').hidden = false;
+  status.textContent = `Imported from ${mapped.tool}${mapped.imported.resultId ? ` (result ${mapped.imported.resultId})` : ''}: ${mapped.fixed.join(', ')} fixed by import; ${mapped.imported.flags.length} flag${mapped.imported.flags.length === 1 ? '' : 's'} carried.`;
+}
 
 function syncConditionalFields(input) {
   const form = checked('target-form');
@@ -91,9 +169,18 @@ function syncConditionalFields(input) {
 }
 
 function compute() {
+  syncImport();
   const input = readInput();
   syncConditionalFields(input);
-  const r = planDilution(readInput());
+  const final = readInput();
+  if (importState) {
+    final.imported = importState.mapped.imported;
+    const now = currentSnapshot(final);
+    final.overrides = importState.mapped.fixed
+      .filter((field) => importState.imported[field] !== undefined && now[field] !== importState.imported[field])
+      .map((field) => ({ field, imported: importState.imported[field], replaced: now[field] }));
+  }
+  const r = planDilution(final);
   lastResult = r;
   $('declarations-content').innerHTML = renderDeclarations(r);
   $('plan-region').innerHTML = renderPlanRegion(r);

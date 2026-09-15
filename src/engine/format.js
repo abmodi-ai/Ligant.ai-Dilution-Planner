@@ -94,7 +94,7 @@ export function notebookText(r) {
   r.vessels.forEach((v, i) => {
     L.push(`  ${i + 1}. ${vesselInstruction(v, r)}`);
     if (v.kind !== 'stock' && !v.isZero) {
-      L.push(`     steps from stock ${v.stepsFromStock}; factor from ${v.sourceLabel} ${v.factorFromSource.display}; exact ${v.concentration.exact.display} ${v.concentration.exact.unit}; achieved ${v.concentration.achieved.display} ${v.concentration.achieved.unit}; bound: open (item ${v.concentration.bound.openItem})`);
+      L.push(`     steps from stock ${v.stepsFromStock}; factor from ${v.sourceLabel} ${v.factorFromSource.display}; exact ${v.concentration.exact.display} ${v.concentration.exact.unit}; achieved ${v.concentration.achieved.display} ${v.concentration.achieved.unit}; bound ±${v.concentration.bound.display} relative`);
     }
     for (const f of r.flags.filter((f) => f.scope.vessel === v.label)) L.push(`     FLAG ${f.code}: ${f.message}`);
   });

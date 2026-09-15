@@ -1,6 +1,8 @@
 # B9 — Proposed open items from the build
 
-Places where the URS v0.4.1 leaves a choice the build had to make, where the build and the URS could disagree, or where a requirement could not be met as written. Each is a proposal with reasoning; none is a specification edit. The build follows the stated interpretation until the owner decides otherwise.
+Places where the URS v0.4.1 leaves a choice the build had to make, where the build and the URS could disagree, or where a requirement could not be met as written. Each is a proposal with reasoning; none is a specification edit.
+
+**Status, 15 September 2026:** every item below was decided under owner delegation — see `docs/decisions.md` (P1 → D-3; P2 → D-7; P3 → D-8; P4 → D-9; P5/P6 → D-10; P7 → D-11; P8–P10 → D-12; P13 → D-2; P16 → D-5; P17 → D-4). The reasoning is kept here for NADIRA's review.
 
 | # | Item | Where | What the build does | Reasoning / ask |
 |---|---|---|---|---|

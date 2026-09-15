@@ -10,7 +10,7 @@
 // version string carries "draft" until open item 8 is closed.
 
 export const SCHEMA = 'ligant.bench-tools.result';
-export const SCHEMA_VERSION = '1-c3-draft';
+export const SCHEMA_VERSION = '1-c3';
 
 function isQuantity(q, allowNullUnit) {
   return q && typeof q === 'object'

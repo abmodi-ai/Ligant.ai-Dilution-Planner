@@ -7,6 +7,6 @@
 //   MAJOR changes when the input model or the result object shape changes
 //   incompatibly.
 // Rendering and page changes do not change the engine version.
-export const ENGINE_VERSION = '0.1.0';
+export const ENGINE_VERSION = '0.2.0'; // 0.2.0: per-point achieved bound and registered tolerances in the object; import interface
 export const URS_VERSION = '0.4.1';
 export const TOOL_ID = 'C3';

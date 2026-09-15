@@ -2,10 +2,11 @@
 // The two tolerance rows are OPEN with no numeric value until the memo is signed.
 import { ENGINE_VERSION, URS_VERSION } from '../engine/version.js';
 import { SUGGESTED_MIN_TRANSFER_UL, ADDITIVITY } from '../engine/plan.js';
+import { ROUND_TRIP_ULP_PER_STEP } from '../engine/tolerances.js';
 
 export const REGISTER = [
-  { threshold: 'Achieved-concentration bound', value: 'open — no value stated', basis: 'Analytic, over the displayed-precision rounding of the stated operation set, worst case over leading digit, including the C3-IV-01 residual, compounded along a serial chain. Empirical maximum as evidence only.', status: 'open', note: 'open item 7' },
-  { threshold: 'Round-trip tolerance, exact concentration', value: 'open — no value stated', basis: "Analytic over this tool's operation set — a division, a subtraction, the recomputation — and repeated application in serial mode. Not assumed from C1.", status: 'open', note: 'open item 6' },
+  { threshold: 'Achieved-concentration bound', value: 'per vessel (1 + h_T/(Tᵈ − h_T))/(1 − h_D/V) − 1, h the half-unit of the last displayed place; compounded along the chain as Π(1 + bᵢ) − 1. Worst case 1.01 × 10⁻² per step (leading digit 1, different decades); 5.03 × 10⁻³ where closure is exact or under the diluent-volume basis', basis: 'Analytic, over the displayed-precision rounding of the stated operation set, worst case over leading digit, including the C3-IV-01 residual, compounded along a serial chain. Empirical maximum (200,000 random plans: 8.06 × 10⁻³ at one step) as evidence only. Derivation in the tolerance memo, 15 September 2026', status: 'derived' },
+  { threshold: 'Round-trip tolerance, exact concentration', value: `${ROUND_TRIP_ULP_PER_STEP} ULP of the target per step from stock, a planned intermediate counting as a step`, basis: "Analytic over this tool's operation set — at most six unit roundings per step (transfer, recomputation, and under the diluent-volume basis the subtraction and the sum); k unit roundings are fewer than k ULP of the target. Not assumed from C1. Empirical maximum 3 ULP at one step, 11 at ten, as evidence only", status: 'derived' },
   { threshold: 'Closure residual, displayed volumes', value: '±½ unit in the last displayed place of the one derived volume per vessel; zero under the diluent-volume basis', basis: 'Analytic, from C3-DT-04: with D = F − Tᵈ and Dᵈ = D + ρ, Tᵈ + Dᵈ = F + ρ exactly; |ρ| ≤ ½ unit in D\'s last displayed place, either sign.', status: 'derived' },
   { threshold: 'Minimum reliable transfer volume', value: `user-declared, ${SUGGESTED_MIN_TRANSFER_UL} µL suggested`, basis: 'Disclosed default, carried from C4', status: 'disclosed' },
   { threshold: 'Maximum single-transfer volume', value: 'user-declared, optional, no default', basis: 'Disclosed. Never alters a planned volume (C3-IV-08 a)', status: 'disclosed' },
@@ -51,7 +52,8 @@ export function renderPageContent(config) {
 <thead><tr><th>Threshold</th><th>Value</th><th>Basis</th><th>Status</th></tr></thead>
 <tbody>${rows}</tbody>
 </table>
-<p class="help">Statuses are derived, measured, disclosed, proposed or open. The two tolerances are open: they are being derived in a memo, and no numeric tolerance is stated on this page until it is signed.</p>
+<p class="help">Statuses are derived, measured, disclosed, proposed or open. The two tolerances were derived on 15 September 2026 under owner delegation of open items 6 and 7 (memo in the repository); they are analytic bounds over the stated operation set, with the empirical maxima recorded only as evidence that the bounds are not loose.</p>
+<p><strong>A 3-significant-figure plan can carry up to about 1% rounding error per step before any pipetting error.</strong> That is larger than most users expect and is why the achieved point value is shown beside every target: it is the concentration the displayed volumes make, and its bound is stated per point.</p>
 
 <h3>Assumption — volume additivity</h3>
 <table>

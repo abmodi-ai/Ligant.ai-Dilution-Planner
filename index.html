@@ -28,6 +28,16 @@
       <form id="plan-form" autocomplete="off" novalidate>
 
         <fieldset>
+          <legend>Import from C4 or C1 <span class="optional">optional</span></legend>
+          <div class="field">
+            <label for="import-text">Paste the result object (JSON) from C4 or C1</label>
+            <textarea id="import-text" rows="3" class="num" placeholder='{"tool":"C4", …}'></textarea>
+            <p class="help" id="import-status">Nothing is fetched; the object is read here and nowhere else. A C4 series fixes the targets, the staining volume and the final-volume basis; a C1 value fixes the stock. Every imported flag is restated on the output.</p>
+            <label class="check" id="import-override-label" hidden><input type="checkbox" id="import-override"> replace imported declarations manually (the replacement is named on the output)</label>
+          </div>
+        </fieldset>
+
+        <fieldset>
           <legend>Stock</legend>
           <div class="field">
             <label for="stock-value">Stock concentration</label>
@@ -194,7 +204,7 @@
         <textarea id="notebook-text" rows="14" readonly class="num"></textarea>
       </div>
       <div id="object-view" hidden>
-        <p class="help">The structured result object (shared format, C3 draft). The human-readable plan above is rendered from this object.</p>
+        <p class="help">The structured result object (shared format, C3 expression 1-c3). The human-readable plan above is rendered from this object.</p>
         <textarea id="object-text" rows="16" readonly class="num"></textarea>
       </div>
       <div id="derivation" class="derivation"></div>
