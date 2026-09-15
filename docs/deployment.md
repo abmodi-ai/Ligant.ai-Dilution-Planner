@@ -1,0 +1,8 @@
+# Deployment notes
+
+- **Address.** `https://benchtools.ligant.ai/<slug>/` — slug from A. Modi (open item 10). `src/config.js` carries the slug, the title, the citation string and the repository URL as single strings.
+- **Artefact.** Static files: `index.html`, `styles.css`, `src/**` (native ES modules), `fonts/**`. `npm run build` produces `dist/` with Vite; serving the source tree unbundled works identically (the page is plain HTML + ES modules). No server-side component; no runtime dependency.
+- **CSP.** The page carries a meta CSP (`default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'`). `frame-ancestors` cannot be delivered via meta; the deployed response must send the full policy as a `Content-Security-Policy` header including `frame-ancestors 'none'`. Also send `Referrer-Policy: no-referrer` and `X-Content-Type-Options: nosniff`.
+- **Zero third-party requests.** The build makes 17 same-origin requests and none elsewhere (page, stylesheet, module scripts, six font files). No analytics, fonts, icons or embeds are loaded. Verify with `node scripts/viewport-check.mjs <deployed url>` (network monitoring is registered before page load) in a real browser against the deployed address, and again after any CDN configuration change (acceptance 22).
+- **Cache.** Fonts and scripts can be cached; `index.html` should not be cached longer than the deployment cadence.
+- **Acceptance items that only the deployed address can satisfy:** 22 (no transmission), 28 (bench sheet printed), 29 (viewport, `docs/D5-browser-configuration.md`).

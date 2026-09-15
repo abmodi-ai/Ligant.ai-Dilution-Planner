@@ -1,0 +1,158 @@
+// UI wiring. Reads the form, calls the engine, renders from the object.
+// No persistence (C3-ST-06); no network; no timers; no progress state.
+import { planDilution } from '../engine/plan.js';
+import { CONCENTRATION_UNITS, VOLUME_UNITS } from '../engine/units.js';
+import { ENGINE_VERSION, URS_VERSION } from '../engine/version.js';
+import { notebookText } from '../engine/format.js';
+import { CONFIG } from '../config.js';
+import { renderDeclarations, renderPlanRegion, renderDerivation } from './render.js';
+import { renderBenchSheet } from './sheet.js';
+import { renderPageContent } from './page-content.js';
+
+const $ = (id) => document.getElementById(id);
+
+function fillUnits(select, units, preferred) {
+  select.innerHTML = '';
+  for (const u of units) {
+    const o = document.createElement('option');
+    o.value = u.symbol;
+    o.textContent = u.symbol;
+    select.appendChild(o);
+  }
+  select.value = preferred;
+}
+
+function val(id) {
+  return $(id).value;
+}
+
+function checked(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : '';
+}
+
+function readInput() {
+  const form = checked('target-form');
+  const targetUnit = val('target-unit');
+  let target;
+  if (form === 'single') target = { form: 'single', value: val('target-single-value'), unit: targetUnit };
+  else if (form === 'list') {
+    const values = val('target-list-values').split(/[\n,;]+/).map((s) => s.trim()).filter((s) => s !== '');
+    target = { form: 'list', values, unit: targetUnit };
+  } else target = { form: 'top-factor-count', top: val('tfc-top'), unit: targetUnit, factor: val('tfc-factor'), count: val('tfc-count') };
+  const provenance = val('target-provenance');
+  const notRecorded = $('diluent-not-recorded').checked;
+  return {
+    stock: { value: val('stock-value'), unit: val('stock-unit') },
+    stockProvenance: val('stock-provenance'),
+    stockAvailable: val('stock-available-value').trim() ? { value: val('stock-available-value'), unit: val('stock-available-unit') } : null,
+    stockFormulation: val('stock-formulation'),
+    target,
+    targetProvenance: provenance,
+    targetOrigin: provenance && provenance !== 'user' ? { tool: val('target-origin-tool') || (provenance === 'c4' ? 'C4' : ''), resultId: val('target-origin-id') } : null,
+    volume: { value: val('volume-value'), unit: val('volume-unit') },
+    basis: checked('basis'),
+    route: checked('route') || null,
+    diluent: notRecorded ? { notRecorded: true } : { name: val('diluent-name') },
+    minTransfer: { value: val('min-value'), unit: val('min-unit') },
+    maxTransfer: val('max-value').trim() ? { value: val('max-value'), unit: val('max-unit') } : null,
+    capacity: val('capacity-value').trim() ? { value: val('capacity-value'), unit: val('capacity-unit') } : null,
+  };
+}
+
+function pointCount(input) {
+  const t = input.target;
+  if (t.form === 'single') return t.value.trim() ? 1 : 0;
+  if (t.form === 'list') return t.values.length;
+  const c = Number(t.count);
+  return Number.isInteger(c) && c > 0 ? c : 0;
+}
+
+let lastResult = null;
+
+function syncConditionalFields(input) {
+  const form = checked('target-form');
+  document.querySelector('.target-form-single').hidden = form !== 'single';
+  document.querySelector('.target-form-list').hidden = form !== 'list';
+  document.querySelector('.target-form-tfc').hidden = form !== 'tfc';
+  document.querySelector('.target-origin').hidden = !(input.targetProvenance && input.targetProvenance !== 'user');
+  const n = pointCount(input);
+  const multi = n > 1;
+  $('route-field').hidden = !multi;
+  if (!multi) for (const el of document.querySelectorAll('input[name="route"]')) el.checked = false;
+  const serialMulti = multi && checked('route') === 'serial';
+  const availableRadio = document.querySelector('input[name="basis"][value="available"]');
+  availableRadio.disabled = !serialMulti;
+  $('basis-available-label').classList.toggle('disabled', !serialMulti);
+  $('basis-available-reason').hidden = serialMulti;
+  if (!serialMulti && availableRadio.checked) availableRadio.checked = false; // C3-ST-07: no basis silently carried
+  $('min-suggested').hidden = val('min-value').trim() !== '2' || val('min-unit') !== 'µL';
+  $('diluent-name').disabled = $('diluent-not-recorded').checked;
+}
+
+function compute() {
+  const input = readInput();
+  syncConditionalFields(input);
+  const r = planDilution(readInput());
+  lastResult = r;
+  $('declarations-content').innerHTML = renderDeclarations(r);
+  $('plan-region').innerHTML = renderPlanRegion(r);
+  $('derivation').innerHTML = renderDerivation(r);
+  $('bench-sheet').innerHTML = renderBenchSheet(r, CONFIG);
+  $('plan-actions').hidden = r.status === 'incomplete';
+  $('object-text').value = r.status === 'incomplete' ? '' : JSON.stringify(r, null, 2);
+  $('notebook-text').value = r.status === 'incomplete' ? '' : notebookText(r);
+}
+
+function init() {
+  document.title = CONFIG.toolTitle;
+  $('tool-title').textContent = CONFIG.toolTitle;
+  $('tool-id').textContent = CONFIG.toolId;
+  $('product-line').textContent = CONFIG.productLine;
+  $('engine-version').textContent = ENGINE_VERSION;
+  $('footer-publisher').textContent = `Published by ${CONFIG.publisher}`;
+  $('footer-scope').textContent = 'Research use. Not qualified for GxP decision-making.';
+  $('footer-citation').textContent = CONFIG.citation;
+  $('footer-repo').href = CONFIG.repositoryUrl;
+  $('footer-urs').textContent = URS_VERSION;
+  $('footer-engine').textContent = ENGINE_VERSION;
+  $('page-content-body').innerHTML = renderPageContent(CONFIG);
+
+  fillUnits($('stock-unit'), CONCENTRATION_UNITS, 'µg/mL');
+  fillUnits($('target-unit'), CONCENTRATION_UNITS, 'µg/mL');
+  for (const id of ['stock-available-unit', 'volume-unit', 'min-unit', 'max-unit', 'capacity-unit']) fillUnits($(id), VOLUME_UNITS, 'µL');
+
+  const form = $('plan-form');
+  form.addEventListener('input', compute);
+  form.addEventListener('change', compute);
+  form.addEventListener('submit', (e) => e.preventDefault());
+
+  $('copy-notebook').addEventListener('click', async () => {
+    if (!lastResult) return;
+    const text = notebookText(lastResult);
+    try {
+      await navigator.clipboard.writeText(text);
+      $('copy-status').textContent = 'Copied.';
+      $('notebook-fallback').hidden = true;
+    } catch {
+      $('notebook-fallback').hidden = false;
+      $('copy-status').textContent = 'Clipboard unavailable; text shown below.';
+    }
+  });
+  $('print-sheet').addEventListener('click', () => window.print());
+  $('toggle-object').addEventListener('click', () => {
+    const v = $('object-view');
+    v.hidden = !v.hidden;
+    $('toggle-object').textContent = v.hidden ? 'Show result object' : 'Hide result object';
+  });
+  compute();
+}
+
+window.addEventListener('error', (e) => {
+  // A system error, not a reject: this is the only place the restricted red is used.
+  const el = $('system-error');
+  el.hidden = false;
+  el.textContent = `System error: ${e.message}. The plan shown may be stale; reload the page.`;
+});
+
+init();

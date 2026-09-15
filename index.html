@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <!-- frame-ancestors cannot be set from a meta element; it is set in the deployed response header (see docs/deployment.md). -->
+  <link rel="icon" href="data:,">
+  <meta name="referrer" content="no-referrer">
+  <title>Dilution Planner</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="masthead">
+    <div class="masthead-inner">
+      <span class="mark" aria-label="Ligant">Ligant</span>
+      <span class="masthead-sep" aria-hidden="true">·</span>
+      <h1 class="tool-title" id="tool-title">Dilution Planner</h1>
+      <span class="masthead-meta"><span id="tool-id" class="num">C3</span> · <span id="product-line">Ligant Bench Tools</span> · engine <span class="num" id="engine-version"></span></span>
+    </div>
+  </header>
+
+  <div id="system-error" class="system-error" hidden role="alert"></div>
+
+  <main class="layout app">
+    <section class="panel panel-inputs" aria-labelledby="inputs-heading">
+      <h2 id="inputs-heading">Declarations</h2>
+      <form id="plan-form" autocomplete="off" novalidate>
+
+        <fieldset>
+          <legend>Stock</legend>
+          <div class="field">
+            <label for="stock-value">Stock concentration</label>
+            <div class="qty">
+              <input id="stock-value" name="stock-value" type="text" inputmode="decimal" class="num" placeholder="" aria-describedby="stock-help">
+              <select id="stock-unit" name="stock-unit" class="num" aria-label="stock concentration unit"></select>
+            </div>
+            <p class="help" id="stock-help">Required. Not inferred, defaulted or suggested.</p>
+          </div>
+          <div class="field">
+            <label for="stock-provenance">Source of the stock concentration</label>
+            <select id="stock-provenance" name="stock-provenance">
+              <option value="">— select —</option>
+              <option value="coa">certificate of analysis</option>
+              <option value="vendor-datasheet">vendor datasheet</option>
+              <option value="measured">measured</option>
+              <option value="c1">computed by C1</option>
+              <option value="c7">computed by C7</option>
+              <option value="not-recorded">not recorded</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="stock-available-value">Available stock volume <span class="optional">optional</span></label>
+            <div class="qty">
+              <input id="stock-available-value" type="text" inputmode="decimal" class="num">
+              <select id="stock-available-unit" class="num" aria-label="available stock volume unit"></select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="stock-formulation">Stock formulation <span class="optional">optional, recorded not assessed</span></label>
+            <input id="stock-formulation" type="text" placeholder="e.g. PBS, 50% glycerol">
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Target</legend>
+          <div class="field">
+            <span class="label">Form</span>
+            <div class="radios">
+              <label><input type="radio" name="target-form" value="single" checked> single concentration</label>
+              <label><input type="radio" name="target-form" value="list"> explicit list</label>
+              <label><input type="radio" name="target-form" value="tfc"> top concentration, factor and count</label>
+            </div>
+          </div>
+          <div class="field target-form-single">
+            <label for="target-single-value">Target concentration</label>
+            <div class="qty">
+              <input id="target-single-value" type="text" inputmode="decimal" class="num">
+              <select id="target-unit" class="num" aria-label="target concentration unit"></select>
+            </div>
+          </div>
+          <div class="field target-form-list" hidden>
+            <label for="target-list-values">Target concentrations, one per line, in the order to be prepared</label>
+            <textarea id="target-list-values" rows="4" class="num"></textarea>
+            <p class="help">Unit: the target unit selected above. A serial chain must decrease strictly; 0 is a diluent-only control.</p>
+          </div>
+          <div class="field target-form-tfc" hidden>
+            <label for="tfc-top">Top concentration</label>
+            <input id="tfc-top" type="text" inputmode="decimal" class="num">
+            <label for="tfc-factor">Dilution factor <span class="help-inline">(final volume ÷ stock volume; 1:100 is 100)</span></label>
+            <input id="tfc-factor" type="text" inputmode="decimal" class="num">
+            <label for="tfc-count">Number of points</label>
+            <input id="tfc-count" type="text" inputmode="numeric" class="num">
+          </div>
+          <div class="field">
+            <label for="target-provenance">Source of the target set</label>
+            <select id="target-provenance">
+              <option value="">— select —</option>
+              <option value="user">user-specified</option>
+              <option value="c4">imported from C4</option>
+              <option value="other">imported from another tool</option>
+            </select>
+          </div>
+          <div class="field target-origin" hidden>
+            <label for="target-origin-tool">Origin tool and result identifier</label>
+            <div class="qty">
+              <input id="target-origin-tool" type="text" placeholder="tool">
+              <input id="target-origin-id" type="text" placeholder="result identifier" class="num">
+            </div>
+            <p class="help">The import transport is not yet specified (open item 2); the origin is recorded here.</p>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Volume and route</legend>
+          <div class="field">
+            <label for="volume-value">One preparation volume per plan, applied to every point</label>
+            <div class="qty">
+              <input id="volume-value" type="text" inputmode="decimal" class="num">
+              <select id="volume-unit" class="num" aria-label="stated volume unit"></select>
+            </div>
+          </div>
+          <div class="field">
+            <span class="label">What the stated volume is the volume of</span>
+            <div class="radios stacked" id="basis-radios">
+              <label><input type="radio" name="basis" value="final"> <span><strong>final volume</strong> — the sum of the diluent and the stock pipetted into each vessel</span></label>
+              <label><input type="radio" name="basis" value="diluent"> <span><strong>diluent volume</strong> — the diluent pipetted into each vessel; the stock is added to it, and the final volume is the sum</span></label>
+              <label id="basis-available-label"><input type="radio" name="basis" value="available"> <span><strong>volume available after onward transfer</strong> — the volume that remains in each vessel once the transfer to the next point has been taken</span></label>
+            </div>
+            <p class="help" id="basis-available-reason" hidden>The third option is available only for a serial route with more than one point.</p>
+            <p class="help">Every option describes pipetted volumes. Volumetric preparation — diluent added to a mark — is out of scope.</p>
+          </div>
+          <div class="field" id="route-field" hidden>
+            <span class="label">Route <span class="help-inline">(more than one point is planned; no route is pre-selected)</span></span>
+            <div class="radios stacked">
+              <label><input type="radio" name="route" value="serial"> <span>serial — each point from the previous</span></label>
+              <label><input type="radio" name="route" value="independent"> <span>independent — each point from stock</span></label>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Diluent</legend>
+          <div class="field">
+            <label for="diluent-name">Diluent <span class="help-inline">(recorded, not assessed)</span></label>
+            <input id="diluent-name" type="text" placeholder="e.g. PBS with 0.1% BSA">
+            <label class="check"><input type="checkbox" id="diluent-not-recorded"> not recorded</label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Pipetting capability</legend>
+          <div class="field">
+            <label for="min-value">Minimum reliable transfer volume</label>
+            <div class="qty">
+              <input id="min-value" type="text" inputmode="decimal" class="num" value="2">
+              <select id="min-unit" class="num" aria-label="minimum transfer unit"></select>
+            </div>
+            <p class="help" id="min-suggested"><span class="suggested-mark">Suggested default</span> 2 µL, carried from C4. Replace it with your pipette's value.</p>
+          </div>
+          <div class="field">
+            <label for="max-value">Maximum single-transfer volume <span class="optional">optional, no default</span></label>
+            <div class="qty">
+              <input id="max-value" type="text" inputmode="decimal" class="num">
+              <select id="max-unit" class="num" aria-label="maximum transfer unit"></select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="capacity-value">Vessel working capacity <span class="optional">optional, no default</span></label>
+            <div class="qty">
+              <input id="capacity-value" type="text" inputmode="decimal" class="num">
+              <select id="capacity-unit" class="num" aria-label="vessel capacity unit"></select>
+            </div>
+          </div>
+        </fieldset>
+        <p class="help">Nothing entered here is stored or transmitted. Reloading the page clears every field.</p>
+      </form>
+    </section>
+
+    <section class="panel panel-output" aria-labelledby="output-heading">
+      <div class="declarations-bar" id="declarations-bar" aria-label="declarations the plan was computed under">
+        <h2 id="output-heading" class="visually-hidden">Plan</h2>
+        <div id="declarations-content" class="declarations-content"></div>
+      </div>
+      <div id="plan-region" class="plan-region" aria-live="polite"></div>
+      <div id="plan-actions" class="plan-actions" hidden>
+        <button type="button" id="copy-notebook">Copy to notebook</button>
+        <button type="button" id="print-sheet">Print bench sheet</button>
+        <button type="button" id="toggle-object">Show result object</button>
+        <span id="copy-status" class="copy-status" aria-live="polite"></span>
+      </div>
+      <div id="notebook-fallback" hidden>
+        <p class="help">Copy the text below into your notebook.</p>
+        <textarea id="notebook-text" rows="14" readonly class="num"></textarea>
+      </div>
+      <div id="object-view" hidden>
+        <p class="help">The structured result object (shared format, C3 draft). The human-readable plan above is rendered from this object.</p>
+        <textarea id="object-text" rows="16" readonly class="num"></textarea>
+      </div>
+      <div id="derivation" class="derivation"></div>
+    </section>
+  </main>
+
+  <section class="page-content app" id="page-content" aria-labelledby="about-heading">
+    <h2 id="about-heading">About this tool</h2>
+    <div id="page-content-body"></div>
+  </section>
+
+  <section class="bench-sheet" id="bench-sheet" aria-label="bench sheet"></section>
+
+  <footer class="site-footer app">
+    <p><span id="footer-publisher"></span> · <span id="footer-scope"></span></p>
+    <p><span id="footer-citation"></span></p>
+    <p><a id="footer-repo" href="#" rel="noopener">Source</a> · URS <span class="num" id="footer-urs"></span> · engine <span class="num" id="footer-engine"></span></p>
+  </footer>
+
+  <script type="module" src="./src/ui/app.js"></script>
+</body>
+</html>
