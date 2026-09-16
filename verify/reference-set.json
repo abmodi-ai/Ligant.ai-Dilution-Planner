@@ -1,0 +1,1223 @@
+{
+ "FX-01": {
+  "input": {
+   "stock": {
+    "value": "3.7",
+    "unit": "mg/mL"
+   },
+   "stockProvenance": "coa",
+   "targetProvenance": "user",
+   "diluent": {
+    "name": "PBS"
+   },
+   "minTransfer": {
+    "value": "2",
+    "unit": "µL"
+   },
+   "volume": {
+    "value": "875",
+    "unit": "µL"
+   },
+   "basis": "final",
+   "target": {
+    "form": "single",
+    "value": "0.123",
+    "unit": "mg/mL"
+   }
+  },
+  "ulpPerStep": 6,
+  "targets": [
+   123000
+  ],
+  "vessels": [
+   {
+    "label": "P1",
+    "kind": "point",
+    "source": "S",
+    "steps": 1,
+    "g": null,
+    "T": 29.08783783783784,
+    "V": 875,
+    "cExact": 123000,
+    "Td": "29.1",
+    "Dd": "846",
+    "total": "875.1",
+    "residual": "0.1"
+   }
+  ]
+ },
+ "FX-04a": {
+  "input": {
+   "stock": {
+    "value": "1000",
+    "unit": "µg/mL"
+   },
+   "stockProvenance": "coa",
+   "targetProvenance": "user",
+   "diluent": {
+    "name": "PBS"
+   },
+   "minTransfer": {
+    "value": "2",
+    "unit": "µL"
+   },
+   "volume": {
+    "value": "1000",
+    "unit": "µL"
+   },
+   "basis": "final",
+   "target": {
+    "form": "single",
+    "value": "12.4",
+    "unit": "µg/mL"
+   }
+  },
+  "ulpPerStep": 6,
+  "targets": [
+   12400
+  ],
+  "vessels": [
+   {
+    "label": "P1",
+    "kind": "point",
+    "source": "S",
+    "steps": 1,
+    "g": null,
+    "T": 12.4,
+    "V": 1000,
+    "cExact": 12400,
+    "Td": "12.4",
+    "Dd": "988",
+    "total": "1000.4",
+    "residual": "0.4"
+   }
+  ]
+ },
+ "FX-04b": {
+  "input": {
+   "stock": {
+    "value": "1000",
+    "unit": "µg/mL"
+   },
+   "stockProvenance": "coa",
+   "targetProvenance": "user",
+   "diluent": {
+    "name": "PBS"
+   },
+   "minTransfer": {
+    "value": "2",
+    "unit": "µL"
+   },
+   "volume": {
+    "value": "1000",
+    "unit": "µL"
+   },
+   "basis": "final",
+   "target": {
+    "form": "single",
+    "value": "12.6",
+    "unit": "µg/mL"
+   }
+  },
+  "ulpPerStep": 6,
+  "targets": [
+   12600
+  ],
+  "vessels": [
+   {
+    "label": "P1",
+    "kind": "point",
+    "source": "S",
+    "steps": 1,
+    "g": null,
+    "T": 12.6,
+    "V": 1000,
+    "cExact": 12600,
+    "Td": "12.6",
+    "Dd": "987",
+    "total": "999.6",
+    "residual": "-0.4"
+   }
+  ]
+ },
+ "FX-05": {
+  "input": {
+   "stock": {
+    "value": "100",
+    "unit": "µg/mL"
+   },
+   "stockProvenance": "coa",
+   "targetProvenance": "user",
+   "diluent": {
+    "name": "PBS"
+   },
+   "minTransfer": {
+    "value": "2",
+    "unit": "µL"
+   },
+   "volume": {
+    "value": "40",
+    "unit": "µL"
+   },
+   "basis": "available",
+   "target": {
+    "form": "list",
+    "values": [
+     "10",
+     "1",
+     "0.1"
+    ],
+    "unit": "µg/mL"
+   },
+   "route": "serial"
+  },
+  "ulpPerStep": 6,
+  "targets": [
+   10000,
+   1000,
+   100
+  ],
+  "vessels": [
+   {
+    "label": "P1",
+    "kind": "point",
+    "source": "S",
+    "steps": 1,
+    "g": null,
+    "T": 4.44,
+    "V": 44.4,
+    "cExact": 10000,
+    "Td": "4.44",
+    "Dd": "40.0",
+    "total": "44.44",
+    "residual": "0.04"
+   },
+   {
+    "label": "P2",
+    "kind": "point",
+    "source": "P1",
+    "steps": 2,
+    "g": null,
+    "T": 4.4,
+    "V": 44,
+    "cExact": 1000,
+    "Td": "4.40",
+    "Dd": "39.6",
+    "total": "44.0",
+    "residual": "0"
+   },
+   {
+    "label": "P3",
+    "kind": "point",
+    "source": "P2",
+    "steps": 3,
+    "g": null,
+    "T": 4,
+    "V": 40,
+    "cExact": 100,
+    "Td": "4.00",
+    "Dd": "36.0",
+    "total": "40.0",
+    "residual": "0"
+   }
+  ]
+ },
+ "FX-06s": {
+  "input": {
+   "stock": {
+    "value": "1000",
+    "unit": "µg/mL"
+   },
+   "stockProvenance": "coa",
+   "targetProvenance": "user",
+   "diluent": {
+    "name": "PBS"
+   },
+   "minTransfer": {
+    "value": "2",
+    "unit": "µL"
+   },
+   "volume": {
+    "value": "100",
+    "unit": "µL"
+   },
+   "basis": "final",
+   "target": {
+    "form": "list",
+    "values": [
+     "100",
+     "50",
+     "25"
+    ],
+    "unit": "µg/mL"
+   },
+   "route": "serial"
+  },
+  "ulpPerStep": 6,
+  "targets": [
+   100000,
+   50000,
+   25000
+  ],
+  "vessels": [
+   {
+    "label": "P1",
+    "kind": "point",
+    "source": "S",
+    "steps": 1,
+    "g": null,
+    "T": 10,
+    "V": 100,
+    "cExact": 100000,
+    "Td": "10.0",
+    "Dd": "90.0",
+    "total": "100",
+    "residual": "0"
+   },
+   {
+    "label": "P2",
+    "kind": "point",
+    "source": "P1",
+    "steps": 2,
+    "g": null,
+    "T": 50,
+    "V": 100,
+    "cExact": 50000,
+    "Td": "50.0",
+    "Dd": "50.0",
+    "total": "100",
+    "residual": "0"
+   },
+   {
+    "label": "P3",
+    "kind": "point",
+    "source": "P2",
+    "steps": 3,
+    "g": null,
+    "T": 50,
+    "V": 100,
+    "cExact": 25000,
+    "Td": "50.0",
+    "Dd": "50.0",
+    "total": "100",
+    "residual": "0"
+   }
+  ]
+ },
+ "FX-06i": {
+  "input": {
+   "stock": {
+    "value": "1000",
+    "unit": "µg/mL"
+   },
+   "stockProvenance": "coa",
+   "targetProvenance": "user",
+   "diluent": {
+    "name": "PBS"
+   },
+   "minTransfer": {
+    "value": "2",
+    "unit": "µL"
+   },
+   "volume": {
+    "value": "100",
+    "unit": "µL"
+   },
+   "basis": "final",
+   "target": {
+    "form": "list",
+    "values": [
+     "100",
+     "50",
+     "25"
+    ],
+    "unit": "µg/mL"
+   },
+   "route": "independent"
+  },
+  "ulpPerStep": 6,
+  "targets": [
+   100000,
+   50000,
+   25000
+  ],
+  "vessels": [
+   {
+    "label": "P1",
+    "kind": "point",
+    "source": "S",
+    "steps": 1,
+    "g": null,
+    "T": 10,
+    "V": 100,
+    "cExact": 100000,
+    "Td": "10.0",
+    "Dd": "90.0",
+    "total": "100",
+    "residual": "0"
+   },
+   {
+    "label": "P2",
+    "kind": "point",
+    "source": "S",
+    "steps": 1,
+    "g": null,
+    "T": 5,
+    "V": 100,
+    "cExact": 50000,
+    "Td": "5.00",
+    "Dd": "95.0",
+    "total": "100",
+    "residual": "0"
+   },
+   {
+    "label": "P3",
+    "kind": "point",
+    "source": "S",
+    "steps": 1,
+    "g": null,
+    "T": 2.5,
+    "V": 100,
+    "cExact": 25000,
+    "Td": "2.50",
+    "Dd": "97.5",
+    "total": "100",
+    "residual": "0"
+   }
+  ]
+ },
+ "FX-07s": {
+  "input": {
+   "stock": {
+    "value": "1000",
+    "unit": "µg/mL"
+   },
+   "stockProvenance": "coa",
+   "targetProvenance": "user",
+   "diluent": {
+    "name": "PBS"
+   },
+   "minTransfer": {
+    "value": "2",
+    "unit": "µL"
+   },
+   "volume": {
+    "value": "100",
+    "unit": "µL"
+   },
+   "basis": "final",
+   "target": {
+    "form": "list",
+    "values": [
+     "10",
+     "1",
+     "0.1"
+    ],
+    "unit": "µg/mL"
+   },
+   "route": "serial"
+  },
+  "ulpPerStep": 6,
+  "targets": [
+   10000,
+   1000,
+   100
+  ],
+  "vessels": [
+   {
+    "label": "I1",
+    "kind": "intermediate",
+    "source": "S",
+    "steps": 1,
+    "g": 10,
+    "T": 2,
+    "V": 20,
+    "cExact": 100000,
+    "Td": "2.00",
+    "Dd": "18.0",
+    "total": "20.0",
+    "residual": "0"
+   },
+   {
+    "label": "P1",
+    "kind": "point",
+    "source": "I1",
+    "steps": 2,
+    "g": null,
+    "T": 10,
+    "V": 100,
+    "cExact": 10000,
+    "Td": "10.0",
+    "Dd": "90.0",
+    "total": "100",
+    "residual": "0"
+   },
+   {
+    "label": "P2",
+    "kind": "point",
+    "source": "P1",
+    "steps": 3,
+    "g": null,
+    "T": 10,
+    "V": 100,
+    "cExact": 1000,
+    "Td": "10.0",
+    "Dd": "90.0",
+    "total": "100",
+    "residual": "0"
+   },
+   {
+    "label": "P3",
+    "kind": "point",
+    "source": "P2",
+    "steps": 4,
+    "g": null,
+    "T": 10,
+    "V": 100,
+    "cExact": 100,
+    "Td": "10.0",
+    "Dd": "90.0",
+    "total": "100",
+    "residual": "0"
+   }
+  ]
+ },
+ "FX-07i": {
+  "input": {
+   "stock": {
+    "value": "1000",
+    "unit": "µg/mL"
+   },
+   "stockProvenance": "coa",
+   "targetProvenance": "user",
+   "diluent": {
+    "name": "PBS"
+   },
+   "minTransfer": {
+    "value": "2",
+    "unit": "µL"
+   },
+   "volume": {
+    "value": "100",
+    "unit": "µL"
+   },
+   "basis": "final",
+   "target": {
+    "form": "list",
+    "values": [
+     "1",
+     "0.5"
+    ],
+    "unit": "µg/mL"
+   },
+   "route": "independent"
+  },
+  "ulpPerStep": 6,
+  "targets": [
+   1000,
+   500
+  ],
+  "vessels": [
+   {
+    "label": "I1",
+    "kind": "intermediate",
+    "source": "S",
+    "steps": 1,
+    "g": 100,
+    "T": 2,
+    "V": 200,
+    "cExact": 10000,
+    "Td": "2.00",
+    "Dd": "198",
+    "total": "200",
+    "residual": "0"
+   },
+   {
+    "label": "P1",
+    "kind": "point",
+    "source": "I1",
+    "steps": 2,
+    "g": null,
+    "T": 10,
+    "V": 100,
+    "cExact": 1000,
+    "Td": "10.0",
+    "Dd": "90.0",
+    "total": "100",
+    "residual": "0"
+   },
+   {
+    "label": "P2",
+    "kind": "point",
+    "source": "I1",
+    "steps": 2,
+    "g": null,
+    "T": 5,
+    "V": 100,
+    "cExact": 500,
+    "Td": "5.00",
+    "Dd": "95.0",
+    "total": "100",
+    "residual": "0"
+   }
+  ]
+ },
+ "FX-08": {
+  "input": {
+   "stock": {
+    "value": "1000",
+    "unit": "µg/mL"
+   },
+   "stockProvenance": "coa",
+   "targetProvenance": "user",
+   "diluent": {
+    "name": "PBS"
+   },
+   "minTransfer": {
+    "value": "2",
+    "unit": "µL"
+   },
+   "volume": {
+    "value": "90",
+    "unit": "µL"
+   },
+   "basis": "diluent",
+   "target": {
+    "form": "single",
+    "value": "100",
+    "unit": "µg/mL"
+   }
+  },
+  "ulpPerStep": 6,
+  "targets": [
+   100000
+  ],
+  "vessels": [
+   {
+    "label": "P1",
+    "kind": "point",
+    "source": "S",
+    "steps": 1,
+    "g": null,
+    "T": 10,
+    "V": 100,
+    "cExact": 100000,
+    "Td": "10.0",
+    "Dd": "90",
+    "total": "100",
+    "residual": null
+   }
+  ]
+ },
+ "FX-11": {
+  "input": {
+   "stock": {
+    "value": "1000",
+    "unit": "µg/mL"
+   },
+   "stockProvenance": "coa",
+   "targetProvenance": "user",
+   "diluent": {
+    "name": "PBS"
+   },
+   "minTransfer": {
+    "value": "2",
+    "unit": "µL"
+   },
+   "volume": {
+    "value": "100",
+    "unit": "µL"
+   },
+   "basis": "final",
+   "target": {
+    "form": "list",
+    "values": [
+     "100",
+     "10",
+     "1",
+     "0.1"
+    ],
+    "unit": "µg/mL"
+   },
+   "route": "serial"
+  },
+  "ulpPerStep": 6,
+  "targets": [
+   100000,
+   10000,
+   1000,
+   100
+  ],
+  "vessels": [
+   {
+    "label": "P1",
+    "kind": "point",
+    "source": "S",
+    "steps": 1,
+    "g": null,
+    "T": 10,
+    "V": 100,
+    "cExact": 100000,
+    "Td": "10.0",
+    "Dd": "90.0",
+    "total": "100",
+    "residual": "0"
+   },
+   {
+    "label": "P2",
+    "kind": "point",
+    "source": "P1",
+    "steps": 2,
+    "g": null,
+    "T": 10,
+    "V": 100,
+    "cExact": 10000,
+    "Td": "10.0",
+    "Dd": "90.0",
+    "total": "100",
+    "residual": "0"
+   },
+   {
+    "label": "P3",
+    "kind": "point",
+    "source": "P2",
+    "steps": 3,
+    "g": null,
+    "T": 10,
+    "V": 100,
+    "cExact": 1000,
+    "Td": "10.0",
+    "Dd": "90.0",
+    "total": "100",
+    "residual": "0"
+   },
+   {
+    "label": "P4",
+    "kind": "point",
+    "source": "P3",
+    "steps": 4,
+    "g": null,
+    "T": 10,
+    "V": 100,
+    "cExact": 100,
+    "Td": "10.0",
+    "Dd": "90.0",
+    "total": "100",
+    "residual": "0"
+   }
+  ]
+ },
+ "NR-serial": {
+  "input": {
+   "stock": {
+    "value": "987.6",
+    "unit": "µg/mL"
+   },
+   "stockProvenance": "coa",
+   "targetProvenance": "user",
+   "diluent": {
+    "name": "PBS"
+   },
+   "minTransfer": {
+    "value": "2",
+    "unit": "µL"
+   },
+   "volume": {
+    "value": "875",
+    "unit": "µL"
+   },
+   "basis": "final",
+   "target": {
+    "form": "list",
+    "values": [
+     "123",
+     "45.6",
+     "7.89",
+     "0.123",
+     "0.0123"
+    ],
+    "unit": "µg/mL"
+   },
+   "route": "serial"
+  },
+  "ulpPerStep": 6,
+  "targets": [
+   123000,
+   45600,
+   7890,
+   123,
+   12.3
+  ],
+  "vessels": [
+   {
+    "label": "P1",
+    "kind": "point",
+    "source": "S",
+    "steps": 1,
+    "g": null,
+    "T": 108.97630619684082,
+    "V": 875,
+    "cExact": 123000,
+    "Td": "109",
+    "Dd": "766",
+    "total": "875",
+    "residual": "0"
+   },
+   {
+    "label": "P2",
+    "kind": "point",
+    "source": "P1",
+    "steps": 2,
+    "g": null,
+    "T": 324.390243902439,
+    "V": 875,
+    "cExact": 45600,
+    "Td": "324",
+    "Dd": "551",
+    "total": "875",
+    "residual": "0"
+   },
+   {
+    "label": "P3",
+    "kind": "point",
+    "source": "P2",
+    "steps": 3,
+    "g": null,
+    "T": 151.39802631578948,
+    "V": 875,
+    "cExact": 7890.000000000001,
+    "Td": "151",
+    "Dd": "724",
+    "total": "875",
+    "residual": "0"
+   },
+   {
+    "label": "P4",
+    "kind": "point",
+    "source": "P3",
+    "steps": 4,
+    "g": null,
+    "T": 13.640684410646388,
+    "V": 875,
+    "cExact": 123.00000000000003,
+    "Td": "13.6",
+    "Dd": "861",
+    "total": "874.6",
+    "residual": "-0.4"
+   },
+   {
+    "label": "P5",
+    "kind": "point",
+    "source": "P4",
+    "steps": 5,
+    "g": null,
+    "T": 87.5,
+    "V": 875,
+    "cExact": 12.300000000000004,
+    "Td": "87.5",
+    "Dd": "788",
+    "total": "875.5",
+    "residual": "0.5"
+   }
+  ]
+ },
+ "NR-diluent": {
+  "input": {
+   "stock": {
+    "value": "987.6",
+    "unit": "µg/mL"
+   },
+   "stockProvenance": "coa",
+   "targetProvenance": "user",
+   "diluent": {
+    "name": "PBS"
+   },
+   "minTransfer": {
+    "value": "2",
+    "unit": "µL"
+   },
+   "volume": {
+    "value": "90",
+    "unit": "µL"
+   },
+   "basis": "diluent",
+   "target": {
+    "form": "list",
+    "values": [
+     "123",
+     "45.6",
+     "7.89",
+     "0.123"
+    ],
+    "unit": "µg/mL"
+   },
+   "route": "serial"
+  },
+  "ulpPerStep": 6,
+  "targets": [
+   123000,
+   45600,
+   7890,
+   123
+  ],
+  "vessels": [
+   {
+    "label": "P1",
+    "kind": "point",
+    "source": "S",
+    "steps": 1,
+    "g": null,
+    "T": 12.803608605135322,
+    "V": 102.80360860513532,
+    "cExact": 123000,
+    "Td": "12.8",
+    "Dd": "90",
+    "total": "102.8",
+    "residual": null
+   },
+   {
+    "label": "P2",
+    "kind": "point",
+    "source": "P1",
+    "steps": 2,
+    "g": null,
+    "T": 53.02325581395349,
+    "V": 143.02325581395348,
+    "cExact": 45600.00000000001,
+    "Td": "53.0",
+    "Dd": "90",
+    "total": "143",
+    "residual": null
+   },
+   {
+    "label": "P3",
+    "kind": "point",
+    "source": "P2",
+    "steps": 3,
+    "g": null,
+    "T": 18.83054892601432,
+    "V": 108.83054892601432,
+    "cExact": 7890.000000000002,
+    "Td": "18.8",
+    "Dd": "90",
+    "total": "108.8",
+    "residual": null
+   },
+   {
+    "label": "I1",
+    "kind": "intermediate",
+    "source": "P3",
+    "steps": 4,
+    "g": 10,
+    "T": 2,
+    "V": 20,
+    "cExact": 789.0000000000002,
+    "Td": "2.00",
+    "Dd": "18.0",
+    "total": "20.0",
+    "residual": "0"
+   },
+   {
+    "label": "P4",
+    "kind": "point",
+    "source": "I1",
+    "steps": 5,
+    "g": null,
+    "T": 16.62162162162162,
+    "V": 106.62162162162161,
+    "cExact": 123.00000000000004,
+    "Td": "16.6",
+    "Dd": "90",
+    "total": "106.6",
+    "residual": null
+   }
+  ]
+ },
+ "NR-available": {
+  "input": {
+   "stock": {
+    "value": "100",
+    "unit": "µg/mL"
+   },
+   "stockProvenance": "coa",
+   "targetProvenance": "user",
+   "diluent": {
+    "name": "PBS"
+   },
+   "minTransfer": {
+    "value": "2",
+    "unit": "µL"
+   },
+   "volume": {
+    "value": "40",
+    "unit": "µL"
+   },
+   "basis": "available",
+   "target": {
+    "form": "list",
+    "values": [
+     "10",
+     "0.1",
+     "0.01"
+    ],
+    "unit": "µg/mL"
+   },
+   "route": "serial"
+  },
+  "ulpPerStep": 6,
+  "targets": [
+   10000,
+   100,
+   10
+  ],
+  "vessels": [
+   {
+    "label": "P1",
+    "kind": "point",
+    "source": "S",
+    "steps": 1,
+    "g": null,
+    "T": 4.2,
+    "V": 42,
+    "cExact": 10000,
+    "Td": "4.20",
+    "Dd": "37.8",
+    "total": "42.0",
+    "residual": "0"
+   },
+   {
+    "label": "I1",
+    "kind": "intermediate",
+    "source": "P1",
+    "steps": 2,
+    "g": 10,
+    "T": 2,
+    "V": 20,
+    "cExact": 1000,
+    "Td": "2.00",
+    "Dd": "18.0",
+    "total": "20.0",
+    "residual": "0"
+   },
+   {
+    "label": "P2",
+    "kind": "point",
+    "source": "I1",
+    "steps": 3,
+    "g": null,
+    "T": 4.4,
+    "V": 44,
+    "cExact": 100,
+    "Td": "4.40",
+    "Dd": "39.6",
+    "total": "44.0",
+    "residual": "0"
+   },
+   {
+    "label": "P3",
+    "kind": "point",
+    "source": "P2",
+    "steps": 4,
+    "g": null,
+    "T": 4,
+    "V": 40,
+    "cExact": 10,
+    "Td": "4.00",
+    "Dd": "36.0",
+    "total": "40.0",
+    "residual": "0"
+   }
+  ]
+ },
+ "NR-independent": {
+  "input": {
+   "stock": {
+    "value": "3.7",
+    "unit": "mg/mL"
+   },
+   "stockProvenance": "coa",
+   "targetProvenance": "user",
+   "diluent": {
+    "name": "PBS"
+   },
+   "minTransfer": {
+    "value": "2",
+    "unit": "µL"
+   },
+   "volume": {
+    "value": "875",
+    "unit": "µL"
+   },
+   "basis": "final",
+   "target": {
+    "form": "list",
+    "values": [
+     "0.123",
+     "0.0123",
+     "0.00123"
+    ],
+    "unit": "mg/mL"
+   },
+   "route": "independent"
+  },
+  "ulpPerStep": 6,
+  "targets": [
+   123000,
+   12300,
+   1230
+  ],
+  "vessels": [
+   {
+    "label": "P1",
+    "kind": "point",
+    "source": "S",
+    "steps": 1,
+    "g": null,
+    "T": 29.08783783783784,
+    "V": 875,
+    "cExact": 123000,
+    "Td": "29.1",
+    "Dd": "846",
+    "total": "875.1",
+    "residual": "0.1"
+   },
+   {
+    "label": "P2",
+    "kind": "point",
+    "source": "S",
+    "steps": 1,
+    "g": null,
+    "T": 2.9087837837837838,
+    "V": 875,
+    "cExact": 12300,
+    "Td": "2.91",
+    "Dd": "872",
+    "total": "874.91",
+    "residual": "-0.09"
+   },
+   {
+    "label": "I1",
+    "kind": "intermediate",
+    "source": "S",
+    "steps": 1,
+    "g": 10,
+    "T": 2,
+    "V": 20,
+    "cExact": 370000,
+    "Td": "2.00",
+    "Dd": "18.0",
+    "total": "20.0",
+    "residual": "0"
+   },
+   {
+    "label": "P3",
+    "kind": "point",
+    "source": "I1",
+    "steps": 2,
+    "g": null,
+    "T": 2.9087837837837838,
+    "V": 875,
+    "cExact": 1230,
+    "Td": "2.91",
+    "Dd": "872",
+    "total": "874.91",
+    "residual": "-0.09"
+   }
+  ]
+ },
+ "TFC": {
+  "input": {
+   "stock": {
+    "value": "1000",
+    "unit": "µg/mL"
+   },
+   "stockProvenance": "coa",
+   "targetProvenance": "user",
+   "diluent": {
+    "name": "PBS"
+   },
+   "minTransfer": {
+    "value": "2",
+    "unit": "µL"
+   },
+   "volume": {
+    "value": "300",
+    "unit": "µL"
+   },
+   "basis": "final",
+   "target": {
+    "form": "top-factor-count",
+    "top": "100",
+    "unit": "µg/mL",
+    "factor": 3,
+    "count": 4
+   },
+   "route": "serial"
+  },
+  "ulpPerStep": 6,
+  "targets": [
+   100000,
+   33333.333333333336,
+   11111.111111111111,
+   3703.703703703704
+  ],
+  "vessels": [
+   {
+    "label": "P1",
+    "kind": "point",
+    "source": "S",
+    "steps": 1,
+    "g": null,
+    "T": 30,
+    "V": 300,
+    "cExact": 100000,
+    "Td": "30.0",
+    "Dd": "270",
+    "total": "300",
+    "residual": "0"
+   },
+   {
+    "label": "P2",
+    "kind": "point",
+    "source": "P1",
+    "steps": 2,
+    "g": null,
+    "T": 100,
+    "V": 300,
+    "cExact": 33333.33333333333,
+    "Td": "100",
+    "Dd": "200",
+    "total": "300",
+    "residual": "0"
+   },
+   {
+    "label": "P3",
+    "kind": "point",
+    "source": "P2",
+    "steps": 3,
+    "g": null,
+    "T": 100,
+    "V": 300,
+    "cExact": 11111.11111111111,
+    "Td": "100",
+    "Dd": "200",
+    "total": "300",
+    "residual": "0"
+   },
+   {
+    "label": "P4",
+    "kind": "point",
+    "source": "P3",
+    "steps": 4,
+    "g": null,
+    "T": 100.00000000000001,
+    "V": 300,
+    "cExact": 3703.7037037037035,
+    "Td": "100",
+    "Dd": "200",
+    "total": "300",
+    "residual": "0"
+   }
+  ]
+ }
+}

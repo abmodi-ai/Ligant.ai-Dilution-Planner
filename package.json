@@ -1,0 +1,25 @@
+{
+  "name": "ligant-dilution-planner",
+  "version": "0.1.0",
+  "description": "C3 Dilution Planner, Ligant Bench Tools. Entirely client-side; no runtime dependencies.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite --port 5173",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "npx http-server . -p 5173 -c-1",
+    "test": "node --test \"test/**/*.test.js\"",
+    "test:coverage": "node --test --experimental-test-coverage \"test/**/*.test.js\"",
+    "measure:rounding": "node scripts/measure-rounding.mjs",
+    "sample:empirical": "node scripts/empirical-sample.mjs",
+    "check:viewport": "node scripts/viewport-check.mjs",
+    "verify:reimpl": "node verify/dump-reference-set.mjs > verify/reference-set.json && python3 verify/reimplementation.py verify/reference-set.json"
+  },
+  "devDependencies": {
+    "vite": "^8.3.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
