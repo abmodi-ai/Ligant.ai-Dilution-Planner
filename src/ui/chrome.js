@@ -50,7 +50,7 @@ export function renderFooter() {
           <p class="cite-note">${CONFIG.doi ? 'The identifier is given as text, not as a link: a link that navigated to a publisher would disclose a visit that the rest of the tool is built to prevent.' : 'No identifier is stated: one is minted when the tool is released, and a placeholder would read as a record that does not exist.'}</p>
         </div>
 
-        <p class="licence">Licensed under the Apache License, Version 2.0. You may obtain a copy of the License in the <code>LICENSE</code> file served with this page and distributed with the source. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" basis, without warranties or conditions of any kind, either express or implied. <strong>Research use only. Not qualified for GxP decision-making.</strong></p>
+        <p class="licence">Licensed under the Apache License, Version 2.0. You may obtain a copy of the License in the <a href="./LICENSE"><code>LICENSE</code></a> file served with this page and distributed with the source. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" basis, without warranties or conditions of any kind, either express or implied. <strong>Research use only. Not qualified for GxP decision-making.</strong></p>
       </div>
 
       <address class="footer-org">

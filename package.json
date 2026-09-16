@@ -15,7 +15,9 @@
     "sample:empirical": "node scripts/empirical-sample.mjs",
     "check:viewport": "node scripts/viewport-check.mjs",
     "verify:reimpl": "node verify/dump-reference-set.mjs > verify/reference-set.json && python3 verify/reimplementation.py verify/reference-set.json",
-    "check:contrast": "node scripts/contrast-audit.mjs"
+    "check:contrast": "node scripts/contrast-audit.mjs",
+    "deploy:pages": "wrangler pages deploy dist --project-name ligant-dilution-planner",
+    "deploy:router": "wrangler deploy --config deploy/router/wrangler.toml"
   },
   "devDependencies": {
     "vite": "^8.3.0"
