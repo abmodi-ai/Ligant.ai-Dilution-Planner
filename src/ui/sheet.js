@@ -3,14 +3,18 @@
 // are carried by position and presence (a FLAG line inside the vessel's row; a
 // double-ruled "withheld" box in the plan's position), never by colour.
 import { escapeHtml as esc } from './page-content.js';
+import { markSvg } from './mark.js';
 import { basisSentence, capabilitySentence, diluentSentence } from '../engine/format.js';
 
 const vq = (q) => (q ? `<span class="num">${esc(q.display)}</span> ${esc(q.unit)}` : '—');
 const cq = (c) => (c ? `<span class="num">${esc(c.value)}</span> ${esc(c.unit)}` : '—');
 
 export function renderBenchSheet(r, config) {
-  const head = `<h1>${esc(config.toolTitle)} — bench sheet</h1>
-  <p class="pub">${esc(config.publisher)} · ${esc(config.productLine)} · ${esc(config.toolId)} · engine <span class="num">${esc(r.engineVersion)}</span> · ${esc(r.scope)} ${esc(r.plansNotVerifies)}</p>`;
+  const head = `<div class="sheet-head">${markSvg({ size: 30, variant: 'plain', title: 'Ligant' })}<div>
+  <h1>${esc(config.toolTitle)} — bench sheet</h1>
+  <p class="pub">${esc(config.publisher)} · ${esc(config.productLine)} · ${esc(config.toolId)} · engine <span class="num">${esc(r.engineVersion)}</span></p>
+  <p class="pub">${esc(r.scope)} ${esc(r.plansNotVerifies)}</p>
+  </div></div>`;
   if (r.status === 'incomplete') return `${head}<p>No plan: declarations incomplete.</p>`;
   const d = r.declarations;
   const decls = `<h2>Declarations</h2><dl class="decls">

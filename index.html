@@ -5,26 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
   <!-- frame-ancestors cannot be set from a meta element; it is set in the deployed response header (see docs/deployment.md). -->
-  <link rel="icon" href="data:,">
+  <link rel="icon" id="favicon" href="data:,">
   <meta name="referrer" content="no-referrer">
   <title>Dilution Planner</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <header class="masthead">
-    <div class="masthead-inner">
-      <span class="mark" aria-label="Ligant">Ligant</span>
-      <span class="masthead-sep" aria-hidden="true">·</span>
-      <h1 class="tool-title" id="tool-title">Dilution Planner</h1>
-      <span class="masthead-meta"><span id="tool-id" class="num">C3</span> · <span id="product-line">Ligant Bench Tools</span> · engine <span class="num" id="engine-version"></span></span>
-    </div>
-  </header>
+  <header class="site-header app" id="site-header"></header>
 
   <div id="system-error" class="system-error" hidden role="alert"></div>
 
   <main class="layout app">
     <section class="panel panel-inputs" aria-labelledby="inputs-heading">
-      <h2 id="inputs-heading">Declarations</h2>
+      <h2 id="inputs-heading" class="card-title">Declarations</h2>
       <form id="plan-form" autocomplete="off" novalidate>
 
         <fieldset>
@@ -38,7 +31,7 @@
         </fieldset>
 
         <fieldset>
-          <legend>Stock</legend>
+          <legend><span class="step-badge">1</span>Stock</legend>
           <div class="field">
             <label for="stock-value">Stock concentration</label>
             <div class="qty">
@@ -73,7 +66,7 @@
         </fieldset>
 
         <fieldset>
-          <legend>Target</legend>
+          <legend><span class="step-badge">2</span>Target</legend>
           <div class="field">
             <span class="label">Form</span>
             <div class="radios">
@@ -122,7 +115,7 @@
         </fieldset>
 
         <fieldset>
-          <legend>Volume and route</legend>
+          <legend><span class="step-badge">3</span>Volume and route</legend>
           <div class="field">
             <label for="volume-value">One preparation volume per plan, applied to every point</label>
             <div class="qty">
@@ -150,7 +143,7 @@
         </fieldset>
 
         <fieldset>
-          <legend>Diluent</legend>
+          <legend><span class="step-badge">4</span>Diluent</legend>
           <div class="field">
             <label for="diluent-name">Diluent <span class="help-inline">(recorded, not assessed)</span></label>
             <input id="diluent-name" type="text" placeholder="e.g. PBS with 0.1% BSA">
@@ -159,14 +152,14 @@
         </fieldset>
 
         <fieldset>
-          <legend>Pipetting capability</legend>
+          <legend><span class="step-badge">5</span>Pipetting capability</legend>
           <div class="field">
             <label for="min-value">Minimum reliable transfer volume</label>
             <div class="qty">
               <input id="min-value" type="text" inputmode="decimal" class="num" value="2">
               <select id="min-unit" class="num" aria-label="minimum transfer unit"></select>
             </div>
-            <p class="help" id="min-suggested"><span class="suggested-mark">Suggested default</span> 2 µL, carried from C4. Replace it with your pipette's value.</p>
+            <p class="help" id="min-suggested"><span class="suggested-dot" aria-hidden="true"></span>suggested, not chosen — 2 µL, carried from C4. Replace it with your pipette's value.</p>
           </div>
           <div class="field">
             <label for="max-value">Maximum single-transfer volume <span class="optional">optional, no default</span></label>
@@ -218,11 +211,7 @@
 
   <section class="bench-sheet" id="bench-sheet" aria-label="bench sheet"></section>
 
-  <footer class="site-footer app">
-    <p><span id="footer-publisher"></span> · <span id="footer-scope"></span></p>
-    <p><span id="footer-citation"></span></p>
-    <p><a id="footer-repo" href="#" rel="noopener">Source</a> · URS <span class="num" id="footer-urs"></span> · engine <span class="num" id="footer-engine"></span></p>
-  </footer>
+  <footer class="site-footer app" id="site-footer"></footer>
 
   <script type="module" src="./src/ui/app.js"></script>
 </body>

@@ -1,0 +1,8 @@
+name = "ligant-dilution-planner-router"
+main = "src/index.js"
+compatibility_date = "2026-09-16"
+
+# Same route shape as the sibling tools. The zone is benchtools.ligant.ai.
+routes = [
+  { pattern = "benchtools.ligant.ai/dilution-planner*", zone_name = "ligant.ai" }
+]

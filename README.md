@@ -12,6 +12,7 @@ npm run test:coverage
 npm run measure:rounding   # D2 record
 npm run sample:empirical   # evidence for the tolerance memo (§9 item 3)
 npm run check:viewport     # acceptance 29 technique against a running server
+npm run check:contrast     # WCAG AA audit of the rendered plan table and bench sheet
 npm run verify:reimpl      # acceptance 3: dump the reference set and compare with the Python reimplementation
 ```
 
@@ -33,8 +34,9 @@ Any static server works too (`npm run serve`).
 | `docs/` | Day-one records (D1, D2, D5), operation sequence (B7), tolerance memo, decisions, proposed open items (B9), deployment, conformance audit |
 | `verify/` | Independent Python reimplementation and the reference set it is compared against (acceptance 3) |
 | `src/import/` | Import boundary: pasted C4/C1 result object → C3 input |
-| `fonts/` | Self-hosted Inter and IBM Plex Mono (OFL) |
+| `fonts/` | Self-hosted Inter and IBM Plex Mono (OFL), weights 400/600/700 |
+| `src/ui/mark.js` | The Ligant mark, Council · Ringed, drawn inline (Brand Guidelines §03) |
 
 ## Status
 
-Complete for everything a developer can establish. The open items were decided under owner delegation on 15 September 2026 (`docs/decisions.md`): tolerances derived and registered (`docs/tolerance-memo.md`), pasted-object import for C4/C1, the C3 result object adopted as shipped, slug `dilution-planner`. An independent Python reimplementation (`verify/`) agrees with the engine on the reference set. Remaining for people and deployment: acceptance 22, 28, 29 at the public address (`docs/deployment.md`) and the first-time-user observation (acceptance 27). `docs/conformance-audit.md` is the row-by-row status.
+Complete for everything a developer can establish. The open items were decided under owner delegation on 15 September 2026 (`docs/decisions.md`): tolerances derived and registered (`docs/tolerance-memo.md`), pasted-object import for C4/C1, the C3 result object adopted as shipped, slug `dilution-planner`. An independent Python reimplementation (`verify/`) agrees with the engine on the reference set. Remaining for people and deployment: acceptance 22, 28, 29 at the public address (`docs/deployment.md`) and the first-time-user observation (acceptance 27). `docs/conformance-audit.md` is the row-by-row status, and `docs/brand-conformance.md` the record against Brand Guidelines v1.1.
