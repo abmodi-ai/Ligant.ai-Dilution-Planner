@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
   <!-- frame-ancestors cannot be set from a meta element; it is set in the deployed response header (see docs/deployment.md). -->
-  <link rel="icon" href="data:,">
+  <link rel="icon" id="favicon" href="data:,">
   <meta name="referrer" content="no-referrer">
   <title>Dilution Planner</title>
   <link rel="stylesheet" href="./styles.css">
@@ -13,7 +13,7 @@
 <body>
   <header class="masthead">
     <div class="masthead-inner">
-      <span class="mark" aria-label="Ligant">Ligant</span>
+      <span id="masthead-lockup"></span>
       <span class="masthead-sep" aria-hidden="true">·</span>
       <h1 class="tool-title" id="tool-title">Dilution Planner</h1>
       <span class="masthead-meta"><span id="tool-id" class="num">C3</span> · <span id="product-line">Ligant Bench Tools</span> · engine <span class="num" id="engine-version"></span></span>
@@ -219,6 +219,7 @@
   <section class="bench-sheet" id="bench-sheet" aria-label="bench sheet"></section>
 
   <footer class="site-footer app">
+    <div class="footer-lockup" id="footer-lockup"></div>
     <p><span id="footer-publisher"></span> · <span id="footer-scope"></span></p>
     <p><span id="footer-citation"></span></p>
     <p><a id="footer-repo" href="#" rel="noopener">Source</a> · URS <span class="num" id="footer-urs"></span> · engine <span class="num" id="footer-engine"></span></p>

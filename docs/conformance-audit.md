@@ -157,6 +157,10 @@ Statuses: **met** / **not met** / **not testable yet** (with the gating item). E
 
 `node scripts/empirical-sample.mjs 200000` (142,623 plans; seeded LCG; stocks 0.01–10⁴, factors 1.5–100, 1–5 points, all three bases, both routes): maximum round-trip error 3.00 ULP at 1 step, 5.00 at 2, 6.00 at 3, 7.00 at 4, 9.00 at 5, 11.00 at 10 steps — 18–50% of the registered 6k. Maximum |achieved/target − 1| at one step: 8.06 × 10⁻³ (leading digit 1) falling to 4.47 × 10⁻³ (leading digit 9), 80% of the registered per-step worst case; along chains up to 3.02 × 10⁻² at 5 steps, under (1.0101)⁵ − 1 = 5.15 × 10⁻². These are evidence that the bounds are not loose; they are not the tolerances. The memo is `docs/tolerance-memo.md`.
 
+## Brand (handoff §12)
+
+Recorded in `docs/brand-conformance.md`: Brand Guidelines v1.1 §02 naming, §03 the mark (new in this build, drawn inline), §04 colour (every value published; three off-palette values removed; amber never used as type), §05 typography (700 against 400, weight 500 removed, Bold weights self-hosted), §01 exclusions and §06 principles. WCAG 2.1 AA measured on the rendered plan table and bench sheet: 40 combinations, 0 failures (`npm run check:contrast`). The live C1 tool could not be reached from this environment (egress policy), so the two things to check against it when someone with access can are listed there.
+
 ## Not established by this build
 
 Acceptance 22, 28 and 29 need the deployed address; acceptance 27 needs an observed first-time user. Decision D-1 (the tolerance derivation) was NADIRA's to own and is presented for her review.

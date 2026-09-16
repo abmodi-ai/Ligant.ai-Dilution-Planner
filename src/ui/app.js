@@ -9,6 +9,7 @@ import { renderDeclarations, renderPlanRegion, renderDerivation } from './render
 import { renderBenchSheet } from './sheet.js';
 import { renderPageContent } from './page-content.js';
 import { parseSharedObject } from '../import/shared-import.js';
+import { lockupHtml, markDataUri, markSvg } from './mark.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -193,6 +194,10 @@ function compute() {
 
 function init() {
   document.title = CONFIG.toolTitle;
+  // The mark, drawn inline (§03): no asset request leaves the page.
+  $('masthead-lockup').innerHTML = lockupHtml(30);
+  $('footer-lockup').innerHTML = `${markSvg(22, 'Ligant')}<span class="ligant-wordmark">Ligant</span>`;
+  $('favicon').href = markDataUri();
   $('tool-title').textContent = CONFIG.toolTitle;
   $('tool-id').textContent = CONFIG.toolId;
   $('product-line').textContent = CONFIG.productLine;

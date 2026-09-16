@@ -2,18 +2,17 @@
 // The two tolerance rows are OPEN with no numeric value until the memo is signed.
 import { ENGINE_VERSION, URS_VERSION } from '../engine/version.js';
 import { SUGGESTED_MIN_TRANSFER_UL, ADDITIVITY } from '../engine/plan.js';
-import { ROUND_TRIP_ULP_PER_STEP } from '../engine/tolerances.js';
 
 export const REGISTER = [
-  { threshold: 'Achieved-concentration bound', value: 'per vessel (1 + h_T/(Tᵈ − h_T))/(1 − h_D/V) − 1, h the half-unit of the last displayed place; compounded along the chain as Π(1 + bᵢ) − 1. Worst case 1.01 × 10⁻² per step (leading digit 1, different decades); 5.03 × 10⁻³ where closure is exact or under the diluent-volume basis', basis: 'Analytic, over the displayed-precision rounding of the stated operation set, worst case over leading digit, including the C3-IV-01 residual, compounded along a serial chain. Empirical maximum (200,000 random plans: 8.06 × 10⁻³ at one step) as evidence only. Derivation in the tolerance memo, 15 September 2026', status: 'derived' },
-  { threshold: 'Round-trip tolerance, exact concentration', value: `${ROUND_TRIP_ULP_PER_STEP} ULP of the target per step from stock, a planned intermediate counting as a step`, basis: "Analytic over this tool's operation set — at most six unit roundings per step (transfer, recomputation, and under the diluent-volume basis the subtraction and the sum); k unit roundings are fewer than k ULP of the target. Not assumed from C1. Empirical maximum 3 ULP at one step, 11 at ten, as evidence only", status: 'derived' },
-  { threshold: 'Closure residual, displayed volumes', value: '±½ unit in the last displayed place of the one derived volume per vessel; zero under the diluent-volume basis', basis: 'Analytic, from C3-DT-04: with D = F − Tᵈ and Dᵈ = D + ρ, Tᵈ + Dᵈ = F + ρ exactly; |ρ| ≤ ½ unit in D\'s last displayed place, either sign.', status: 'derived' },
-  { threshold: 'Minimum reliable transfer volume', value: `user-declared, ${SUGGESTED_MIN_TRANSFER_UL} µL suggested`, basis: 'Disclosed default, carried from C4', status: 'disclosed' },
-  { threshold: 'Maximum single-transfer volume', value: 'user-declared, optional, no default', basis: 'Disclosed. Never alters a planned volume (C3-IV-08 a)', status: 'disclosed' },
-  { threshold: 'Vessel working capacity', value: 'user-declared, optional, no default', basis: 'Disclosed', status: 'disclosed' },
-  { threshold: 'Intermediate factor series', value: '{10, 100, 1000, …}', basis: 'Inspection: checkable by eye. Consequence published below (C3-DT-06 step 5)', status: 'proposed', note: 'open item 16' },
-  { threshold: 'Displayed precision, volumes', value: '3 significant figures', basis: 'Tool-set principle: precision matches the physical act', status: 'disclosed' },
-  { threshold: 'Displayed precision, concentrations', value: '6 significant figures, on values that carry information', basis: 'Matches C1; a concentration drives a record, not an act', status: 'disclosed' },
+  { threshold: 'Achieved-concentration bound', value: '1.01 × 10⁻² per step, worst case', basis: 'Analytic, over the displayed-precision rounding of the stated operation set, worst case over leading digit, including the C3-IV-01 residual, compounded along a serial chain. Computed per vessel as (1 + h_T/(Tᵈ − h_T))/(1 − h_D/V) − 1, where h is the half-unit of the last displayed place, compounded along the chain as Π(1 + bᵢ) − 1, and stated per point on the output. 5.03 × 10⁻³ where closure is exact or under the diluent-volume basis. Empirical maximum over 200,000 random plans, 8.06 × 10⁻³ at one step, as evidence only. Derivation in the tolerance memo, 15 September 2026.', status: 'derived' },
+  { threshold: 'Round-trip tolerance, exact concentration', value: '6 ULP per step from stock', basis: "Analytic over this tool's operation set: at most six unit roundings per step — the transfer, the recomputation, and under the diluent-volume basis the subtraction and the sum — and k unit roundings are fewer than k ULP of the target. A planned intermediate counts as a step. Not assumed from C1. Empirical maximum 3 ULP at one step and 11 at ten, as evidence only.", status: 'derived' },
+  { threshold: 'Closure residual, displayed volumes', value: '±½ unit, last displayed place', basis: "Analytic, from C3-DT-04: with D = F − Tᵈ and Dᵈ = D + ρ, the sum Tᵈ + Dᵈ is F + ρ exactly, so |ρ| ≤ ½ unit in D's last displayed place, of either sign. It applies to the one derived volume per vessel, and is zero under the diluent-volume basis, where nothing is derived.", status: 'derived' },
+  { threshold: 'Minimum reliable transfer volume', value: 'user-declared; 2 µL suggested', basis: 'Disclosed default, carried from C4. Any pre-fill is marked as a suggestion.', status: 'disclosed' },
+  { threshold: 'Maximum single-transfer volume', value: 'user-declared, optional, no default', basis: 'Disclosed. Never alters a planned volume (C3-IV-08 a).', status: 'disclosed' },
+  { threshold: 'Vessel working capacity', value: 'user-declared, optional, no default', basis: 'Disclosed.', status: 'disclosed' },
+  { threshold: 'Intermediate factor series', value: '{10, 100, 1000, …}', basis: 'Inspection: checkable by eye. The consequence of the series is published below (C3-DT-06 step 5).', status: 'proposed', note: 'open item 16' },
+  { threshold: 'Displayed precision, volumes', value: '3 significant figures', basis: 'Tool-set principle: precision matches the resolution of the physical act the number drives.', status: 'disclosed' },
+  { threshold: 'Displayed precision, concentrations', value: '6 significant figures', basis: 'Matches C1; a concentration drives a record, not an act. Shown on values that carry information; a target reached by construction is echoed as entered.', status: 'disclosed' },
 ];
 
 export const FAILURE_CLASSES = [
@@ -44,7 +43,7 @@ export function renderPageContent(config) {
   const esc = escapeHtml;
   const rows = REGISTER.map((r) => `<tr><td>${esc(r.threshold)}</td><td class="num">${esc(r.value)}</td><td>${esc(r.basis)}</td><td><span class="status ${r.status}">${esc(r.status)}</span>${r.note ? ` <span class="help-inline">(${esc(r.note)})</span>` : ''}</td></tr>`).join('');
   return `
-<p>${esc(config.toolTitle)} plans the volumes to combine to reach a stated target concentration, or an ordered set of them, from a stated stock, including any single intermediate dilution a step needs to be pipettable. It plans preparation; it does not verify what was prepared. <strong>Research use. Not qualified for GxP decision-making.</strong></p>
+<p class="lede">${esc(config.toolTitle)} plans the volumes to combine to reach a stated target concentration, or an ordered set of them, from a stated stock, including any single intermediate dilution a step needs to be pipettable. It plans preparation; it does not verify what was prepared. <strong>Research use. Not qualified for GxP decision-making.</strong></p>
 <p>Entirely client-side: no user-entered data leaves the browser, and the page makes no request to any third party. No account. Nothing persists across a reload.</p>
 
 <h3>Constants register</h3>
