@@ -4,22 +4,28 @@ The tool set's architecture, read from the account's shipped workers on 16 Septe
 
 ## This session could not deploy
 
-Nothing here was deployed. Three things are missing from this environment, and all three are outside the session rather than fixable in it:
+Nothing here was deployed. Wrangler is installed and the worker builds; what remains is outside the session.
 
-| Missing | Detail |
+| | State |
 |---|---|
-| Credentials | No `CLOUDFLARE_API_TOKEN` or `CLOUDFLARE_ACCOUNT_ID`, no `~/.wrangler` |
-| Network | `api.cloudflare.com` is refused by the egress proxy, as is `benchtools.ligant.ai` |
-| Tools | The Cloudflare MCP server attached here can read workers and manage D1, KV, R2 and Hyperdrive. It has no tool to upload a worker, create a Pages project, deploy to Pages, or add a route |
+| **Wrangler** | ✅ Installed and pinned as a dev dependency (4.132.0). `npm run deploy:check` bundles the router offline — 1.19 KiB, no bindings — so the config and the worker are known good |
+| **Credentials** | ❌ `wrangler whoami` reports not authenticated. No `CLOUDFLARE_API_TOKEN`, no `CLOUDFLARE_ACCOUNT_ID`, no `~/.wrangler` |
+| **Network** | ❌ `api.cloudflare.com` is refused by this session's egress proxy: `CONNECT tunnel failed, response 403`, an organization policy denial. `benchtools.ligant.ai` is refused the same way. The proxy's own guidance is to report a blocked host rather than route around it, so it is reported here |
+| **Connector tools** | ❌ The Cloudflare connector attached here reads workers and manages D1, KV, R2 and Hyperdrive. It has no tool to upload a worker, create a Pages project, deploy to Pages, or add a route |
 
-So the commands below are for a machine that has `wrangler` logged in to the Ligant account.
+**To deploy from a session like this one**, both of the following would be needed: `api.cloudflare.com` allowed in the environment's network policy, and a scoped `CLOUDFLARE_API_TOKEN` (Workers Scripts: Edit, Pages: Edit, Workers Routes: Edit) set as an environment variable. Until then the commands below need a machine that has wrangler logged in to the Ligant account.
+
+Do not use wrangler's suggested `--temporary` flag: it deploys to a throwaway preview account, not to Ligant's.
 
 ## Deploy
 
 ```bash
-npm ci
+npm ci                         # wrangler comes with it; the tool itself has no runtime dependencies
 npm test                       # 57 tests
 npm run build                  # writes dist/ (index.html, assets/, _headers, LICENSE)
+npm run deploy:check           # bundles the router without touching the network
+
+wrangler login                 # or export CLOUDFLARE_API_TOKEN=...
 
 # 1. The Pages project. The first deploy creates it; --project-name must match
 #    the upstream host in the router (ligant-dilution-planner.pages.dev).
