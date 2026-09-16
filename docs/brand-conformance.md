@@ -14,6 +14,23 @@ Handoff §12.1 directs that C3 match C1's chrome, extracting from the live tool 
 
 **Also worth noting.** The published C1 artifact loads Inter and IBM Plex Mono from Google Fonts. C3 self-hosts both, as the zero-third-party-request rule requires. If the deployed C1 does the same as its artifact, that is a finding against C1, not a licence for C3 — but it is not evidence about the deployed build, which this session cannot reach.
 
+## Chrome — standard across the tool set
+
+The first pass invented a navy masthead bar. The shipped tools have no bar: the page ground runs from the top, and the chrome is the same on every tool. Corrected against screenshots of the Antigen Density Calculator, the Molarity Converter and the Antibody Titration Planner supplied by the owner on 16 September 2026, and now built as one module (`src/ui/chrome.js`) whose only per-tool inputs are the strings in `src/config.js`.
+
+**Header.** Lockup top left, linking to the tool index. Tool navigation top right, the current tool as a teal pill on white with a hairline border, the others as plain navy links. "Bench tools" in letter-spaced caps beneath the navigation, right-aligned. The tool name as a 30 px navy H1, then the standfirst constrained to about 62 characters, then a hairline rule.
+
+**Footer.** Two columns. The left carries, in the house order: what happens to the user's data; no account and no tracking; that visits are counted by the host; the repository with `npm run dev`; the standalone-calculators paragraph with the enterprise contact; the open-source line; the **How to cite** block behind an amber rule with a Copy button; and the Apache 2.0 licence paragraph. The right carries the entity block: Ligant AI Incorporated, the Philadelphia address, and the contact address. Below both, the research-use callout behind an amber rule, then the bar with the mark and `Ligant · Dilution Planner v0.2.0`.
+
+Two places where C3's footer says something the shipped tools do not, because C3 cannot yet make their claim:
+
+- The no-transmission paragraph carries the Molarity Converter's **"Not yet verified at this address"** caveat, since acceptance 22 is unrun until the tool is deployed. Removing that caveat is part of deploying, not part of the build.
+- The citation carries **no DOI**. One is minted at release; a placeholder identifier would read as a record that does not exist. The note in the block says so, in place of the shipped tools' explanation that the identifier is text rather than a link so that citing does not disclose a visit.
+
+**In the cards.** Numbered teal step badges on each declaration group, and the amber "suggested, not chosen" dot on the one pre-filled value, both as the shipped tools present them.
+
+One regression caught by the checks and fixed: rounding the results panel with `overflow: hidden` silently disabled `position: sticky` on the declarations bar, so steps became readable without the declarations they were computed under — 49 violations of C3-NF-03 at the reference viewport. The panel no longer clips; the bar rounds its own corners.
+
 ## §02 Naming
 
 The brand is **Ligant**, one word, capital L. "Ligant.ai" appears nowhere in prose, the wordmark or the UI. The string appears only as a URL, in the repository link (`src/config.js`), which §02 permits as a web address. The page title, masthead, footer and citation all read "Ligant".

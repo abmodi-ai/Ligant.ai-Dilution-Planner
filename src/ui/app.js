@@ -2,14 +2,15 @@
 // No persistence (C3-ST-06); no network; no timers; no progress state.
 import { planDilution } from '../engine/plan.js';
 import { CONCENTRATION_UNITS, VOLUME_UNITS } from '../engine/units.js';
-import { ENGINE_VERSION, URS_VERSION } from '../engine/version.js';
+
 import { notebookText } from '../engine/format.js';
 import { CONFIG } from '../config.js';
 import { renderDeclarations, renderPlanRegion, renderDerivation } from './render.js';
 import { renderBenchSheet } from './sheet.js';
 import { renderPageContent } from './page-content.js';
 import { parseSharedObject } from '../import/shared-import.js';
-import { lockupHtml, markDataUri, markSvg } from './mark.js';
+import { markDataUri } from './mark.js';
+import { renderHeader, renderFooter } from './chrome.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -194,20 +195,23 @@ function compute() {
 
 function init() {
   document.title = CONFIG.toolTitle;
-  // The mark, drawn inline (§03): no asset request leaves the page.
-  $('masthead-lockup').innerHTML = lockupHtml(30);
-  $('footer-lockup').innerHTML = `${markSvg({ size: 22, title: 'Ligant' })}<span class="wordmark">Ligant</span>`;
+  // Standard chrome; the mark is drawn inline (§03) so no asset request leaves the page.
+  $('site-header').innerHTML = renderHeader();
+  $('site-footer').innerHTML = renderFooter();
   $('favicon').href = markDataUri();
-  $('tool-title').textContent = CONFIG.toolTitle;
-  $('tool-id').textContent = CONFIG.toolId;
-  $('product-line').textContent = CONFIG.productLine;
-  $('engine-version').textContent = ENGINE_VERSION;
-  $('footer-publisher').textContent = `Published by ${CONFIG.publisher}`;
-  $('footer-scope').textContent = 'Research use. Not qualified for GxP decision-making.';
-  $('footer-citation').textContent = CONFIG.citation;
-  $('footer-repo').href = CONFIG.repositoryUrl;
-  $('footer-urs').textContent = URS_VERSION;
-  $('footer-engine').textContent = ENGINE_VERSION;
+  $('copy-citation').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText($('citation-text').textContent);
+      $('copy-citation').textContent = 'Copied';
+      setTimeout(() => { $('copy-citation').textContent = 'Copy'; }, 2000);
+    } catch {
+      const r = document.createRange();
+      r.selectNodeContents($('citation-text'));
+      const sel = getSelection();
+      sel.removeAllRanges();
+      sel.addRange(r);
+    }
+  });
   $('page-content-body').innerHTML = renderPageContent(CONFIG);
 
   fillUnits($('stock-unit'), CONCENTRATION_UNITS, 'µg/mL');
