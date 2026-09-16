@@ -196,7 +196,7 @@ function init() {
   document.title = CONFIG.toolTitle;
   // The mark, drawn inline (§03): no asset request leaves the page.
   $('masthead-lockup').innerHTML = lockupHtml(30);
-  $('footer-lockup').innerHTML = `${markSvg(22, 'Ligant')}<span class="ligant-wordmark">Ligant</span>`;
+  $('footer-lockup').innerHTML = `${markSvg({ size: 22, title: 'Ligant' })}<span class="wordmark">Ligant</span>`;
   $('favicon').href = markDataUri();
   $('tool-title').textContent = CONFIG.toolTitle;
   $('tool-id').textContent = CONFIG.toolId;

@@ -10,7 +10,7 @@ const vq = (q) => (q ? `<span class="num">${esc(q.display)}</span> ${esc(q.unit)
 const cq = (c) => (c ? `<span class="num">${esc(c.value)}</span> ${esc(c.unit)}` : '—');
 
 export function renderBenchSheet(r, config) {
-  const head = `<div class="sheet-head">${markSvg(30, 'Ligant')}<div>
+  const head = `<div class="sheet-head">${markSvg({ size: 30, variant: 'plain', title: 'Ligant' })}<div>
   <h1>${esc(config.toolTitle)} — bench sheet</h1>
   <p class="pub">${esc(config.publisher)} · ${esc(config.productLine)} · ${esc(config.toolId)} · engine <span class="num">${esc(r.engineVersion)}</span></p>
   <p class="pub">${esc(r.scope)} ${esc(r.plansNotVerifies)}</p>

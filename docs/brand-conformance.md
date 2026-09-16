@@ -2,12 +2,17 @@
 
 Against **Ligant Brand Guidelines v1.1** (June 2026), supplied 16 September 2026. Handoff §12 makes the Guidelines the source and the shipped C1 tool the reference implementation of them on a bench tool.
 
-## Reference implementation not reachable
+## Reference implementation — read from the published artifact
 
-Handoff §12.1 directs that palette tokens be extracted from the live C1 tool with `getComputedStyle` rather than retyped. **The live tool could not be reached from this environment**: `https://benchtools.ligant.ai/antigen-density-calculator/` is refused by the session's egress proxy with a 403 (organization policy), so no request reaches the host. C3's chrome is therefore built from the Guidelines' published values directly, which is the source the handoff names first. Two consequences to check when someone with access can open C1 side by side:
+Handoff §12.1 directs that C3 match C1's chrome, extracting from the live tool rather than retyping. The deployed address `https://benchtools.ligant.ai/antigen-density-calculator/` is refused by this session's egress proxy (403, organization policy), so no HTTP request reaches it. C1 is, however, published as an artifact on the owner's account, and **C3's chrome is taken from that bundle**. Two things came out of it, and one did not.
 
-1. **Token values** here are the §04 hex values as published. If C1 carries a token the Guidelines do not publish (a panel surface, a focus ring, a disabled state), C3 has chosen its own from the same palette and may differ.
-2. **Chrome proportions** — masthead height, panel padding, the vertical cost of the header — are C3's. The masthead/chrome question was already routed to ZURI as a tool-set question (C4 open item 17); C3's is deliberately compact (a 30 px mark, one line) so that the answer, when it lands, can replace it in one place.
+**Taken: the mark's construction.** C1 draws it on a 32-unit viewBox — tile radius 7.04 (22%), the six agents on a circle of radius 9.2 at 60° from the top, agent radius 2.1, centre radius 3.6, and the table as a closed **hexagon** through the six agents, stroked at 1.7 with round joins. C3's first attempt at the mark drew the table as a **circle**; it is now C1's hexagon, from C1's constants, so the two tools carry an identical mark. C1's `tile` and plain variants are carried over too: C3 uses the tile everywhere on screen and the plain variant on the bench sheet, where an unfilled mark photocopies better than a solid tile.
+
+**Taken: the token vocabulary.** C1 names its custom properties `--brand-teal`, `--brand-teal-pale`, `--brand-amber`, `--brand-amber-mark`, `--brand-offwhite`, `--surface`, `--surface-sunken`, `--surface-inset`, `--text-primary`, `--text-secondary`, `--text-muted`, `--border`, `--border-strong`, `--grid`, `--font`, `--mono`, plus data-viz tokens C3 has no use for (`--series-evidence`, `--series-decision`, `--band-fill`, `--magnitude-1…4`). C3's stylesheet now uses those names, so the two tools share one vocabulary rather than two spellings of one system — §06.06, the design system is infrastructure. C1's lockup markup (`.lockup` wrapping the mark and a `.wordmark` span) is carried over as well.
+
+**Not taken: the values.** C1's bundle contains no palette hex values at all; it reads its tokens from a stylesheet that is not part of the published artifact. So every value in C3 remains the Brand Guidelines §04 value as published, and one thing is still worth checking when someone with access can open the deployed C1: whether its `--surface`, `--surface-sunken`, `--surface-inset` and `--grid` resolve to the same neutrals C3 has chosen for them, since the Guidelines publish the neutral ramp but not which neutral plays which role.
+
+**Also worth noting.** The published C1 artifact loads Inter and IBM Plex Mono from Google Fonts. C3 self-hosts both, as the zero-third-party-request rule requires. If the deployed C1 does the same as its artifact, that is a finding against C1, not a licence for C3 — but it is not evidence about the deployed build, which this session cannot reach.
 
 ## §02 Naming
 
@@ -15,23 +20,23 @@ The brand is **Ligant**, one word, capital L. "Ligant.ai" appears nowhere in pro
 
 ## §03 Logo & wordmark — new in this change
 
-The mark was absent before; C3 showed the name as text. It is now drawn as inline SVG (`src/ui/mark.js`), which is the only form that satisfies the zero-third-party-request rule an asset CDN would break.
+The mark was absent before; C3 showed the name as text. It is now drawn as inline SVG (`src/ui/mark.js`) from C1's construction, which is the only form that satisfies the zero-third-party-request rule an asset CDN would break.
 
 | Rule | How it is met |
 |---|---|
-| Anatomy: ring = the table, six dots = the agents, amber centre = the human who decides | `markSvg()` draws exactly that: one ring, six dots at 60° from the top, one centre |
+| Anatomy: the table, six dots = the agents, amber centre = the human who decides | `markSvg()` draws C1's construction: the table as a closed hexagon through six agents at 60° from the top, and the centre |
 | Horizontal lockup (mark + "Ligant") is the default for headers | Masthead; footer |
 | Mark alone for favicons | `markDataUri()` sets the page favicon; no file request |
-| Tile corner radius 22% | `rx="14.08"` on a 64-unit tile |
+| Tile corner radius 22% | `rx="7.04"` on C1's 32-unit tile |
 | Minimum sizes: 16 px favicon, 24 px UI, 120 px lockup | Masthead mark 30 px, footer 22 px with the name beside it, sheet 30 px; the lockup is ~110 px of wordmark plus the mark, over the 120 px minimum |
 | Clear space ≥ ¼ of the mark's width | Masthead gap 12 px against a 30 px mark (0.4×) |
 | Approved grounds: green primary, navy, off-white | The tile is teal on the navy masthead, on the off-white footer, and on the white sheet |
-| Never recolour the tile, rotate, stretch, change the centre, add ".ai" | The mark is one construction, emitted from one function; no transform, no per-context colour |
+| Never recolour the tile, rotate, stretch, change the centre, add ".ai" | One construction, emitted from one function, with C1's constants not re-derived; no transform, no per-context colour |
 | The centre uses the brightened gold #E0A416 | `GOLD` in `mark.js`; the single sanctioned brightening, used nowhere else |
 
 ## §04 Colour
 
-Every colour in `styles.css` is a published §04 value: the four brand colours, the six neutrals, and #C0392B. Three off-palette values were removed (`#D9D2C5`, `#B9B0A0`, `#F6ECD2`); §08 grants no off-palette colour.
+Every colour in `styles.css` is a published §04 value: the four brand colours, the six neutrals, the mark's brightened gold, and #C0392B. Three off-palette values were removed (`#D9D2C5`, `#B9B0A0`, `#F6ECD2`); §08 grants no off-palette colour. The token *names* are C1's, as above.
 
 | Role | Value | Where |
 |---|---|---|
