@@ -14,15 +14,27 @@ import { renderHeader, renderFooter, renderDisclaimer, renderColophon } from './
 
 const $ = (id) => document.getElementById(id);
 
-function fillUnits(select, units, preferred) {
+/**
+ * C3-UN-01. The two concentration selectors start unselected and no plan is
+ * computed until each is chosen (acceptance 31), as in C1: a wrong
+ * concentration unit is a factor-of-1000 error with nothing on screen to show
+ * it. Volume selectors follow the convention C4 shipped and carry µL.
+ */
+function fillUnits(select, units, preferred, { unselected = false } = {}) {
   select.innerHTML = '';
+  if (unselected) {
+    const o = document.createElement('option');
+    o.value = '';
+    o.textContent = '— select —';
+    select.appendChild(o);
+  }
   for (const u of units) {
     const o = document.createElement('option');
     o.value = u.symbol;
     o.textContent = u.symbol;
     select.appendChild(o);
   }
-  select.value = preferred;
+  select.value = unselected ? '' : preferred;
 }
 
 function val(id) {
@@ -229,8 +241,8 @@ function init() {
   });
   $('page-content-body').innerHTML = renderPageContent(CONFIG);
 
-  fillUnits($('stock-unit'), CONCENTRATION_UNITS, 'µg/mL');
-  fillUnits($('target-unit'), CONCENTRATION_UNITS, 'µg/mL');
+  fillUnits($('stock-unit'), CONCENTRATION_UNITS, 'µg/mL', { unselected: true });
+  fillUnits($('target-unit'), CONCENTRATION_UNITS, 'µg/mL', { unselected: true });
   for (const id of ['stock-available-unit', 'volume-unit', 'min-unit', 'max-unit', 'capacity-unit']) fillUnits($(id), VOLUME_UNITS, 'µL');
 
   const form = $('plan-form');
