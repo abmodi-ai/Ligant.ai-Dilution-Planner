@@ -1,6 +1,6 @@
 # Dilution Planner (C3) — Ligant Bench Tools
 
-Plans the volumes to combine to reach a stated target concentration, or an ordered set of them, from a stated stock, including any single intermediate a step needs to be pipettable. Built to **URS v0.4.1** (released for build 14 September 2026). Research use; not qualified for GxP decision-making. Entirely client-side; zero third-party requests; nothing persists.
+Plans the volumes to combine to reach a stated target concentration, or an ordered set of them, from a stated stock, including any single intermediate a step needs to be pipettable. Built to **URS v0.4.2** (approved, released for build, 21 September 2026), engine **1.0.0**. Research use; not qualified for GxP decision-making. Entirely client-side; zero third-party requests; nothing persists.
 
 ## Run
 
@@ -13,6 +13,7 @@ npm run measure:rounding   # D2 record
 npm run sample:empirical   # evidence for the tolerance memo (§9 item 3)
 npm run check:viewport     # acceptance 29 technique against a running server
 npm run check:contrast     # WCAG AA audit of the rendered plan table and bench sheet
+npm run check:browser      # acceptance 24 (storage) and 31 (concentration units), in a real browser
 npm run verify:reimpl      # acceptance 3: dump the reference set and compare with the Python reimplementation
 ```
 
@@ -40,4 +41,8 @@ Any static server works too (`npm run serve`).
 
 ## Status
 
-Complete for everything a developer can establish. The open items were decided under owner delegation on 15 September 2026 (`docs/decisions.md`): the tolerances derived (`docs/tolerance-memo.md`), pasted-object import for C4/C1, the C3 result object adopted as shipped, slug `dilution-planner`. On 17 September the owner instructed two reversals (D-15, D-16): the **constants register is off the page** (C3-CN-01 and acceptance 25 waived), and the two tolerances are stated **open** with no published value until NADIRA signs the memo — the derivation itself is unchanged, and every point still carries its own computed bound. Engine `0.3.0`. An independent Python reimplementation (`verify/`) agrees with the engine on the reference set. Remaining for people and deployment: acceptance 22, 28, 29 at the public address (`docs/deployment.md`) and the first-time-user observation (acceptance 27). `docs/conformance-audit.md` is the row-by-row status, and `docs/brand-conformance.md` the record against Brand Guidelines v1.1.
+Engine **1.0.0**, built to URS v0.4.2 (approved and released for build, 21 September 2026). The v0.4.2 package — C3-HI-10, the two-sided intermediate condition, displayed-volume comparisons, the register in the result object, the executable storage test, concentration units unselected on load, and the three-category version rule — is built and evidenced in `docs/conformance-audit.md` (addendum A-9). The tolerance memo is signed, so both register rows are derived and every point displays its bound; the gate that withholds it while a status is open remains, and is tested both ways.
+
+The reference table was re-checked before release, as a MAJOR release requires: 15 cases, 46 vessels, unchanged, with the displayed bounds now pinned in it, and the independent Python reimplementation agreeing to 0 ULP.
+
+Remaining: the standing privacy text v1.0 to go in verbatim (not yet received); acceptance 22, 28 and 29 at the public address (`docs/deployment.md`); the first-time-user observation (acceptance 27); and Agent Nadira's §7 build review, which this build is for.

@@ -46,3 +46,24 @@ scroll range 0..4699; vessel-head observations 62; violations 0
 ```
 
 This is an interim record for the restyle, not a replacement for the row above and not the deployed run. Acceptance 29 still needs `scripts/viewport-check.mjs` against the public address on a machine with the Playwright configuration recorded above.
+
+## Playwright restored locally, 21 September 2026
+
+The `/opt` paths of the original build environment do not exist on the machine the v0.4.2 build was made on, so both scripts now resolve Playwright from `node_modules` and fall back to `/opt` where it is present. `playwright` is a dev dependency and its Chromium is the one it downloads. The CDP stand-ins used on 17–21 September are retired: the evidence below comes from the scripts themselves.
+
+| Setting | Value |
+|---|---|
+| Browser | Chromium via Playwright, reports `HeadlessChrome/153.0.8010.12` |
+| Executable | Playwright's own download (`~/Library/Caches/ms-playwright/chromium-1243`), or `/opt/pw-browsers/chromium` where it exists |
+| Driver | `playwright` from the project's `node_modules` |
+| Host | macOS, Darwin 25.6.0, Apple silicon |
+| Viewport | 1366 × 650 CSS px, confirmed at run time; DPR 1 |
+| Command | `npm run check:viewport`, `npm run check:contrast`, `npm run check:browser` |
+
+```
+{"innerWidth":1366,"innerHeight":650,"dpr":1,"status":"plan","vessels":6}
+requests: 24; to other origins: 0
+scroll range 0..5041; step visibility violations: 0
+```
+
+The harness now selects the two concentration units before filling the rest, because at v0.4.2 they start unselected (C3-UN-01, acceptance 31). Acceptance 29 still needs this run against the public address once deployed.

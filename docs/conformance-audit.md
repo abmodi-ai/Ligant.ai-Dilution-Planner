@@ -2,7 +2,7 @@
 
 | Field | Value |
 |---|---|
-| Specification | URS v0.4.1 (released for build 14 September 2026) |
+| Specification | **URS v0.4.2** (approved, released for build, effective 21 September 2026), superseding v0.4.1. Rows below carry their v0.4.1 evidence where the requirement did not change; A-9 records what v0.4.2 changed |
 | Build | commit `a51fa68` on `claude/bench-tool-dev-z4nshl` (engine, tests, UI and docs as audited; this audit is finalised in the commits that follow it on the branch), engine `0.2.0` (see B1). Supersedes the audit at `cff4036` (engine 0.1.0) |
 | Date | 15 September 2026 |
 | Decisions | Open items decided under owner delegation — `docs/decisions.md` D-1 … D-14. Rows that were "not testable yet" at `cff4036` on items 2, 6, 7 and 8 are now met on those decisions; NADIRA's review of D-1 (the tolerance derivation) is still expected at the §7 build review |
@@ -51,11 +51,11 @@ Statuses: **met** / **not met** / **not testable yet** (with the gating item). E
 | C3-RT-05 | met | `factorConvention` on output; `factorFromSource.display` per step |
 | C3-DL-01 | met | required; "not recorded" accepted, distinguishable, raises FL-10 |
 | C3-DL-02 | met | free text; no validation |
-| C3-PC-01 | met | required; pre-fill 2 µL marked "Suggested default" and hidden once changed |
+| C3-PC-01 | met | required; pre-fill 2 µL marked "suggested, not chosen" and hidden once changed. At v0.4.2 it applies to every pipetted volume, diluent included, and every comparison uses the **displayed** volume (V3): `belowMinimum()` in `plan.js`; `rejects-flags › C3-FL-01 either side of and exactly on the minimum, on the DISPLAYED transfer` |
 | C3-PC-02 | met | optional, no default; FL-02 not evaluated when absent, note emitted; `rejects-flags › C3-FL-02` |
 | C3-PC-03 | met | optional, no default; FL-03 and (iii) not applied when absent, note emitted; `C3-FL-03` |
 | C3-PC-04 | met | `capabilitySentence` in declarations bar, derivation, notebook, sheet |
-| C3-UN-01 | met | every numeric field paired with a unit select |
+| C3-UN-01 | met | every numeric field paired with a unit select; at v0.4.2 the **stock and target concentration selects start unselected** and no plan is computed until both are chosen, while volume selects carry µL as C4 ships them. `scripts/browser-checks.mjs` (acceptance 31), all four checks pass |
 | C3-UN-02 | met | `units.test › D3` |
 | C3-UN-03 | met | one multiplication by an integer power of ten; `units.test` |
 | C3-UN-04 | met | 3 sf on every displayed volume; derived volumes not given extra figures (`FX-04` 988, `FX-05` 40.0) |
@@ -69,7 +69,7 @@ Statuses: **met** / **not met** / **not testable yet** (with the gating item). E
 | C3-DT-03 | met | `FX-05` (backward solve; A + onward); `FX-07` serial (stock's onward is to I1) |
 | C3-DT-04 | met | `FX-04` (both signs), `FX-05`, `FX-08` (none derived), `invariance › C3-IV-01` (total = Tᵈ + Dᵈ = closure + ρ exactly) |
 | C3-DT-05 | met | `FX-07`; `invariance › C3-IV-05` second case (stock → top step through an intermediate) |
-| C3-DT-06 | met | rule and consequence on the page; deterministic (`ST-08`); unique g (`evaluateCandidates` takes the first passing g) |
+| C3-DT-06 | met | rule and consequence on the page; deterministic (`ST-08`); unique g. At v0.4.2 condition (i) is **two-sided** under the first and third bases — Tᵦ(g) ≥ m and Tᵦ(g) ≤ Vᵦ − m — so the destination holds at least the minimum of both transfer and diluent; under the second basis the diluent is the stated D and only the lower bound applies (S1). Step 5's published floor is stated per basis. `rejects-flags › C3-FX-18`, and the S1 worked example reproduces exactly |
 | C3-DT-07 | met | `FX-13`: rejected in all four ways, no second intermediate |
 | C3-DT-08 | met | `stockConsumed` includes intermediates (`FX-07` 2.00 µL via I1) |
 | C3-DT-09 | met | `fixtures-hand › C3-DT-09` |
@@ -83,7 +83,7 @@ Statuses: **met** / **not met** / **not testable yet** (with the gating item). E
 | C3-IV-08 | met | `invariance › C3-IV-08 (a)–(d)`, bit for bit on unrounded volumes, exclusions per E1; intermediate shown to move as `max(g·m, round3(Σ))` |
 | C3-HI-01…05, 07, 08 | met | `rejects-flags`, either side and exactly on |
 | C3-HI-06 | met | `rejects-flags › C3-HI-06` (equal = legal, remaining 0), `FX-15` |
-| C3-HI-09 | met | `FX-13` four ways; bound and value named; no recommendation |
+| C3-HI-09 | met | `FX-13` **five ways** (V4): series floor, minimum transfer, destination diluent bound, declared capacity, source vessel's total — the test asserts the five bounds are five distinct names; bound and value named; no recommendation |
 | C3-FL-01…06, 08…10 | met | `rejects-flags`; FL-01 the only flag when an intermediate is planned (`FX-07`) |
 | C3-FL-07 | met | `import.test › C3-FX-09` (C4 object with a flag, restated naming C4 and the result id); `rejects-flags › C3-FL-07` |
 | C3-FC-01 | met | page section "Failure classes this tool cannot detect", eight items incl. the two additivity cases |
@@ -91,16 +91,16 @@ Statuses: **met** / **not met** / **not testable yet** (with the gating item). E
 | C3-FX-03 | met | `fixtures-hand › C3-FX-03`, seven plans, ≥20 points |
 | C3-FX-09 | met (D-2) | `import.test › C3-FX-09` — pasted C4 object written to the C3 reading of the shared format |
 | C3-FX-16 | met | every fixture states its construction assumption in the test body; FX-01 avoids tie-adjacent values |
-| C3-CN-01 | **waived** | The register is off the page by owner instruction (D-15, 17 September 2026), and with it the two tolerance rows and the ~1% headline. Still on the page: the assumption with its scope, the intermediate rule with its published consequence, the C3-HI-06 sentence, precision and versions, failure classes, out of scope. The thresholds themselves remain declared in the form and restated in the plan's declarations and on the bench sheet. See A-1 |
+| C3-CN-01 | met | Moved, not removed (decision B). The register is in the result object at `register[]`, generated by `buildRegister()` from the engine's own constants and this plan's declarations — the declared capacity, the declared minimum and the "not declared for this plan" cases are the plan's own, so it cannot describe a threshold the tool does not apply — and in the repository at the tagged engine version. The page carries one line pointing to both, with the repository link, and keeps the failure classes, the additivity assumption with its scope, the intermediate rule with its published consequence and the C3-HI-06 sentence in full. `result-object › C3-CN-01` |
 | C3-ST-01…04 | met (D-2, pasted-object transport) | `import.test`: flags required (ST-01); basis fixed to final at the staining volume and shown as fixed (ST-02); C1 value with provenance and flags (ST-03); replacement named on the output (ST-04) |
 | C3-ST-05 | met | object carries basis, route, labels and sources, step counts, capability values, formulation, flags |
-| C3-ST-06 | met | no storage API in shipped code (grep: none); every field is cleared by reload |
+| C3-ST-06 | met | no storage API in shipped code (grep: none); every field cleared by reload. Made executable at v0.4.2: `npm run check:browser` clears storage, seeds a foreign key, drives a full session and a reload, and instruments `getItem` on both stores — only the seeded key remains, unchanged, and C3 performed no read |
 | C3-ST-07 | met | every input change recomputes the whole plan from scratch; nothing is retained (no value to mark); the third basis is unchecked, visibly, when it becomes unavailable |
 | C3-ST-08 | met | `invariance › C3-ST-08` |
 | C3-ST-09 | met | `import.test › C3-FX-09`: receiving = stain, `mustAlreadyHold` = staining volume − transfer on output, object and sheet; never called diluent |
 | C3-OUT-01 | met | derivation section: relations, assumptions with scope, input echo with units, engine version |
 | C3-OUT-02 | met | declarations bar and derivation, not only the echo |
-| C3-OUT-03 | met | exact, achieved (point value), bound (value, compounded), residual where non-zero, per vessel |
+| C3-OUT-03 | met | exact, achieved (point value), bound, residual where non-zero, per vessel. The bound is displayed as a number only while its register status is derived; while open it is null in the object (V1) and every point, the notebook text and the bench sheet state "bound: derivation memo unsigned" instead. The gate reads `TOLERANCE_REGISTRATION` in `tolerances.js` and is exercised both ways by `result-object › acceptance 32` |
 | C3-OUT-04 | met | `result-object.test › acceptance 4` |
 | C3-OUT-05 | met on D-3 | escalated on day one; C3's object adopted as shipped (`docs/D1-shared-object.md`, `docs/decisions.md` D-3) |
 | C3-OUT-06 | met | screen, notebook, sheet and object all read from one result; `result-object.test › C3-OUT-06` |
@@ -117,7 +117,7 @@ Statuses: **met** / **not met** / **not testable yet** (with the gating item). E
 | C3-NF-04 | met | `docs/D5` |
 | C3-NF-05 | met | synchronous computation on every input event; no progress indicator exists |
 | C3-NF-06 | met | standalone; no import dependency |
-| C3-NF-07 | met | engine version on output, object, page, sheet; rule in B1 |
+| C3-NF-07 | met | engine version on output, object, page, sheet; the rule is the tool-set's three categories, stated in `src/engine/version.js` with the reasoning for 1.0.0 |
 
 ## Acceptance
 
@@ -138,7 +138,7 @@ Statuses: **met** / **not met** / **not testable yet** (with the gating item). E
 | 13 | met | `FX-10`, `FX-11` no flags |
 | 14 | met | reason codes resolvable to the step (`scope.vessel`, `scope.from`); FL-07 via `C3-FX-09` |
 | 15 | met | boundary tests in `rejects-flags` incl. target = stock, target = 0, transfer = donating total |
-| 16 | met | `FX-13` |
+| 16 | met | `FX-13`, five ways (V4) |
 | 17 | met | `FX-15` |
 | 18 | met | `rejects-flags › acceptance 18` |
 | 19 | met (D-2) | `import.test › C3-FX-09`: FL-07 raised, basis fixed per ST-02, stain named with the volume the vessel must already hold, every imported flag restated with C4 named |
@@ -146,11 +146,14 @@ Statuses: **met** / **not met** / **not testable yet** (with the gating item). E
 | 21 | met | labels and sources on output, object and sheet; `FX-07` shared source |
 | 22 | not testable yet (deployment) | slug decided (D-4); local build: 19 same-origin requests, 0 cross-origin, monitoring registered before load. To be run against `https://benchtools.ligant.ai/dilution-planner/` once deployed and after any CDN change |
 | 23 | met | `C3-ST-08`; no state |
-| 24 | met, with a shared-origin caveat | C3 calls no storage API at all: no `localStorage`, `sessionStorage`, `document.cookie` or `indexedDB` anywhere in `src/`, `index.html`, `scripts/`, `test/` or `verify/`; nothing persists across a reload. The owner's T4 found an 898-byte entry on `localhost:5173` under an 11-character key: it is **C4's**, `c4.state.v1` (`C4-Antibody-Titration-Planner/src/lib/retention.ts`), whose dev server takes Vite's default port 5173 — the same origin. See A-3: on the deployed site every tool shares the origin `https://benchtools.ligant.ai`, so C3 cannot make that entry absent; only C4's removal can |
-| 25 | **waived** with C3-CN-01 | assumption, rule with consequence and the C3-HI-06 sentence are on the page; the register is not (D-15, A-1) |
+| 24 | met, executable, with a shared-origin caveat | C3 calls no storage API at all: no `localStorage`, `sessionStorage`, `document.cookie` or `indexedDB` anywhere in `src/`, `index.html`, `scripts/`, `test/` or `verify/`; nothing persists across a reload. The owner's T4 found an 898-byte entry on `localhost:5173` under an 11-character key: it is **C4's**, `c4.state.v1` (`C4-Antibody-Titration-Planner/src/lib/retention.ts`), whose dev server takes Vite's default port 5173 — the same origin. See A-3: on the deployed site every tool shares the origin `https://benchtools.ligant.ai`, so C3 cannot make that entry absent; only C4's removal can |
+| 25 | met | The register is in the result object, generated by the same computation as the plan and never a static copy (`buildRegister()`), and in the repository at the tagged engine version. The page carries one line pointing to both with the repository link, and carries in full the additivity assumption with its scope, the intermediate rule with its published consequence, and the C3-HI-06 sentence. `result-object › C3-CN-01` asserts the generation, including that a declared capacity and a changed minimum appear as this plan's own values |
 | 26 | met | page failure classes incl. the two additivity cases |
 | 27 | not testable yet (observation by A. Modi) | deployed build to be provided |
 | 28 | not testable yet (print at deployment) | PDF rendered locally is complete without the application: labels, contents, additions and sources, bases, route, diluent, capability values, order of addition, stain volume for a C4 point |
+| 30 | met | C3-HI-10 rejects every non-zero diluent below the declared minimum (`rejects-flags › C3-FX-17`, and the boundary test either side of and exactly on it), C3-HI-09 rejects a step whose only intermediate would breach the destination diluent bound (`C3-FX-18`, with the f = 12 / 11 / 10 neighbours), and the two are named differently — the tests assert the series floor message does not mention the destination diluent bound and vice versa |
+| 31 | met | `npm run check:browser`: on load the stock and target concentration selects are unselected and the volume select carries µL; with everything else declared, no plan is computed and the page states that a unit must be selected; choosing both computes the plan |
+| 32 | met | `result-object › acceptance 32`: with the status derived the bound is a number in the object and on the page; with the status open the object carries null and the page, the notebook text and the bench sheet state "bound: derivation memo unsigned"; the achieved point value is displayed in both states, and the only thing that changes is the register status |
 | 29 | not testable yet (deployment) | local run 0 violations over 0..3685 px with the import fieldset present, configuration in D5. Re-run locally 17 September 2026 after the suite-alignment restyle, on a second machine and a second technique (CDP, not Playwright — see D5): 0 violations over 0..4699 px, 62 vessel-head observations |
 
 ## Evidence for the tolerance memo (§9), not tolerances
@@ -209,3 +212,34 @@ Engine 1.0.0 is **not** built. The reasons are in `docs/open-items.md` under "Re
 | WCAG AA contrast gate (item 3) | **Run, and it passes.** 46 colour/size/weight combinations measured on the filled plan and the bench sheet, **0 failures**; tightest passing 5.13:1 against a 4.5 requirement (`.skip-link`, the current-tool pill, the step number, the register status). The measurement is `scripts/contrast-audit.mjs`'s own function, unmodified, executed over the Chrome DevTools Protocol because this machine has no Playwright. The script itself still cannot run here |
 | URS open item 19 — does the live C4 page still restore inputs from storage? | **Yes. Confirmed in a browser against `https://benchtools.ligant.ai/antibody-titration-planner/` on 21 September 2026.** With storage cleared and one foreign key seeded, typing into the staining-volume field wrote `c4.state.v1` within about a second; after a reload the value was restored into the field and the "from your last visit" marker was present. The seeded foreign key was neither altered nor removed. C4 finding B2 is live in production |
 | Commits (item 3) | The work of 17–21 September is committed on branch `c3/v0.4.1-findings`, one commit per finding: T1 register, T7 ordering, T3 fixture, T2 tolerances with engine 0.3.0, the suite/C4 UI alignment, and the records |
+
+### A-9 — engine 1.0.0 against URS v0.4.2, 21 September 2026
+
+Built against the released v0.4.2 (status "Approved — released for build", Agent Nadira's approval dated 21 September 2026 covering release to build and the tolerance memo signature). R1 and R2, returned on the draft, are answered and closed; R3 was accepted as written and the spec is built as it stands.
+
+**MAJOR, engine 1.0.0.** Both of C3-NF-07's MAJOR triggers are met: inputs that 0.3.0 planned are now rejected, and numbers change at inputs that still plan.
+
+| Change | Built | Evidence |
+|---|---|---|
+| C3-HI-10 | Any non-zero diluent below the declared minimum withholds the plan, naming the vessel, the diluent, the minimum and the remedy — the stated volume under the first and third bases, the stated diluent under the second. Zero diluent is exempt, and a C4 vessel's stain is not diluent this plan adds | `rejects-flags › C3-FX-17` and the C3-FX-12 boundary test |
+| C3-DT-06 (i) two-sided | Under the first and third bases an intermediate must leave the destination at least the minimum of both transfer and diluent; under the second the diluent is stated and only the lower bound applies | `rejects-flags › C3-FX-18`; the S1 example reproduces exactly |
+| C3-HI-09 fifth way | The destination diluent bound, named differently from the series floor | `C3-FX-13`, which asserts five distinct bound names |
+| V3, displayed volumes | Every comparison with the minimum uses the displayed volume. This moves the boundary at which an intermediate is planned: 1.995 µL displays as 2.00 µL and is pipettable, 1.994 µL displays as 1.99 µL and is not | `C3-FL-01 … on the DISPLAYED transfer` |
+| Tolerances derived | Both register rows derived on the signed memo; values published in the object; the ~1% headline is back on the page | `result-object`, `fixtures-hand`, `invariance` |
+| Bound display gate kept | One switch, `TOLERANCE_REGISTRATION`; while open the bound is null in the object and the page, notebook and sheet say the memo is unsigned | acceptance 32 |
+| Register | Generated into the result object by the plan's own computation; one page line points to it and to the repository | acceptance 25, C3-CN-01 |
+| C3-UN-01 | Concentration selectors unselected on load; no plan until both chosen | acceptance 31 |
+| C3-NF-07 | Three categories, with the 1.0.0 reasoning recorded in `version.js` | — |
+
+**Reference-table re-check before release (required for MAJOR).** `npm run verify:reimpl` regenerated the table on 1.0.0 and compared it with the independent Python reimplementation: **15 cases, 46 vessels, 0 failures; observed maximum difference 0 ULP; 0 of 138 displayed values differing.** Every case and every value is **identical to the 0.3.0 table** — none of the reference cases sits near the boundaries v0.4.2 moved. The **displayed per-point bound is now part of the table** (`boundStatus` and `bound` on all 46 vessels), so a future change to the bound cannot pass unnoticed.
+
+**Both browser gates now run from the scripts themselves, not a stand-in.** Playwright is a dev dependency and both scripts resolve it from `node_modules`, falling back to the `/opt` paths of the original build environment.
+
+| Gate | Result |
+|---|---|
+| `npm run check:viewport` (acceptance 29, C3-NF-03) | 1366 × 650, DPR 1, HeadlessChrome 153.0.8010.12: **0 step-visibility violations** over scroll 0..5041; 24 same-origin requests, **0 to other origins** |
+| `npm run check:contrast` (WCAG 2.1 AA) | **47 combinations, 0 failures**; tightest passing 5.13:1 against 4.5 |
+| `npm run check:browser` (acceptances 24 and 31) | all 9 checks pass |
+| `npm test` | 63 tests, 0 failures |
+
+**Still open.** The standing privacy text v1.0 has not arrived (T5): the covering email lists it as attached, and it is not in the attachments received. The two places it belongs are unchanged and marked in `src/ui/page-content.js` and `src/ui/chrome.js`. Acceptance 22, 27 and 28 remain deployment- and people-gated, and acceptance 29 still needs its run against the public address.
