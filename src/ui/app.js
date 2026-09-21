@@ -165,7 +165,15 @@ function syncConditionalFields(input) {
   availableRadio.disabled = !serialMulti;
   $('basis-available-label').classList.toggle('disabled', !serialMulti);
   $('basis-available-reason').hidden = serialMulti;
-  if (!serialMulti && availableRadio.checked) availableRadio.checked = false; // C3-ST-07: no basis silently carried
+  // C3-ST-07: no basis silently carried. The test is on the state at this instant,
+  // which is what C3-VB-02 asks for, and it makes the outcome order-dependent: a
+  // basis change processed BEFORE the route change that would make the third basis
+  // available clears the selection, and the later route event enables the radio
+  // without re-checking it. A user cannot produce that order — each click's handler
+  // runs to completion before the next — but a script setting basis before route can
+  // (owner's T7, 17 September 2026; reproduced, four orderings, real clicks safe).
+  // Set the route before the basis in automation; do not defer this clear.
+  if (!serialMulti && availableRadio.checked) availableRadio.checked = false;
   $('min-suggested').hidden = val('min-value').trim() !== '2' || val('min-unit') !== 'µL';
   $('diluent-name').disabled = $('diluent-not-recorded').checked;
 }
