@@ -1,6 +1,6 @@
 // The tool page's own statements (C3-CN-01, C3-FC-01, acceptance 25–26).
 import { ENGINE_VERSION, URS_VERSION } from '../engine/version.js';
-import { SUGGESTED_MIN_TRANSFER_UL, ADDITIVITY } from '../engine/plan.js';
+import { SUGGESTED_MIN_TRANSFER_UL, ADDITIVITY, INTERMEDIATE_RULE_STEPS, INTERMEDIATE_CONSEQUENCE } from '../engine/plan.js';
 
 export const FAILURE_CLASSES = [
   'A stock concentration that is wrong — mislabelled, degraded, from a different lot, or correct for a different formulation.',
@@ -15,16 +15,9 @@ export const FAILURE_CLASSES = [
 
 export const HI06_SENTENCE = 'Under the diluent-volume basis a step factor close to 1 requires a transfer many times the stated volume: the transfer into a vessel is D/(f − 1), which is unbounded by the stated volume as the step factor approaches 1.';
 
-export const INTERMEDIATE_RULE = [
-  'For a step from a source at concentration cₐ — the stock, or the preceding vessel in serial mode — to a point b with factor f = cₐ/cᵦ whose direct transfer falls below the declared minimum m:',
-  'Let Tᵦ(g) be the transfer into vessel b at the remaining factor f/g under the declared basis: F·g/f (final volume); D·g/(f − g) (diluent volume); Vᵦ·g/f with Vᵦ the backward-solved total of b (volume available after onward transfer). Each is increasing in g.',
-  'Take the smallest g from the series {10, 100, 1000, …} with g < f such that (i) Tᵦ(g) ≥ m; (iii) where a capacity C is declared, the intermediate\'s total ≤ C; and, in serial mode, (iv) the intermediate\'s transfer from its source does not exceed the source vessel\'s total.',
-  'Size the intermediate as max(g·m, the sum of every onward transfer taken from it). Its own transfer from its source is then at or above m by construction.',
-  'In serial mode the intermediate sits between the source and b; the source\'s onward transfer is to the intermediate. In independent mode every point requiring the same g shares one intermediate, sized over all of them, and each such point is recorded as drawn from it.',
-  'If no g satisfies these conditions the plan is rejected naming the bound that failed; a second intermediate is never chained.',
-];
-
-export const INTERMEDIATE_CONSEQUENCE = 'Published consequence of the decade series: a step whose factor does not exceed the smallest series value (f ≤ 10) has no intermediate, since the intermediate would be the point itself. Such a step is rejected under C3-HI-09, and the remedy is the stated volume, not an intermediate. The message names the bound that failed; it recommends no value.';
+// C3-DT-06 is published from the engine's own constants, so the page cannot
+// state a rule the engine does not apply (T11).
+export { INTERMEDIATE_RULE_STEPS as INTERMEDIATE_RULE, INTERMEDIATE_CONSEQUENCE } from '../engine/plan.js';
 
 export function renderPageContent(config) {
   const esc = escapeHtml;
@@ -44,7 +37,7 @@ export function renderPageContent(config) {
 <p>The stated volume is a volume of solution under the final-volume and available-volume bases and a volume of diluent under the diluent-volume basis. The diluent volume the tool computes is always a volume of diluent; the final volume it computes is always a volume of solution. Every basis describes pipetted volumes: the tool does not plan volumetric preparation in which the diluent is added to a mark rather than pipetted.</p>
 
 <h3>Intermediate selection rule</h3>
-<ol>${INTERMEDIATE_RULE.map((s) => `<li>${esc(s)}</li>`).join('')}</ol>
+<ol>${INTERMEDIATE_RULE_STEPS.map((s) => `<li>${esc(s)}</li>`).join('')}</ol>
 <p><strong>${esc(INTERMEDIATE_CONSEQUENCE)}</strong></p>
 
 <h3>On the diluent-volume basis</h3>
