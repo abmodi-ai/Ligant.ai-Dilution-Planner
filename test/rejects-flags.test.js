@@ -124,6 +124,15 @@ test('C3-FX-13 C3-HI-09 in each of its four ways — the bound that failed is na
   assert.match(floor.rejections[0].message, /series floor, 10/);
   assert.match(floor.rejections[0].message, /remedy is the stated volume/);
   assert.doesNotMatch(floor.rejections[0].message, /recommend/i);
+  // (1b) the series floor at its boundary: f = 10 exactly, direct transfer 1 < 2.
+  //      C3-DT-06 step 2 takes g < f, so at f = 10 the only candidate is the point
+  //      itself and the step is rejected, not planned. URS v0.4.1 step 5 reads
+  //      "f < 10"; the boundary is f <= 10 (owner's T3, editorial at v0.4.2).
+  const floorExact = stock100({ target: { form: 'single', value: '10', unit: 'µg/mL' }, volume: { value: '10', unit: 'µL' } });
+  assert.deepEqual(rejectCodes(floorExact), ['C3-HI-09']);
+  assert.equal(floorExact.rejections[0].quantities.bound, 'series floor');
+  assert.match(floorExact.rejections[0].message, /series floor, 10/);
+  assert.match(floorExact.rejections[0].message, /remedy is the stated volume/);
   // (2) minimum not met at any g: f = 10^6, F = 10 -> T_b(10^5) = 1 < 2.
   const min = stock100({ target: { form: 'single', value: '0.0001', unit: 'µg/mL' }, volume: { value: '10', unit: 'µL' } });
   assert.deepEqual(rejectCodes(min), ['C3-HI-09']);
@@ -141,7 +150,7 @@ test('C3-FX-13 C3-HI-09 in each of its four ways — the bound that failed is na
   assert.equal(src.rejections[0].quantities.bound, 'source total');
   assert.match(src.rejections[0].message, /source vessel's total, 12\.5 µL/);
   assert.match(src.rejections[0].message, /19\.0 µL/);
-  for (const r of [floor, min, cap, src]) {
+  for (const r of [floor, floorExact, min, cap, src]) {
     assert.equal(r.vessels.length, 0);
     assert.ok(!r.vessels.some((v) => v.kind === 'intermediate'));
   }
