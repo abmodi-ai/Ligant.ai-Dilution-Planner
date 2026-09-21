@@ -57,10 +57,11 @@ export function markDataUri() {
   const svg = [
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">',
     `<rect width="32" height="32" rx="${TILE_RX}" fill="#0D7C66"/>`,
-    // optically thickened at favicon size so the table never fills in (§03)
-    `<path d="${TABLE}" fill="none" stroke="#FAF7F2" stroke-width="2.2" stroke-linejoin="round"/>`,
-    AGENTS.map(([x, y]) => `<circle cx="${x.toFixed(3)}" cy="${y.toFixed(3)}" r="${AGENT_R + 0.3}" fill="#FAF7F2"/>`).join(''),
-    `<circle cx="16" cy="16" r="${CENTRE_R + 0.2}" fill="#E0A416"/>`,
+    // the siblings' shipped favicon.svg: the table thickened to 2 at favicon
+    // size so it never fills in (§03); agents and centre unchanged
+    `<path d="${TABLE}" fill="none" stroke="#FAF7F2" stroke-width="2" stroke-linejoin="round"/>`,
+    AGENTS.map(([x, y]) => `<circle cx="${x.toFixed(3)}" cy="${y.toFixed(3)}" r="${AGENT_R}" fill="#FAF7F2"/>`).join(''),
+    `<circle cx="16" cy="16" r="${CENTRE_R}" fill="#E0A416"/>`,
     '</svg>',
   ].join('');
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;

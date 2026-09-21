@@ -10,7 +10,7 @@ import { renderBenchSheet } from './sheet.js';
 import { renderPageContent } from './page-content.js';
 import { parseSharedObject } from '../import/shared-import.js';
 import { markDataUri } from './mark.js';
-import { renderHeader, renderFooter } from './chrome.js';
+import { renderHeader, renderFooter, renderDisclaimer, renderColophon } from './chrome.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -155,7 +155,8 @@ function syncConditionalFields(input) {
   document.querySelector('.target-form-single').hidden = form !== 'single';
   document.querySelector('.target-form-list').hidden = form !== 'list';
   document.querySelector('.target-form-tfc').hidden = form !== 'tfc';
-  document.querySelector('.target-origin').hidden = !(input.targetProvenance && input.targetProvenance !== 'user');
+  const originShown = !!(input.targetProvenance && input.targetProvenance !== 'user');
+  for (const el of document.querySelectorAll('.target-origin')) el.hidden = !originShown;
   const n = pointCount(input);
   const multi = n > 1;
   $('route-field').hidden = !multi;
@@ -192,20 +193,26 @@ function compute() {
   }
   const r = planDilution(final);
   lastResult = r;
+  const derivation = renderDerivation(r);
   $('declarations-content').innerHTML = renderDeclarations(r);
   $('plan-region').innerHTML = renderPlanRegion(r);
-  $('derivation').innerHTML = renderDerivation(r);
+  $('derivation').innerHTML = derivation;
   $('bench-sheet').innerHTML = renderBenchSheet(r, CONFIG);
-  $('plan-actions').hidden = r.status === 'incomplete';
-  $('object-text').value = r.status === 'incomplete' ? '' : JSON.stringify(r, null, 2);
-  $('notebook-text').value = r.status === 'incomplete' ? '' : notebookText(r);
+  const noPlan = r.status === 'incomplete';
+  $('plan-actions').hidden = noPlan;
+  $('object-panel').hidden = noPlan;
+  $('derivation-panel').hidden = !derivation;
+  $('object-text').textContent = noPlan ? '' : JSON.stringify(r, null, 2);
+  $('notebook-text').value = noPlan ? '' : notebookText(r);
 }
 
 function init() {
-  document.title = CONFIG.toolTitle;
+  document.title = `${CONFIG.publisher} · ${CONFIG.toolTitle}`;
   // Standard chrome; the mark is drawn inline (§03) so no asset request leaves the page.
   $('site-header').innerHTML = renderHeader();
   $('site-footer').innerHTML = renderFooter();
+  $('disclaimer').innerHTML = renderDisclaimer();
+  $('colophon').innerHTML = renderColophon();
   $('favicon').href = markDataUri();
   $('copy-citation').addEventListener('click', async () => {
     try {
@@ -236,19 +243,18 @@ function init() {
     const text = notebookText(lastResult);
     try {
       await navigator.clipboard.writeText(text);
-      $('copy-status').textContent = 'Copied.';
+      $('copy-notebook').textContent = 'Copied';
+      setTimeout(() => { $('copy-notebook').textContent = 'Copy for notebook'; }, 2000);
       $('notebook-fallback').hidden = true;
+      $('copy-status').hidden = true;
     } catch {
+      // The text still has to reach the notebook, so it is shown to be copied by hand.
       $('notebook-fallback').hidden = false;
-      $('copy-status').textContent = 'Clipboard unavailable; text shown below.';
+      $('copy-status').hidden = false;
+      $('copy-status').textContent = 'Clipboard unavailable; the text is below.';
     }
   });
   $('print-sheet').addEventListener('click', () => window.print());
-  $('toggle-object').addEventListener('click', () => {
-    const v = $('object-view');
-    v.hidden = !v.hidden;
-    $('toggle-object').textContent = v.hidden ? 'Show result object' : 'Hide result object';
-  });
   compute();
 }
 
