@@ -7,7 +7,7 @@ Plans the volumes to combine to reach a stated target concentration, or an order
 ```
 npm install          # dev tooling only (Vite); the page has no runtime dependencies
 npm run dev          # http://localhost:5173/
-npm test             # engine, fixtures, invariance, result object (node --test)
+npm test             # engine, fixtures, invariance, result object, object units (node --test; 68 tests)
 npm run test:coverage
 npm run measure:rounding   # D2 record
 npm run sample:empirical   # evidence for the tolerance memo (§9 item 3)

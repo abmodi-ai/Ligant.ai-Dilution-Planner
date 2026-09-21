@@ -44,3 +44,12 @@ The released v0.4.2 answers R1 and R2, which were returned against the draft. St
 | D-21 | Kept the display gate after the memo was signed | The specification asks for it (V1, acceptance 32): "No live case once the memo is signed; the rule stands for the next open status." It is one switch in `tolerances.js`, and acceptance 32 exercises both sides of it, so the next open status needs no code change |
 | D-22 | Left the three remaining `TOLERANCE_REGISTRATION`-gated surfaces consistent: page, notebook text and bench sheet | C3-OUT-03 speaks of the output, not only the screen. A bench sheet reading "bound ±null" would be the failure the gate exists to prevent |
 | D-23 | Added `scripts/browser-checks.mjs` and `npm run check:browser` | Decision D makes acceptance 24 executable and H1 adds acceptance 31; both are browser properties the node suite cannot see. The storage check instruments `getItem` rather than inferring from what survives, because C3-ST-06 forbids reading as well as writing |
+
+## Agent Nadira's §7 build review — fixes, 21 September 2026
+
+| # | Decision | Reasoning |
+|---|---|---|
+| D-24 | B1: `value` is the number in the unit named beside it; the internal number travels as `internalUnrounded` | The owner offered either convention. This one makes every quantity in the object self-describing, matches what the volumes already did, and leaves no field whose meaning depends on knowing the engine's internal scale. The five internal-number consumers are all in-repository and were updated with it |
+| D-25 | T11: the page and the object render the rule from the same engine constants | The finding was drift between two copies of one rule. Fixing the words alone would leave the second copy to drift again at the next revision; a test now asserts the page states the object's consequence verbatim |
+| D-26 | R1: C3-HI-10 on the stated diluent is a declaration-level reject, and computation continues past it | It is decidable from the declarations, and it does not stop the arithmetic — the plan is computable, just not pipettable — so the step-level reject can be reported beside it. Conditions that leave the plan undefined still stop it: reporting a step-level reject computed from a zero stock would be inventing a second reason, not reporting one that holds |
+| D-27 | K1: rejection quantities carry the displayed string and the unit | The message and the object must not state the same quantity two ways, and a bare number with no unit in the object is the defect B1 was |

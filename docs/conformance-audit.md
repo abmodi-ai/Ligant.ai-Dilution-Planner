@@ -69,7 +69,7 @@ Statuses: **met** / **not met** / **not testable yet** (with the gating item). E
 | C3-DT-03 | met | `FX-05` (backward solve; A + onward); `FX-07` serial (stock's onward is to I1) |
 | C3-DT-04 | met | `FX-04` (both signs), `FX-05`, `FX-08` (none derived), `invariance › C3-IV-01` (total = Tᵈ + Dᵈ = closure + ρ exactly) |
 | C3-DT-05 | met | `FX-07`; `invariance › C3-IV-05` second case (stock → top step through an intermediate) |
-| C3-DT-06 | met | rule and consequence on the page; deterministic (`ST-08`); unique g. At v0.4.2 condition (i) is **two-sided** under the first and third bases — Tᵦ(g) ≥ m and Tᵦ(g) ≤ Vᵦ − m — so the destination holds at least the minimum of both transfer and diluent; under the second basis the diluent is the stated D and only the lower bound applies (S1). Step 5's published floor is stated per basis. `rejects-flags › C3-FX-18`, and the S1 worked example reproduces exactly |
+| C3-DT-06 | met | rule and consequence on the page, rendered from the engine's own `INTERMEDIATE_RULE_STEPS` and `INTERMEDIATE_CONSEQUENCE`, so the published rule cannot drift from the applied one (T11); deterministic (`ST-08`); unique g. At v0.4.2 condition (i) is **two-sided** under the first and third bases — Tᵦ(g) ≥ m and Tᵦ(g) ≤ Vᵦ − m — so the destination holds at least the minimum of both transfer and diluent; under the second basis the diluent is the stated D and only the lower bound applies (S1). Step 5's published floor is stated per basis. `rejects-flags › C3-FX-18`, and the S1 worked example reproduces exactly |
 | C3-DT-07 | met | `FX-13`: rejected in all four ways, no second intermediate |
 | C3-DT-08 | met | `stockConsumed` includes intermediates (`FX-07` 2.00 µL via I1) |
 | C3-DT-09 | met | `fixtures-hand › C3-DT-09` |
@@ -83,7 +83,7 @@ Statuses: **met** / **not met** / **not testable yet** (with the gating item). E
 | C3-IV-08 | met | `invariance › C3-IV-08 (a)–(d)`, bit for bit on unrounded volumes, exclusions per E1; intermediate shown to move as `max(g·m, round3(Σ))` |
 | C3-HI-01…05, 07, 08 | met | `rejects-flags`, either side and exactly on |
 | C3-HI-06 | met | `rejects-flags › C3-HI-06` (equal = legal, remaining 0), `FX-15` |
-| C3-HI-09 | met | `FX-13` **five ways** (V4): series floor, minimum transfer, destination diluent bound, declared capacity, source vessel's total — the test asserts the five bounds are five distinct names; bound and value named; no recommendation |
+| C3-HI-09 | met, and reported beside every other condition that holds (R1) | `FX-13` **five ways** (V4): series floor, minimum transfer, destination diluent bound, declared capacity, source vessel's total — the test asserts the five bounds are five distinct names; bound and value named; no recommendation |
 | C3-FL-01…06, 08…10 | met | `rejects-flags`; FL-01 the only flag when an intermediate is planned (`FX-07`) |
 | C3-FL-07 | met | `import.test › C3-FX-09` (C4 object with a flag, restated naming C4 and the result id); `rejects-flags › C3-FL-07` |
 | C3-FC-01 | met | page section "Failure classes this tool cannot detect", eight items incl. the two additivity cases |
@@ -243,3 +243,24 @@ Built against the released v0.4.2 (status "Approved — released for build", Age
 | `npm test` | 63 tests, 0 failures |
 
 **Still open.** The standing privacy text v1.0 has not arrived (T5): the covering email lists it as attached, and it is not in the attachments received. The two places it belongs are unchanged and marked in `src/ui/page-content.js` and `src/ui/chrome.js`. Acceptance 22, 27 and 28 remain deployment- and people-gated, and acceptance 29 still needs its run against the public address.
+
+### A-10 — Agent Nadira's §7 build review: B1, T11, R1, K1, 21 September 2026
+
+The §7 review did not pass 1.0.0. Two blocking findings and two required before the tag, all fixed on the same build; the engine arithmetic was not at issue in any of them.
+
+| # | Fix | Evidence |
+|---|---|---|
+| **B1** blocking | Every concentration quantity in the object now follows the convention the volumes already used: the number in `value` is in the unit named in `unit`, and the engine's internal-unit number travels beside it as `internalUnrounded`. A 5 mM stock with a 20 µM target exported `5000000000 µM`; it now exports `5000 µM`, and the target `20 µM`. The five consumers that wanted the internal number — acceptance 3's dump, the ULP tests, the empirical sampler — read `internalUnrounded` | `result-object › B1`, five unit pairings across mass and molar, asserting value × unit equals the entered quantity. **Demonstrated capable of failing:** reintroducing the defect fails the test with "stock is 100000 µg/mL, expected 100", and fails acceptance 3 on 46 of 46 vessels |
+| **T11** blocking | The page published the v0.4.1 rule: one-sided condition (i), floor f ≤ 10 only. The page and the object now render from the same two engine constants, so the structural cause is removed, not just the text | `result-object › T11` asserts the page states the object's published consequence verbatim and every rule step, and names f ≤ 11, the destination diluent bound, the two-sided bound and the displayed-volume comparison |
+| **R1** before tag | Every reject condition that holds is reported together. C3-HI-10 on the stated diluent is decided from the declarations, so it is raised before computation and the arithmetic continues, reporting any step-level reject beside it; every vessel that fails C3-HI-10 is named, not only the first. Conditions that leave the plan undefined (no stock, mixed dimensions, zero volume) still stop the arithmetic, and no step-level reject is invented past them | `rejects-flags › R1`, on Agent Nadira's own example: diluent basis, D = 1 µL, stock 100 → 50 reports C3-HI-10 **and** C3-HI-09, and the page lists both |
+| **K1** before tag | Rejection `quantities` carry the displayed precision — "0.100" and "1.40", the same strings the messages state — and the unit the number is in, for the reason B1 gives. The series floor is a factor bound, so it carries a number and a null unit | `rejects-flags › K1`, both of Agent Nadira's examples |
+
+**Acceptance 3, re-run with units compared.** The dump now carries each vessel's concentration unit, its value in that unit and its volume unit; the Python reimplementation checks the label against the unit the input was entered in, and that value × unit is the same quantity as the internal number. Result: **46 vessels in 15 cases, 0 failures, 0 ULP, 0 of 138 displayed values differing, 0 of 138 unit mismatches.** The 0-ULP agreement Agent Nadira noted stands; it now sees labels too.
+
+**Also closed:** item 16, decades, so the register's series row moves from `proposed` to `disclosed`.
+
+**Not in 1.0.0, by owner decision:** K2 (a 4 µL transfer shown as 0.00400 mL when the volume unit is mL) is a tool-set question to be decided across C1, C3 and C4.
+
+**Gates after the fixes:** 68 tests, 0 failures · acceptance 3 as above · viewport 0 violations over 0..5236, 24 requests, 0 off-origin · contrast 47 combinations, 0 failures · browser checks 9/9 · build clean.
+
+**R2 (Agent Nadira).** Her source-level reading of the served modules agrees with this build: no storage API in any of them. Acceptance 22 and 24 run on the **deployed** artefact with instrumentation installed before load; `scripts/browser-checks.mjs` installs it via `addInitScript`, before any page script, and takes a URL, so it runs against the deployed address unchanged.
