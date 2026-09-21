@@ -56,7 +56,10 @@ test('C3-HI-05 dilution factor ≤ 1 in the top-factor-count form', () => {
   // because a factor of 1.001 leaves 0.0999 µL of diluent: legal as a factor,
   // unpipettable as a plan. Given a stated volume that leaves a pipettable
   // diluent it plans, which is what C3-HI-05 is about.
-  assert.deepEqual(rejectCodes(tfc(1.001)), ['C3-HI-10']);
+  // Every vessel that fails is named, not just the first (R1): at a factor of
+  // 1.001 both diluted points leave 0.0999 µL of diluent.
+  assert.deepEqual(rejectCodes(tfc(1.001)), ['C3-HI-10', 'C3-HI-10']);
+  assert.deepEqual(tfc(1.001).rejections.map((x) => x.quantities.vessel), ['P2', 'P3']);
   assert.equal(tfc(1.001, '3000').status, 'plan');
 });
 
@@ -356,4 +359,56 @@ test('the destination diluent bound does not arise under the diluent-volume basi
   assert.equal(p1.volumes.transferIn.display, '200');
   assert.equal(p1.volumes.diluent.display, '10'); // the stated D, echoed as entered
   assert.deepEqual(codes(r).sort(), ['C3-FL-01', 'C3-FL-05']);
+});
+
+test('R1 — every reject condition that holds is reported together, not just the first', () => {
+  // Agent Nadira's example: diluent basis, D = 1 µL, stock 100 → 50 µg/mL. The
+  // stated diluent is below the minimum AND the step factor of 2 is below the
+  // series floor. A user told only about the step would fix it and then meet the
+  // other. Withholding gives the whole reason.
+  const r = plan({ stock: { value: '100', unit: 'µg/mL' }, target: { form: 'single', value: '50', unit: 'µg/mL' }, basis: 'diluent', volume: { value: '1', unit: 'µL' } });
+  assert.equal(r.status, 'rejected');
+  assert.deepEqual(rejectCodes(r).sort(), ['C3-HI-09', 'C3-HI-10']);
+  const ten = r.rejections.find((x) => x.code === 'C3-HI-10');
+  const nine = r.rejections.find((x) => x.code === 'C3-HI-09');
+  assert.equal(ten.quantities.statedDiluent, '1 µL');
+  assert.match(ten.message, /The remedy is the stated diluent volume\./);
+  assert.equal(nine.quantities.bound, 'series floor');
+  // Each vessel that fails C3-HI-10 is named, not only the first.
+  // At 150 µL both points leave 1.00 µL of diluent, and both are named.
+  const many = plan({ stock: { value: '100', unit: 'µg/mL' }, target: { form: 'list', values: ['99', '99.5'], unit: 'µg/mL' }, route: 'independent', volume: { value: '150', unit: 'µL' } });
+  assert.deepEqual(rejectCodes(many), ['C3-HI-10', 'C3-HI-10']);
+  assert.deepEqual(many.rejections.map((x) => x.quantities.vessel), ['P1', 'P2']);
+  // A condition that leaves the plan undefined still stops the arithmetic. The
+  // stated diluent is reported beside it, because that condition holds on the
+  // declarations whatever the stock is; no step-level reject is invented, since
+  // there is nothing to compute past a stock of zero.
+  const undefinedPlan = plan({ stock: { value: '0', unit: 'µg/mL' }, target: { form: 'single', value: '0', unit: 'µg/mL' }, basis: 'diluent', volume: { value: '1', unit: 'µL' } });
+  assert.deepEqual(rejectCodes(undefinedPlan).sort(), ['C3-HI-01', 'C3-HI-10']);
+  assert.ok(!rejectCodes(undefinedPlan).includes('C3-HI-09'));
+});
+
+test('K1 — rejection quantities carry the displayed precision and the unit the number is in', () => {
+  const at = (stock, target, volume) => plan({ stock: { value: stock, unit: 'µg/mL' }, target: { form: 'single', value: target, unit: 'µg/mL' }, volume: { value: volume, unit: 'µL' } });
+  // The message and the object state the same string: 0.100, not 0.10.
+  const tenth = at('100', '9.9', '10').rejections[0];
+  assert.equal(tenth.quantities.value, '0.100');
+  assert.equal(tenth.quantities.unit, 'µL');
+  assert.match(tenth.message, /0\.100 µL of diluent/);
+  const forty = at('110', '10', '15').rejections[0];
+  assert.equal(forty.quantities.value, '1.40');
+  assert.match(forty.message, /1\.40 µL of diluent/);
+  // The series floor is a factor bound, not a volume, so it carries no unit.
+  const floor = at('100', '20', '5').rejections[0];
+  assert.equal(floor.quantities.bound, 'series floor');
+  assert.equal(floor.quantities.value, 10);
+  assert.equal(floor.quantities.unit, null);
+  // C3-HI-06's volumes are padded too.
+  const hi06 = plan({ target: { form: 'list', values: ['750', '601'], unit: 'µg/mL' }, route: 'serial', basis: 'diluent', volume: { value: '10', unit: 'µL' } });
+  assert.equal(hi06.rejections[0].quantities.transfer, '40.3');
+  assert.equal(hi06.rejections[0].quantities.total, '40.0');
+  // C3-HI-10's diluent likewise.
+  const hi10 = at('100', '99', '150').rejections[0];
+  assert.equal(hi10.quantities.diluent, '1.00');
+  assert.equal(hi10.quantities.unit, 'µL');
 });
