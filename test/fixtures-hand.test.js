@@ -220,7 +220,7 @@ test('C3-FX-03 target → plan → recomputed exact concentration within the der
   for (const c of cases) {
     const r = plan(c);
     assert.equal(r.status, 'plan', JSON.stringify(r.rejections));
-    assert.equal(r.tolerances.roundTrip.status, 'open'); // registration open until the memo is signed
+    assert.equal(r.tolerances.roundTrip.status, 'derived'); // memo signed 21 September 2026
     for (const v of r.vessels) {
       if (v.kind !== 'point' || v.isZero) continue;
       const target = r.declarations.target.values[v.pointIndex].internal;

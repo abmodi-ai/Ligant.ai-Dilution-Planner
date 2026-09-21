@@ -72,7 +72,9 @@ function renderVessel(v, r, flags) {
       ${vol.residual !== null ? `<div class="vg"><span class="k">Closure residual ρ</span><span class="v">${esc(vol.residual)} ${esc(vol.total.unit)}</span></div>` : ''}
       ${v.isZero ? '' : `<div class="vg"><span class="k">Exact concentration</span><span class="v">${esc(c.exact.display)} ${esc(c.exact.unit)}</span><span class="sub">from unrounded volumes</span></div>
       <div class="vg"><span class="k">Achieved (point value)</span><span class="v">${esc(c.achieved.display)} ${esc(c.achieved.unit)}</span><span class="sub">from the displayed volumes, before any pipetting error</span></div>
-      <div class="vg"><span class="k">Bound on departure</span><span class="v">±${esc(c.bound.display)}</span><span class="sub">relative, compounded along the chain; registration open</span></div>`}
+      ${c.bound.status === 'derived'
+        ? `<div class="vg"><span class="k">Bound on departure</span><span class="v">±${esc(c.bound.display)}</span><span class="sub">relative, compounded along the chain</span></div>`
+        : `<div class="vg"><span class="k">Bound on departure</span><span class="v">bound: derivation memo unsigned</span><span class="sub">the bound is withheld until its derivation is signed; the achieved value above is a computation and stands (C3-OUT-03)</span></div>`}`}
     </div>`;
   }
   const flagList = flags.length ? `<ul class="vessel-flags">${flags.map((f) => `<li><span class="code">${esc(f.code)}</span>${esc(f.message)}</li>`).join('')}</ul>` : '';

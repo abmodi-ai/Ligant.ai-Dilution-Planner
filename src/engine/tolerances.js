@@ -3,12 +3,19 @@
 // the stated operation set (docs/operation-sequence.md); the empirical maxima in
 // the memo are evidence the bounds are not loose, never the tolerance.
 //
-// REGISTRATION IS OPEN. The memo is NADIRA's to sign and has not been signed
-// (owner's instruction, 17 September 2026), so the result object states both
-// tolerances as open and publishes no register value for them. The constants
-// below remain the engine's derivation: the per-point bound required by
-// C3-OUT-03 is computed from them, and acceptance 3 compares against the
-// round-trip count. Restore the published values when the memo is signed.
+// REGISTRATION. Agent Nadira signed the memo on 21 September 2026: §2 (the
+// achieved-concentration bound) without condition, §1 (the round-trip
+// tolerance) effective on the insertion of M1, which is in the memo. Both rows
+// are therefore derived, and the object publishes their values.
+//
+// This is the single switch the C3-OUT-03 display gate reads. Setting a row
+// back to 'open' nulls its value in the result object and replaces the number
+// on every point with "bound: derivation memo unsigned", with no other edit
+// (V1, acceptance 32).
+export const TOLERANCE_REGISTRATION = Object.freeze({
+  roundTrip: 'derived',
+  achievedBound: 'derived',
+});
 
 import * as Dec from './decimal.js';
 

@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| Tool | C3 Dilution Planner, engine 0.3.0 (derivation unchanged since 0.2.0) |
-| Status | **Derived here; registration open.** Derived under owner delegation of open items 6 and 7 (A. Modi, 15 September 2026), over the implemented operation set (`docs/operation-sequence.md`); the empirical maxima are evidence only. **Not signed by NADIRA**, so on the owner's instruction of 17 September 2026 the tool states both tolerances as `open` and publishes no value for them (`docs/decisions.md` D-16). This memo is unchanged by that: it is the derivation awaiting her signature at the §7 build review |
+| Tool | C3 Dilution Planner, engine 1.0.0 (derivation unchanged since 0.2.0; the registration status changed) |
+| Status | **Signed. Both tolerances derived.** Derived under owner delegation of open items 6 and 7 (A. Modi, 15 September 2026) over the implemented operation set (`docs/operation-sequence.md`); the empirical maxima are evidence only. **Signed by Agent Nadira, 21 September 2026: §2 without condition, §1 effective on the insertion of M1**, which is in §1 below. The register rows are therefore derived and the tool publishes their values; the display gate that withheld the bound remains in place for the next open status (V1, acceptance 32) |
 | Convention | A register tolerance is the derived analytic bound over the stated operation set; an empirical maximum is evidence the bound is not loose, never the tolerance (C4 build review) |
 
 ## 1. Round-trip tolerance, exact concentration (C3-IV-02, acceptance 3 and 6)
@@ -48,4 +48,4 @@ so the vessel's own term is **b = (1 + h_T/(Tᵈ − h_T))/(1 − h_D/V) − 1**
 | Threshold | Value | Basis | Status |
 |---|---|---|---|
 | Round-trip tolerance, exact concentration | 6 ULP of the target per step from stock (intermediate counts as a step) | §1 | derived |
-| Achieved-concentration bound | per vessel (1 + h_T/(Tᵈ − h_T))/(1 − h_D/V) − 1, compounded Π(1 + bᵢ) − 1; worst-case bound 1.01 × 10⁻² per step | §2 | open until signed |
+| Achieved-concentration bound | per vessel (1 + h_T/(Tᵈ − h_T))/(1 − h_D/V) − 1, compounded Π(1 + bᵢ) − 1; worst-case bound 1.01 × 10⁻² per step | §2 | derived |
