@@ -48,11 +48,16 @@ test('C3-HI-04 stated volume ≤ 0 under any basis', () => {
 });
 
 test('C3-HI-05 dilution factor ≤ 1 in the top-factor-count form', () => {
-  const tfc = (factor) => plan({ target: { form: 'top-factor-count', top: '100', unit: 'µg/mL', factor, count: 3 }, route: 'serial' });
+  const tfc = (factor, volume = '100') => plan({ target: { form: 'top-factor-count', top: '100', unit: 'µg/mL', factor, count: 3 }, route: 'serial', volume: { value: volume, unit: 'µL' } });
   assert.deepEqual(rejectCodes(tfc(1)), ['C3-HI-05']);
   assert.deepEqual(rejectCodes(tfc(0.5)), ['C3-HI-05']);
   assert.match(tfc(0.5).rejections[0].message, /1:100 is a factor of 100/);
-  assert.equal(tfc(1.001).status, 'plan');
+  // A factor above 1 passes C3-HI-05. At 100 µL it is then withheld by C3-HI-10,
+  // because a factor of 1.001 leaves 0.0999 µL of diluent: legal as a factor,
+  // unpipettable as a plan. Given a stated volume that leaves a pipettable
+  // diluent it plans, which is what C3-HI-05 is about.
+  assert.deepEqual(rejectCodes(tfc(1.001)), ['C3-HI-10']);
+  assert.equal(tfc(1.001, '3000').status, 'plan');
 });
 
 test('C3-HI-06 transfer > donating vessel total, strict; a vessel donating its entire contents is legal with remaining 0', () => {
@@ -115,7 +120,7 @@ test('C3-HI-08 target and stock of different dimensions — decided from the uni
   assert.equal(plan({ stock: { value: '1', unit: 'g/L' }, target: { form: 'single', value: '1', unit: 'µg/mL' } }).status, 'plan');
 });
 
-test('C3-FX-13 C3-HI-09 in each of its four ways — the bound that failed is named; no second intermediate', () => {
+test('C3-FX-13 C3-HI-09 in each of its five ways — the bound that failed is named; no second intermediate (acceptance 16, V4)', () => {
   const stock100 = (extra) => plan({ stock: { value: '100', unit: 'µg/mL' }, ...extra });
   // (1) series floor: f = 5 < 10, direct transfer 1 < 2.
   const floor = stock100({ target: { form: 'single', value: '20', unit: 'µg/mL' }, volume: { value: '5', unit: 'µL' } });
@@ -150,19 +155,32 @@ test('C3-FX-13 C3-HI-09 in each of its four ways — the bound that failed is na
   assert.equal(src.rejections[0].quantities.bound, 'source total');
   assert.match(src.rejections[0].message, /source vessel's total, 12\.5 µL/);
   assert.match(src.rejections[0].message, /19\.0 µL/);
-  for (const r of [floor, floorExact, min, cap, src]) {
+  // (5) the destination diluent bound, added at v0.4.2: an intermediate exists
+  //     in the series, but it would leave the destination below the minimum.
+  const destDiluent = stock100({ target: { form: 'single', value: '9.9', unit: 'µg/mL' }, volume: { value: '10', unit: 'µL' } });
+  assert.deepEqual(rejectCodes(destDiluent), ['C3-HI-09']);
+  assert.equal(destDiluent.rejections[0].quantities.bound, 'destination diluent');
+  assert.match(destDiluent.rejections[0].message, /destination diluent bound/);
+  // The five ways name five different bounds.
+  const named = [floor, min, cap, src, destDiluent].map((r) => r.rejections[0].quantities.bound);
+  assert.equal(new Set(named).size, 5, `five distinct bounds, got ${named.join(', ')}`);
+  for (const r of [floor, floorExact, min, cap, src, destDiluent]) {
     assert.equal(r.vessels.length, 0);
     assert.ok(!r.vessels.some((v) => v.kind === 'intermediate'));
   }
 });
 
-test('C3-FL-01 either side of and exactly on the minimum (unrounded transfer)', () => {
-  // stock 1000, F = 1000: T = target (µL) exactly.
+test('C3-FL-01 either side of and exactly on the minimum, on the DISPLAYED transfer (C3-PC-01, V3)', () => {
+  // stock 1000, F = 1000: T = target (µL) exactly. The comparison is against the
+  // volume the bench sets, so 1.995 µL is set as 2.00 µL and is pipettable, and
+  // 1.994 µL is set as 1.99 µL and is not.
   const t = (v) => plan({ target: { form: 'single', value: v, unit: 'µg/mL' }, volume: { value: '1000', unit: 'µL' } });
   assert.deepEqual(codes(t('2')), []);
   assert.deepEqual(codes(t('2.001')), []);
-  assert.deepEqual(codes(t('1.999')), ['C3-FL-01']);
-  assert.equal(vessel(t('1.999'), 'P1').sourceLabel, 'I1');
+  assert.deepEqual(codes(t('1.995')), [], 'displays as 2.00 µL, so it is pipettable');
+  assert.deepEqual(codes(t('1.994')), ['C3-FL-01'], 'displays as 1.99 µL, so it is not');
+  assert.equal(vessel(t('1.994'), 'P1').sourceLabel, 'I1');
+  assert.equal(vessel(t('1.995'), 'P1').sourceLabel, 'S');
 });
 
 test('C3-FL-02 only where a maximum is declared; either side and exactly on', () => {
@@ -248,4 +266,94 @@ test('C3-VB-02 the third basis is unavailable outside a serial multi-point plan,
   assert.match(r.incomplete.find((i) => i.field === 'basis').message, /serial route with more than one point/);
   const ind = plan({ basis: 'available', route: 'independent', target: { form: 'list', values: ['100', '10'], unit: 'µg/mL' } });
   assert.equal(ind.status, 'incomplete');
+});
+
+// ---------------------------------------------------------------------------
+// URS v0.4.2: the diluent minimum (C3-HI-10) and the destination diluent bound
+// ---------------------------------------------------------------------------
+
+test('C3-FX-17 C3-HI-10 on a direct step — the sub-minimum diluent withholds the plan, and the neighbour exactly at the minimum plans', () => {
+  // Stock 100 → 99 µg/mL, minimum 2 µL. At F = 100 the diluent is 1.00 µL.
+  const at = (volume) => plan({ stock: { value: '100', unit: 'µg/mL' }, target: { form: 'single', value: '99', unit: 'µg/mL' }, volume: { value: volume, unit: 'µL' } });
+  const under = at('100');
+  assert.deepEqual(rejectCodes(under), ['C3-HI-10']);
+  const x = under.rejections[0];
+  assert.equal(x.quantities.vessel, 'P1');
+  assert.equal(x.quantities.diluent, '1.00');
+  assert.equal(x.quantities.minimum, '2');
+  assert.match(x.message, /1\.00 µL of diluent/);
+  assert.match(x.message, /below the declared minimum reliable transfer volume of 2 µL/);
+  assert.match(x.message, /The remedy is the stated volume\./);
+  assert.doesNotMatch(x.message, /recommend/i);
+  assert.equal(under.vessels.length, 0, 'withheld: no plan is shown');
+  // Neighbour: F = 200 gives transfer 198 µL and diluent 2.00 µL, exactly at the minimum.
+  const on = at('200');
+  assert.equal(on.status, 'plan');
+  assert.equal(vessel(on, 'P1').volumes.diluent.display, '2.00');
+  assert.deepEqual(codes(on), []);
+});
+
+test('C3-HI-10 boundary either side of the minimum, and the zero-diluent exemption (C3-FX-12)', () => {
+  // Stock 100 → 99 µg/mL: the transfer is 99% of the stated volume and stays
+  // well above the minimum, so the diluent alone is under test. A factor of 2
+  // would not do: there the transfer fails the minimum first and C3-HI-09
+  // answers before C3-HI-10 is reached.
+  const at = (volume) => plan({ stock: { value: '100', unit: 'µg/mL' }, target: { form: 'single', value: '99', unit: 'µg/mL' }, volume: { value: volume, unit: 'µL' } });
+  assert.equal(at('300').status, 'plan', 'diluent 3.00 µL, above');
+  assert.equal(at('200').status, 'plan', 'diluent 2.00 µL, exactly on');
+  assert.deepEqual(rejectCodes(at('150')), ['C3-HI-10'], 'diluent 1.00 µL, below');
+  assert.equal(vessel(at('300'), 'P1').volumes.diluent.display, '3.00');
+  assert.equal(at('150').rejections[0].quantities.diluent, '1.00');
+  // A zero diluent is not an act and is exempt: target = stock adds none.
+  const stockItself = plan({ stock: { value: '1000', unit: 'µg/mL' }, target: { form: 'single', value: '1000', unit: 'µg/mL' }, volume: { value: '100', unit: 'µL' } });
+  assert.equal(stockItself.status, 'plan');
+  assert.deepEqual(codes(stockItself), ['C3-FL-09']);
+  assert.equal(vessel(stockItself, 'P1').volumes.diluent.display, '0');
+});
+
+test('C3-FX-18 the destination diluent bound — C3-HI-09 names it differently from the series floor (acceptance 30)', () => {
+  const at = (stock, target, volume) => plan({ stock: { value: stock, unit: 'µg/mL' }, target: { form: 'single', value: target, unit: 'µg/mL' }, volume: { value: volume, unit: 'µL' } });
+  // f = 10.1: the direct transfer is 0.990 µL, and the only intermediate (g = 10)
+  // would leave 0.100 µL of diluent in the destination.
+  const main = at('100', '9.9', '10');
+  assert.deepEqual(rejectCodes(main), ['C3-HI-09']);
+  assert.equal(main.rejections[0].quantities.bound, 'destination diluent');
+  assert.match(main.rejections[0].message, /destination diluent bound/);
+  assert.match(main.rejections[0].message, /remedy is the stated volume/);
+  assert.doesNotMatch(main.rejections[0].message, /series floor/);
+  assert.equal(main.vessels.length, 0);
+  // Neighbours at a 2 µL minimum: f = 12 is preparable through g = 10; f = 11 is
+  // the boundary and fails; f = 10 fails on the series floor, named differently.
+  const twelve = at('120', '10', '15');
+  assert.equal(twelve.status, 'plan');
+  assert.equal(vessel(twelve, 'P1').sourceLabel, 'I1');
+  assert.equal(vessel(twelve, 'P1').volumes.transferIn.display, '12.5');
+  assert.equal(vessel(twelve, 'P1').volumes.diluent.display, '2.50');
+  assert.deepEqual(codes(twelve), ['C3-FL-01']);
+  const eleven = at('110', '10', '15');
+  assert.deepEqual(rejectCodes(eleven), ['C3-HI-09']);
+  assert.equal(eleven.rejections[0].quantities.bound, 'destination diluent');
+  const ten = at('100', '10', '10');
+  assert.deepEqual(rejectCodes(ten), ['C3-HI-09']);
+  assert.equal(ten.rejections[0].quantities.bound, 'series floor');
+  assert.match(ten.rejections[0].message, /series floor, 10/);
+  assert.doesNotMatch(ten.rejections[0].message, /destination diluent/);
+  // The published consequence states a floor per basis (C3-DT-06 step 5, S1).
+  assert.match(main.intermediateRule.consequence, /f ≤ 11/);
+  assert.match(main.intermediateRule.consequence, /diluent-volume basis/);
+});
+
+test('the destination diluent bound does not arise under the diluent-volume basis, where the diluent is stated (S1)', () => {
+  // S1's worked example: stock 100 → 9.52381 µg/mL, D = 10 µL, m = 2 µL.
+  // Direct transfer 1.05 µL; through I1 at g = 10, a 200 µL intermediate.
+  const r = plan({ stock: { value: '100', unit: 'µg/mL' }, target: { form: 'single', value: '9.52381', unit: 'µg/mL' }, basis: 'diluent', volume: { value: '10', unit: 'µL' } });
+  assert.equal(r.status, 'plan', JSON.stringify(r.rejections));
+  const i1 = vessel(r, 'I1');
+  assert.equal(i1.volumes.total.display, '200');
+  assert.equal(i1.volumes.transferIn.display, '20.0');
+  assert.equal(i1.volumes.diluent.display, '180');
+  const p1 = vessel(r, 'P1');
+  assert.equal(p1.volumes.transferIn.display, '200');
+  assert.equal(p1.volumes.diluent.display, '10'); // the stated D, echoed as entered
+  assert.deepEqual(codes(r).sort(), ['C3-FL-01', 'C3-FL-05']);
 });
