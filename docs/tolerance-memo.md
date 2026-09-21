@@ -2,8 +2,8 @@
 
 | Field | Value |
 |---|---|
-| Tool | C3 Dilution Planner, engine 0.2.0 |
-| Status | **Derived** — under owner delegation of open items 6 and 7 (A. Modi, 15 September 2026); for NADIRA's review at the §7 build review. The derivation is over the implemented operation set (`docs/operation-sequence.md`); the empirical maxima are evidence only |
+| Tool | C3 Dilution Planner, engine 0.3.0 (derivation unchanged since 0.2.0) |
+| Status | **Derived here; registration open.** Derived under owner delegation of open items 6 and 7 (A. Modi, 15 September 2026), over the implemented operation set (`docs/operation-sequence.md`); the empirical maxima are evidence only. **Not signed by NADIRA**, so on the owner's instruction of 17 September 2026 the tool states both tolerances as `open` and publishes no value for them (`docs/decisions.md` D-16). This memo is unchanged by that: it is the derivation awaiting her signature at the §7 build review |
 | Convention | A register tolerance is the derived analytic bound over the stated operation set; an empirical maximum is evidence the bound is not loose, never the tolerance (C4 build review) |
 
 ## 1. Round-trip tolerance, exact concentration (C3-IV-02, acceptance 3 and 6)

@@ -26,3 +26,23 @@ scroll range 0..3497; step visibility violations: 0
 ```
 
 The seventeen requests are the page, stylesheet, module scripts and the six self-hosted font files, all same-origin. This satisfies the *shape* of acceptance 22 and 29; neither is satisfied until the run is repeated against `https://benchtools.ligant.ai/<slug>/` after deployment, and again after any CDN change.
+
+## Interim re-run, 17 September 2026 (local, second machine, second technique)
+
+After the suite-alignment restyle and the removal of the constants register, the check was repeated on the machine where those changes were made. Playwright is **not** installed there (`/opt/node22` and `/opt/pw-browsers` do not exist), so `scripts/viewport-check.mjs` could not run; its logic was reimplemented over the Chrome DevTools Protocol and driven against the same filled plan.
+
+| Setting | Value |
+|---|---|
+| Browser | Google Chrome 152.0.7977.84, `--headless=new` |
+| Driver | Chrome DevTools Protocol directly (no Playwright available) |
+| Host | macOS, Darwin 25.6.0 |
+| Viewport | `Emulation.setDeviceMetricsOverride` 1366 × 650 CSS px, confirmed at run time |
+| Device scale factor | 1 |
+| Media | screen (print rendering checked separately with `Emulation.setEmulatedMedia`) |
+| Plan under test | the same one the script fills: stock 1000, serial [10, 1, 0.1, 0], 100 µL final, maximum 5 µL, provenance and diluent not recorded |
+
+```
+scroll range 0..4699; vessel-head observations 62; violations 0
+```
+
+This is an interim record for the restyle, not a replacement for the row above and not the deployed run. Acceptance 29 still needs `scripts/viewport-check.mjs` against the public address on a machine with the Playwright configuration recorded above.

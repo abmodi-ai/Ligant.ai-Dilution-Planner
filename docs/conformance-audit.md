@@ -14,7 +14,7 @@ Statuses: **met** / **not met** / **not testable yet** (with the gating item). E
 
 | # | Item | Record |
 |---|---|---|
-| B1 | Commit and engine version; versioning rule | commit `a51fa68`; engine `0.2.0` (0.1.0 → 0.2.0: per-point achieved bound and registered tolerances in the object; import path); rule in `src/engine/version.js`: MINOR changes whenever calculation behaviour changes (any change to the volumes, concentrations, factors, flags, rejects or intermediate selection for a given input); PATCH for changes that cannot alter any output; MAJOR for an incompatible input or object change. Rendering and page changes do not change the engine version |
+| B1 | Commit and engine version; versioning rule | commit `a51fa68` as audited; engine **`0.3.0`** since 17 September 2026 (0.2.0 → 0.3.0: the two tolerances stated open with no published value — A-2, D-17; no calculation behaviour changed). 0.1.0 → 0.2.0 was the per-point achieved bound and registered tolerances in the object, and the import path; rule in `src/engine/version.js`: MINOR changes whenever calculation behaviour changes (any change to the volumes, concentrations, factors, flags, rejects or intermediate selection for a given input); PATCH for changes that cannot alter any output; MAJOR for an incompatible input or object change. Rendering and page changes do not change the engine version |
 | B2 | Test-suite composition at commit `a51fa68` (57 tests, all passing; plus the Python comparison of 46 vessels) | hand-calculation 9 (FX-01, 02, 03, 04, 05, 06, 07×2, 08) · closure 1 property test over >100 vessels (IV-01) plus FX-04/05 · invariance 5 (IV-02 against the derived tolerance, IV-04 via FX-06, IV-05, IV-06 via FX-02, acceptance 7 bound property over >200 points) · threshold independence 4 (IV-08 a–d) · inserted defects 1 (IV-03, exceedance against the derived tolerance) · rejects 10 (HI-01…09 incl. FX-13 four ways, FX-15) · flags 7 (FL-01, 02, 03, 04+10, 05, 06, 07; FL-08 and FL-09 inside the HI-02 and HI-03 tests) · boundary: inside the reject and flag tests (FX-12) · negative control 2 (FX-10, FX-11) · import/handoff 4 (FX-09, ST-01, ST-03, ST-04) · state/determinism 4 (ST-08, DT-09, acceptance 18, VB-02) · result object 3 · rounding primitive 7 · units 2 · network 0 automated (`scripts/viewport-check.mjs` records every request; acceptance 22 is deployed-only) · independent reimplementation: `verify/reimplementation.py` (Python), 15 cases, 46 vessels |
 | B3 | Coverage | Measured with `node --test --experimental-test-coverage` at commit `a51fa68`: all files 96.05% lines, 86.88% branches, 93.88% functions; `plan.js` 97.97 / 90.53 / 97.50; `tolerances.js` 100 / 90.91 / 100; `decimal.js` 85.60 / 89.19 / 71.43; `result-object.js` 100 / 82.22 / 100; `shared-import.js` 100 / 54.10 / 100; `sheet.js` 96.55 / 60.42 / 91.67. UI modules (`src/ui/app.js`, `render.js`, `page-content.js`) are exercised by the browser scripts, not by the node suite; `sheet.js` is covered through the import test |
 | B4 | Rounding-primitive measurement | `docs/D2-rounding-measurement.md` — Node 22.22.2, V8 12.4.254.21, 16 tie-adjacent cases; the engine rounds on the exact BigInt expansion; `toPrecision` agreed 16/16 but is not used |
@@ -74,12 +74,12 @@ Statuses: **met** / **not met** / **not testable yet** (with the gating item). E
 | C3-DT-08 | met | `stockConsumed` includes intermediates (`FX-07` 2.00 µL via I1) |
 | C3-DT-09 | met | `fixtures-hand › C3-DT-09` |
 | C3-IV-01 | met | `invariance › C3-IV-01` property test; `FX-04` |
-| C3-IV-02 | met | `fixtures-hand › C3-FX-03`, `invariance › C3-IV-02` within 6 ULP per step from stock (`docs/tolerance-memo.md` §1) |
+| C3-IV-02 | met | `fixtures-hand › C3-FX-03`, `invariance › C3-IV-02` within 6 ULP per step from stock (`docs/tolerance-memo.md` §1). The count is the engine's derivation constant; its registration is **open** (A-2) |
 | C3-IV-03 | met | `invariance › C3-IV-03`: floor and nudge detected by IV-02 and exceed the derived tolerance by >10⁴×; clamp detected by IV-08 (a) and by IV-02; controls pass |
 | C3-IV-04 | met | `FX-06` |
 | C3-IV-05 | met | `invariance › C3-IV-05`, incl. through an intermediate |
 | C3-IV-06 | met | `FX-02` |
-| C3-IV-07 | met | per-point bound `concentration.bound` from the registered derivation, compounded along the chain, incl. the residual term; `invariance › acceptance 7` (>200 points); `docs/tolerance-memo.md` §2 |
+| C3-IV-07 | met | per-point bound `concentration.bound`, computed from that point's own displayed values and compounded along the chain, incl. the residual term; `invariance › acceptance 7` (>200 points); `docs/tolerance-memo.md` §2. Status on the object is now `open` (A-2); the bound itself is unchanged |
 | C3-IV-08 | met | `invariance › C3-IV-08 (a)–(d)`, bit for bit on unrounded volumes, exclusions per E1; intermediate shown to move as `max(g·m, round3(Σ))` |
 | C3-HI-01…05, 07, 08 | met | `rejects-flags`, either side and exactly on |
 | C3-HI-06 | met | `rejects-flags › C3-HI-06` (equal = legal, remaining 0), `FX-15` |
@@ -91,7 +91,7 @@ Statuses: **met** / **not met** / **not testable yet** (with the gating item). E
 | C3-FX-03 | met | `fixtures-hand › C3-FX-03`, seven plans, ≥20 points |
 | C3-FX-09 | met (D-2) | `import.test › C3-FX-09` — pasted C4 object written to the C3 reading of the shared format |
 | C3-FX-16 | met | every fixture states its construction assumption in the test body; FX-01 avoids tie-adjacent values |
-| C3-CN-01 | met | register on the page with values, bases and statuses; the two tolerance rows **derived** with their values and the memo named; the ~1% headline; assumption with scope; rule with consequence; C3-HI-06 sentence |
+| C3-CN-01 | **waived** | The register is off the page by owner instruction (D-15, 17 September 2026), and with it the two tolerance rows and the ~1% headline. Still on the page: the assumption with its scope, the intermediate rule with its published consequence, the C3-HI-06 sentence, precision and versions, failure classes, out of scope. The thresholds themselves remain declared in the form and restated in the plan's declarations and on the bench sheet. See A-1 |
 | C3-ST-01…04 | met (D-2, pasted-object transport) | `import.test`: flags required (ST-01); basis fixed to final at the staining volume and shown as fixed (ST-02); C1 value with provenance and flags (ST-03); replacement named on the output (ST-04) |
 | C3-ST-05 | met | object carries basis, route, labels and sources, step counts, capability values, formulation, flags |
 | C3-ST-06 | met | no storage API in shipped code (grep: none); every field is cleared by reload |
@@ -113,7 +113,7 @@ Statuses: **met** / **not met** / **not testable yet** (with the gating item). E
 | C3-OUT-13 | met | unique labels validated; `FX-07` shared source |
 | C3-NF-01 | met locally; acceptance 22 at deployment | 0 cross-origin requests on the local build incl. the import path (the pasted object is parsed in the page); no `fetch`/XHR/WebSocket in code; CSP `connect-src 'none'` |
 | C3-NF-02 | met | no account or login |
-| C3-NF-03 | met locally; acceptance 29 at deployment | sticky declarations bar; flag chips on each step's header row; `viewport-check` 0 violations over the full scroll range |
+| C3-NF-03 | met locally; acceptance 29 at deployment | sticky declarations line; flag chips on each step's header row; `viewport-check` 0 violations over the full scroll range. Re-measured after the 21 September restructure (A-7): 0 violations, 62 vessel-head observations, scroll 0..4969 |
 | C3-NF-04 | met | `docs/D5` |
 | C3-NF-05 | met | synchronous computation on every input event; no progress indicator exists |
 | C3-NF-06 | met | standalone; no import dependency |
@@ -125,11 +125,11 @@ Statuses: **met** / **not met** / **not testable yet** (with the gating item). E
 |---|---|---|
 | 1 | met | `FX-01`, `FX-04`, `FX-05` hand calculations to displayed precision |
 | 2 | met | `FX-01` non-round, ties avoided |
-| 3 | met | `verify/reimplementation.py` (Python, written from the URS and the operation sequence) agrees with the engine on 46 vessels in 15 cases: unrounded T, V and exact concentration within 6 ULP per step, displayed values and residuals exactly. `npm run verify:reimpl` |
+| 3 | met | `verify/reimplementation.py` (Python, written from the URS and the operation sequence) agrees with the engine on 46 vessels in 15 cases: unrounded T, V and exact concentration within 6 ULP per step, displayed values and residuals exactly. `npm run verify:reimpl`. Re-run 17 September 2026 after A-2: 0 failures, reference set byte-identical; the harness now takes the ULP count from `src/engine/tolerances.js`, since the object no longer publishes it |
 | 4 | met (D-3) | every plan validates against the `1-c3` shared-object expression with per-step flag scope and vessel labels; `result-object.test` |
 | 5 | met | `C3-IV-01` property; `FX-04` both signs, different decades, plus same-decade exact closure |
-| 6 | met | `C3-FX-03`, `C3-IV-02` within the derived tolerance |
-| 7 | met | `invariance › acceptance 7`: achieved departure ≤ stated bound at every point; bound compounds as registered; never above the worst case for its chain length |
+| 6 | met | `C3-FX-03`, `C3-IV-02` within the derived tolerance. The derivation stands; its registration is open (A-2) |
+| 7 | met | `invariance › acceptance 7`: achieved departure ≤ stated bound at every point; the bound compounds as derived; never above the worst case for its chain length. The worst case is no longer published on the page or in the object (A-2); the property test still asserts it against `src/engine/tolerances.js` |
 | 8 | met | `C3-IV-03`; each inserted defect exceeds the derived tolerance; clamp detected by C3-IV-08 |
 | 9 | met | `C3-IV-08 (a)–(d)` |
 | 10 | met | `FX-06` |
@@ -146,12 +146,12 @@ Statuses: **met** / **not met** / **not testable yet** (with the gating item). E
 | 21 | met | labels and sources on output, object and sheet; `FX-07` shared source |
 | 22 | not testable yet (deployment) | slug decided (D-4); local build: 19 same-origin requests, 0 cross-origin, monitoring registered before load. To be run against `https://benchtools.ligant.ai/dilution-planner/` once deployed and after any CDN change |
 | 23 | met | `C3-ST-08`; no state |
-| 24 | met | no storage API; nothing persists |
-| 25 | met | page register, assumption, rule with consequence, C3-HI-06 sentence |
+| 24 | met, with a shared-origin caveat | C3 calls no storage API at all: no `localStorage`, `sessionStorage`, `document.cookie` or `indexedDB` anywhere in `src/`, `index.html`, `scripts/`, `test/` or `verify/`; nothing persists across a reload. The owner's T4 found an 898-byte entry on `localhost:5173` under an 11-character key: it is **C4's**, `c4.state.v1` (`C4-Antibody-Titration-Planner/src/lib/retention.ts`), whose dev server takes Vite's default port 5173 — the same origin. See A-3: on the deployed site every tool shares the origin `https://benchtools.ligant.ai`, so C3 cannot make that entry absent; only C4's removal can |
+| 25 | **waived** with C3-CN-01 | assumption, rule with consequence and the C3-HI-06 sentence are on the page; the register is not (D-15, A-1) |
 | 26 | met | page failure classes incl. the two additivity cases |
 | 27 | not testable yet (observation by A. Modi) | deployed build to be provided |
 | 28 | not testable yet (print at deployment) | PDF rendered locally is complete without the application: labels, contents, additions and sources, bases, route, diluent, capability values, order of addition, stain volume for a C4 point |
-| 29 | not testable yet (deployment) | local run 0 violations over 0..3685 px with the import fieldset present, configuration in D5 |
+| 29 | not testable yet (deployment) | local run 0 violations over 0..3685 px with the import fieldset present, configuration in D5. Re-run locally 17 September 2026 after the suite-alignment restyle, on a second machine and a second technique (CDP, not Playwright — see D5): 0 violations over 0..4699 px, 62 vessel-head observations |
 
 ## Evidence for the tolerance memo (§9), not tolerances
 
@@ -164,3 +164,36 @@ Recorded in `docs/brand-conformance.md`: Brand Guidelines v1.1 §02 naming, §03
 ## Not established by this build
 
 Acceptance 22, 28 and 29 need the deployed address; acceptance 27 needs an observed first-time user. Decision D-1 (the tolerance derivation) was NADIRA's to own and is presented for her review.
+
+## Addendum — 17 September 2026
+
+Changes made after the audit above, on the owner's spot check of the dev build and their instructions of the same day (`docs/decisions.md` D-15…D-18). Engine `0.3.0`. The 57-test suite passes, the Python comparison is unchanged at 46 vessels / 0 failures, and no calculation behaviour changed.
+
+| # | Row affected | What changed |
+|---|---|---|
+| A-1 | C3-CN-01, acceptance 25 | The constants register is **off the page** by owner instruction (D-15). Both rows are **waived**, not met. Nothing else in the About section changed. This is a deliberate divergence from the tool set, which carries the register as a house pattern |
+| A-2 | C3-IV-02, C3-IV-07, acceptance 3, 6, 7 | The two tolerances are **open**, not derived, and publish no value (D-16). The memo's derivation and the engine constants are unchanged, so every measured bound and every test threshold is unchanged; only the registration status and the published values moved. The per-point bound remains on every point (C3-OUT-03) with status `open` |
+| A-3 | acceptance 24 | C3 writes no storage. The entry the owner found on `localhost:5173` is C4's `c4.state.v1`, written by the C4 dev build on Vite's default port. **On the deployed site all four tools share one origin** (`https://benchtools.ligant.ai`; an origin is scheme + host + port, the path is irrelevant), so C4's entry will be present there too and C3 cannot remove it. Acceptance 24 should be read as "C3 writes nothing, and any entry on the shared origin is named to its writer" |
+| A-4 | acceptance 29, D5 | Re-run locally at 1366 × 650 after the restyle, by a second technique on a second machine: 0 violations, 62 vessel-head observations, scroll 0..4699. Configuration in `docs/D5-browser-configuration.md`. This is not the deployed run, and it is not `scripts/viewport-check.mjs` |
+| A-5 | B1, engine version | 0.2.0 → 0.3.0 (D-17) |
+| A-6 | Brand | The page chrome was aligned with the shipped siblings on the same day: shared tokens extracted to `src/tokens.css`, masthead/footer/disclaimer/colophon class vocabulary, control primitives, favicon geometry, skip link and page metadata. One §07 reading is reversed — flags now carry an amber rule **and** the attention wash, as C4 and C1 do. `docs/brand-conformance.md` records it |
+
+**Unrun here, and not waived.** `npm run check:contrast` (the WCAG AA gate) and `scripts/viewport-check.mjs` both require Playwright at `/opt/node22` with the Chromium at `/opt/pw-browsers`, neither of which exists on the machine these changes were made on. The restyle touched nearly every text element, so the contrast gate needs a run on a machine that has them before the §7 review.
+
+### A-7 — the page rebuilt on C4's structure, 21 September 2026
+
+The chrome alignment of 17 September (A-6) matched the header, the footer and the control primitives; the page beneath them was still C3's own. On the owner's instruction — match C4's fonts, page structure, header and footer, "need to look identical UI/UX" — the layout itself was rebuilt from **C4's source** (`C4-Antibody-Titration-Planner/src/`), not from its deployed bundle.
+
+| Was | Now (C4's pattern) |
+|---|---|
+| One `Declarations` panel of `fieldset`/`legend` groups in a 404 px rail | One `.panel` per declaration group, each with a `.panel-head` carrying the teal step circle and an `h2`, in a 50/50 `.layout` |
+| Value and unit inline in a `.qty` flex pair, the unit labelled only for screen readers | C4's `.field-row`: two labelled fields side by side, the unit's label visible |
+| The About section below both columns | A `.method-panel` titled "Method, conventions and limits", last in the left column, in C4's `.prose` voice |
+| One output panel holding plan, derivation and object | C4's `.rail`: "The plan" (actions in the panel head), then "Derivation", then "Structured result" behind a `details`/`summary` disclosure |
+| The masthead carried the tagline and the standfirst | One paragraph, as C4's masthead takes; the standfirst opens the method panel |
+
+**Not adopted, deliberately:** C4's collapse-when-answered declaration panels. That control exists for C4's own measured problem (its input column is ~1700 px whatever the point count) and is welded to machinery C3 does not have — retained values, per-panel confirmation, `retention.ts`. C3 has no persistence at all (C3-ST-06), and C3 recomputes on every `input` event, so a panel that collapses on completion would collapse under the reader's cursor mid-entry. C4's guidance pins (`?` popovers) were not adopted either: C3 states the same help inline, where several of those sentences are required text.
+
+**A defect found and fixed in passing.** The target unit `<select>` lived inside the single-concentration field, so choosing "explicit list" or "top concentration, factor and count" hid it while the plan still used its value — a reader wanting nM targets in list form could not set the unit, and the list form's help pointed at a control that was not on screen. Measured before the fix (unit visible: single `true`, list `false`, top-factor-count `false`) and after (`true`, `true`, `true`). The unit is now its own field, below the form-specific inputs, in all three forms. It is a pre-existing defect, not a consequence of the restructure.
+
+**Verified after the change:** 57/57 tests; acceptance 3 unchanged; sticky declarations 0 violations at 1366 × 650; print renders the bench sheet alone with its table, seven flags and the mark; the built page makes 8 same-origin requests and none elsewhere; single-column order at 1000 px is inputs → plan → method.

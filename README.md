@@ -30,13 +30,14 @@ Any static server works too (`npm run serve`).
 | `src/shared/result-object.js` | C3 draft of the shared result object and its validator (D1) |
 | `src/ui/` | Form, on-screen plan, bench sheet, tool page statements |
 | `src/config.js` | Title, slug, publisher, repository URL, citation — single strings |
+| `src/tokens.css` | The suite's shared design tokens, copied whole from `benchtools.ligant.ai/tokens.css` |
 | `test/` | Executable fixtures C3-FX-01…16 and invariance tests |
 | `docs/` | Day-one records (D1, D2, D5), operation sequence (B7), tolerance memo, decisions, proposed open items (B9), deployment, conformance audit |
 | `verify/` | Independent Python reimplementation and the reference set it is compared against (acceptance 3) |
 | `src/import/` | Import boundary: pasted C4/C1 result object → C3 input |
-| `fonts/` | Self-hosted Inter and IBM Plex Mono (OFL), weights 400/600/700 |
+| `fonts/` | Self-hosted Inter 400/600/700 and IBM Plex Mono 400/600 (OFL) — the five faces C4 loads |
 | `src/ui/mark.js` | The Ligant mark, Council · Ringed, drawn inline (Brand Guidelines §03) |
 
 ## Status
 
-Complete for everything a developer can establish. The open items were decided under owner delegation on 15 September 2026 (`docs/decisions.md`): tolerances derived and registered (`docs/tolerance-memo.md`), pasted-object import for C4/C1, the C3 result object adopted as shipped, slug `dilution-planner`. An independent Python reimplementation (`verify/`) agrees with the engine on the reference set. Remaining for people and deployment: acceptance 22, 28, 29 at the public address (`docs/deployment.md`) and the first-time-user observation (acceptance 27). `docs/conformance-audit.md` is the row-by-row status, and `docs/brand-conformance.md` the record against Brand Guidelines v1.1.
+Complete for everything a developer can establish. The open items were decided under owner delegation on 15 September 2026 (`docs/decisions.md`): the tolerances derived (`docs/tolerance-memo.md`), pasted-object import for C4/C1, the C3 result object adopted as shipped, slug `dilution-planner`. On 17 September the owner instructed two reversals (D-15, D-16): the **constants register is off the page** (C3-CN-01 and acceptance 25 waived), and the two tolerances are stated **open** with no published value until NADIRA signs the memo — the derivation itself is unchanged, and every point still carries its own computed bound. Engine `0.3.0`. An independent Python reimplementation (`verify/`) agrees with the engine on the reference set. Remaining for people and deployment: acceptance 22, 28, 29 at the public address (`docs/deployment.md`) and the first-time-user observation (acceptance 27). `docs/conformance-audit.md` is the row-by-row status, and `docs/brand-conformance.md` the record against Brand Guidelines v1.1.
