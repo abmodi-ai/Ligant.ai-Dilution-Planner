@@ -27,6 +27,26 @@ export const VOLUME_SF = 3; // C3-UN-04
 export const CONCENTRATION_SF = 6; // C3-UN-05
 export const SUGGESTED_MIN_TRANSFER_UL = 2; // C3-PC-01, disclosed default carried from C4
 export const INTERMEDIATE_SERIES = 'decade'; // {10, 100, 1000, …} — open item 16
+
+/**
+ * C3-DT-06, as published. The page and the result object read these same two
+ * constants, so the rule a method reader sees and the rule the object states
+ * cannot drift apart — T11 (owner's regression and Agent Nadira's §7 review)
+ * was exactly that drift: the page still carried the v0.4.1 one-sided condition
+ * and a single floor of f ≤ 10.
+ */
+export const INTERMEDIATE_RULE_STEPS = Object.freeze([
+  'For a step from a source at concentration cₐ — the stock, or the preceding vessel in serial mode — to a point b with factor f = cₐ/cᵦ whose direct transfer, as displayed, falls below the declared minimum m:',
+  'Let Tᵦ(g) be the transfer into vessel b at the remaining factor f/g under the declared basis: F·g/f (final volume); D·g/(f − g) (diluent volume); Vᵦ·g/f with Vᵦ the backward-solved total of b (volume available after onward transfer). Each is increasing in g.',
+  'Take the smallest g from the series {10, 100, 1000, …} with g < f such that (i) Tᵦ(g) ≥ m and, under the final-volume and available-volume bases, Tᵦ(g) ≤ Vᵦ − m, so that the destination holds at least the minimum of both the transfer and its derived diluent — under the diluent-volume basis the destination\'s diluent is the stated D, checked once by C3-HI-10, and (i) keeps only its lower bound; (iii) where a capacity C is declared, the intermediate\'s total ≤ C; and, in serial mode, (iv) the intermediate\'s transfer from its source does not exceed the source vessel\'s total.',
+  'Size the intermediate as max(g·m, the sum of every onward transfer taken from it). Its own transfer from its source is then at or above m by construction.',
+  'In serial mode the intermediate sits between the source and b; the source\'s onward transfer is to the intermediate. In independent mode every point requiring the same g shares one intermediate, sized over all of them, and each such point is recorded as drawn from it.',
+  'If no g satisfies these conditions the plan is rejected naming the bound that failed; a second intermediate is never chained.',
+  'Every comparison with the minimum uses the displayed volume, the volume the bench sets.',
+]);
+
+/** The published consequence of the series, per basis (C3-DT-06 step 5, S1). */
+export const INTERMEDIATE_CONSEQUENCE = 'Under the final-volume and available-volume bases no intermediate exists for a step with f ≤ 11: for f ≤ 10 the intermediate would be the point itself (the series floor), and for 10 < f ≤ 11 the destination cannot hold at least the minimum of both the transfer and its diluent while the direct transfer is below the minimum (the destination diluent bound). Under the diluent-volume basis the destination\'s diluent is the stated volume, the second case does not arise, and the floor is f ≤ 10. In every case the step is rejected under C3-HI-09 naming the bound that failed — the series floor and the destination diluent bound are named differently — and the remedy is the stated volume, not an intermediate. No value is recommended.';
 export const ROUNDING_RULE = 'half away from zero, applied to the exact binary value';
 export const FACTOR_CONVENTION = 'dilution factor = final volume ÷ stock volume; 1:100 is a factor of 100';
 export const ORDER_OF_ADDITION = 'The receiving vessel holds the diluent — or, for a C4 point, the stain — and the stock or intermediate is added to it.';
@@ -313,7 +333,13 @@ export function planDilution(input, options = {}) {
     return assemble(ctx, n, null);
   }
   preComputeRejects(n, ctx);
-  if (ctx.rejections.length) {
+  // R1: report every condition that holds. C3-HI-10 on the stated diluent does
+  // not stop the arithmetic — the plan is computable, just not pipettable — so
+  // computation continues and any step-level reject is reported beside it. The
+  // other §7 conditions leave the plan undefined (no stock, mixed dimensions, a
+  // zero volume), and there is nothing to compute past them.
+  const onlyUnpipettable = ctx.rejections.length > 0 && ctx.rejections.every((x) => x.code === 'C3-HI-10');
+  if (ctx.rejections.length && !onlyUnpipettable) {
     return assemble(ctx, n, null);
   }
   const plan = computeVessels(n, ctx, defect);
@@ -489,6 +515,17 @@ function preComputeRejects(n, ctx) {
   // C3-HI-04
   if (!(n.volume.num > 0)) {
     rej('C3-HI-04', `The stated volume is ${n.volume.entered} ${n.volume.unit}, declared as the ${BASIS[n.basis].short}. A preparation cannot have zero volume.`, { volume: `${n.volume.entered} ${n.volume.unit}`, basis: n.basis });
+  }
+  // C3-HI-10 on the stated diluent. Under the diluent-volume basis the diluent
+  // every point receives IS the stated volume, so the condition is decidable
+  // from the declarations and holds whether or not a plan can be computed — R1:
+  // a step rejected under C3-HI-09 must not hide a diluent the bench cannot
+  // pipette either.
+  if (n.basis === 'diluent' && n.volume.num > 0 && n.minTransfer && belowMinimum(n.volume.num, n.minTransfer)) {
+    const shown = `${n.volume.entered} ${n.volume.unit}`;
+    rej('C3-HI-10',
+      `The stated diluent volume is ${shown}, below the declared minimum reliable transfer volume of ${entered(n.minTransfer)}. Every volume in this plan is pipetted, the diluent included, so no plan under this declaration is preparable. The remedy is the stated diluent volume.`,
+      { statedDiluent: shown, minimum: n.minTransfer.entered, unit: n.minTransfer.unit });
   }
   // C3-HI-05
   if (n.targetForm === 'top-factor-count' && !(n.declaredFactor > 1)) {
@@ -694,7 +731,11 @@ function entered(x) {
 function rejectNoIntermediate(n, ctx, srcLabel, p, evalResult, stepDescription) {
   const { f, candidates } = evalResult;
   const vu = n.display.volumeUnit;
-  const fmtV = (x) => `${Dec.toString(Dec.padSig(Dec.shift(Dec.isDec(x) ? x : round3(x), n.display.volumeShift), VOLUME_SF))} ${vu}`;
+  // K1 (Agent Nadira, §7 build review): the object carries the displayed
+  // precision, the same string the message states — "0.100", not "0.10" — and
+  // the unit the number is in, for the reason B1 gives.
+  const dispV = (x) => Dec.toString(Dec.padSig(Dec.shift(Dec.isDec(x) ? x : round3(x), n.display.volumeShift), VOLUME_SF));
+  const fmtV = (x) => `${dispV(x)} ${vu}`;
   const fStr = Dec.toString(Dec.roundSig(Dec.fromNumberExact(f), CONCENTRATION_SF));
   let bound, value, message;
   if (candidates.length === 0) {
@@ -733,7 +774,9 @@ function rejectNoIntermediate(n, ctx, srcLabel, p, evalResult, stepDescription) 
   ctx.rejections.push({
     code: 'C3-HI-09',
     message,
-    quantities: { step: stepDescription, factor: f, bound, value: Dec.isDec(value) ? Dec.toString(value) : value },
+    quantities: bound === 'series floor'
+      ? { step: stepDescription, factor: f, bound, value, unit: null }
+      : { step: stepDescription, factor: f, bound, value: dispV(value), unit: vu },
     scope: { level: 'step', vessel: p.label, from: srcLabel },
   });
 }
@@ -912,9 +955,10 @@ function planIndependent(n, ctx, plan, stockVessel, chainPoints, defect) {
 // ---- §7 rejects decidable only on the computed plan -----------------------
 
 function postComputeRejects(n, ctx, plan) {
-  if (ctx.rejections.length) return;
+  // R1 (Agent Nadira, §7 build review): withholding gives the whole reason, so
+  // every condition that holds is reported. A user who fixes the step named by
+  // C3-HI-09 and then meets C3-HI-10 was told half the truth.
   dilluentMinimumRejects(n, ctx, plan);
-  if (ctx.rejections.length) return;
   const vu = n.display.volumeUnit;
   const fmtV = (d) => `${Dec.toString(Dec.padSig(Dec.shift(d, n.display.volumeShift), VOLUME_SF))} ${vu}`;
   // C3-HI-06: transfer > donating vessel total (strict). The stock has no total
@@ -926,7 +970,7 @@ function postComputeRejects(n, ctx, plan) {
         ctx.rejections.push({
           code: 'C3-HI-06',
           message: `The transfer of ${fmtV(o.Td)} from ${v.label} to ${o.to} exceeds the ${fmtV(v.vol.total)} that ${v.label} holds (its total as ${totalDescription(n, v)}). A vessel cannot donate more than it holds.`,
-          quantities: { transfer: Dec.toString(Dec.shift(o.Td, n.display.volumeShift)), total: Dec.toString(Dec.padSig(Dec.shift(v.vol.total, n.display.volumeShift), VOLUME_SF)), unit: vu, vessel: v.label, to: o.to },
+          quantities: { transfer: Dec.toString(Dec.padSig(Dec.shift(o.Td, n.display.volumeShift), VOLUME_SF)), total: Dec.toString(Dec.padSig(Dec.shift(v.vol.total, n.display.volumeShift), VOLUME_SF)), unit: vu, vessel: v.label, to: o.to },
           scope: { level: 'step', vessel: o.to, from: v.label },
         });
       }
@@ -947,7 +991,6 @@ function postComputeRejects(n, ctx, plan) {
  * adds, so it is not this bound's business either.
  */
 function dilluentMinimumRejects(n, ctx, plan) {
-  if (ctx.rejections.length) return;
   const m = n.minTransfer;
   const vu = n.display.volumeUnit;
   const fmtV = (d) => `${Dec.toString(Dec.padSig(Dec.shift(d, n.display.volumeShift), VOLUME_SF))} ${vu}`;
@@ -956,6 +999,7 @@ function dilluentMinimumRejects(n, ctx, plan) {
     : 'The remedy is the stated volume.';
   for (const v of plan.vessels) {
     if (v.kind === 'stock' || v.receiving === 'stain') continue;
+    if (n.basis === 'diluent' && v.kind !== 'intermediate') continue; // the stated D, reported once below
     const Dd = v.vol.Dd;
     if (!Dd || Dec.cmp(Dd, Dec.ZERO) === 0) continue; // zero diluent is not an act
     if (Dec.cmp(Dd, m.dec) >= 0) continue;
@@ -965,7 +1009,6 @@ function dilluentMinimumRejects(n, ctx, plan) {
       quantities: { vessel: v.label, diluent: Dec.toString(Dec.padSig(Dec.shift(Dd, n.display.volumeShift), VOLUME_SF)), minimum: m.entered, unit: vu },
       scope: { level: 'step', vessel: v.label },
     });
-    return; // one withheld plan, named at the first vessel that fails
   }
 }
 
@@ -1115,8 +1158,8 @@ function buildRegister(n) {
       threshold: 'Intermediate factor series',
       value: '{10, 100, 1000, …}',
       basis: 'Inspection: checkable by eye. Consequence published per C3-DT-06 step 5: no intermediate for f ≤ 11 under the final-volume and available-volume bases, f ≤ 10 under the diluent-volume basis',
-      status: 'proposed',
-      note: 'open item 16',
+      status: 'disclosed',
+      note: 'open item 16 closed as decades, 21 September 2026',
     },
     {
       threshold: 'Displayed precision, volumes',
@@ -1198,7 +1241,8 @@ function assemble(ctx, n, plan) {
     intermediateRule: {
       series: INTERMEDIATE_SERIES,
       candidates: '{10, 100, 1000, …}, g < f',
-      consequence: 'Under the final-volume and available-volume bases no intermediate exists for a step with f ≤ 11: for f ≤ 10 the intermediate would be the point itself (the series floor), and for 10 < f ≤ 11 the destination cannot hold at least the minimum of both the transfer and its diluent while the direct transfer is below the minimum (the destination diluent bound). Under the diluent-volume basis the destination\'s diluent is the stated volume, the second case does not arise, and the floor is f ≤ 10. In every case the step is rejected under C3-HI-09 naming the bound that failed, and the remedy is the stated volume, not an intermediate. No value is recommended.',
+      consequence: INTERMEDIATE_CONSEQUENCE,
+      steps: INTERMEDIATE_RULE_STEPS,
     },
     scope: 'Research use. Not qualified for GxP decision-making.',
     plansNotVerifies: 'This tool plans preparation. It does not verify what was prepared.',
@@ -1220,6 +1264,24 @@ function assemble(ctx, n, plan) {
   if (!plan) return result;
 
   const concDisp = (internal) => concDisplayString(internal, n.display.concUnit);
+  /**
+   * B1 (Agent Nadira, §7 build review, 21 September 2026). Every concentration
+   * quantity in the object follows the convention the volumes already use: the
+   * number in `value` is in the unit named in `unit` — the display unit — and
+   * the engine's internal-unit number travels beside it under its own name.
+   * Before this, `value` carried the internal number under the display label,
+   * so a 20 µM target exported as 20000000 µM: the 1000× error C3-UN-01 exists
+   * to prevent, reintroduced in the export. Consumers of the internal number
+   * (acceptance 3's dump, the ULP tests, the empirical sampler) read
+   * `internalUnrounded`, as they do for volumes.
+   */
+  const concScale = n.display.concUnit ? unitInfo(n.display.concUnit).scale : 1;
+  const cq = (internal) => (internal === null || internal === undefined ? null : {
+    value: internal / concScale,
+    unit: n.display.concUnit,
+    display: internal === 0 ? '0' : concDisp(internal),
+    internalUnrounded: internal,
+  });
   const sf6 = (x) => Dec.toString(Dec.roundSig(Dec.fromNumberExact(x), CONCENTRATION_SF));
   const flagsFor = (label) => ctx.flags.filter((f) => f.scope && f.scope.vessel === label).map((f) => f.code);
 
@@ -1241,15 +1303,15 @@ function assemble(ctx, n, plan) {
       flags: flagsFor(v.label),
     };
     if (v.kind === 'stock') {
-      rec.concentration = { exact: { value: v.cExact, unit: n.display.concUnit, internal: v.cExact }, entered: { value: n.stock.entered, unit: n.stock.unit } };
+      rec.concentration = { exact: cq(v.cExact), entered: { value: n.stock.entered, unit: n.stock.unit } };
       rec.volumes = { onward: v.onward.map((o) => ({ to: o.to, transfer: q(o.Td, o.T) })) };
     } else {
       const vol = v.vol;
       rec.concentration = {
         target: v.kind === 'point' ? (v.cTargetEntered !== null ? { value: v.cTargetEntered, unit: v.unit, asEntered: true } : { value: concDisp(v.cExactNominal), unit: n.display.concUnit, asEntered: false, derivedFromTop: true }) : null,
         nominal: v.kind === 'intermediate' ? { value: concDisp(v.cExactNominal), unit: n.display.concUnit } : null,
-        exact: { value: v.cExact, unit: n.display.concUnit, display: v.isZero ? '0' : concDisp(v.cExact) },
-        achieved: { value: v.cAchieved, unit: n.display.concUnit, display: v.isZero ? '0' : concDisp(v.cAchieved) },
+        exact: cq(v.isZero ? 0 : v.cExact),
+        achieved: cq(v.isZero ? 0 : v.cAchieved),
         achievedDeparture: v.isZero || v.cExactNominal === 0 ? null : { relative: v.cAchieved / v.cExactNominal - 1 },
         // The per-point bound is required on the output (C3-OUT-03, C3-IV-07) and
         // is computed from this point's own displayed values. Its value travels

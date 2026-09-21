@@ -34,7 +34,11 @@ for (const [name, input] of Object.entries(cases)) {
     targets: r.declarations.target.values.map((t) => t.internal),
     vessels: r.vessels.filter((v) => v.kind !== 'stock').map((v) => ({
       label: v.label, kind: v.kind, source: v.sourceLabel, steps: v.stepsFromStock, g: v.intermediateFactor,
-      T: v.volumes.transferIn.internalUnrounded, V: v.volumes.total.internalUnrounded, cExact: v.concentration.exact.value,
+      T: v.volumes.transferIn.internalUnrounded, V: v.volumes.total.internalUnrounded, cExact: v.concentration.exact.internalUnrounded,
+      // B1: the units travel with the numbers, so acceptance 3 compares labels
+      // as well as values (Agent Nadira, §7 build review).
+      cUnit: v.concentration.exact.unit, cDisplayValue: v.concentration.exact.value,
+      volumeUnit: v.volumes.transferIn.unit,
       Td: v.volumes.transferIn.display, Dd: v.volumes.diluent.display, total: v.volumes.total.display, residual: v.volumes.residual,
       // The displayed bound is part of the reference table from engine 1.0.0: a
       // MAJOR release re-checks it before release (C3-NF-07), and it is a

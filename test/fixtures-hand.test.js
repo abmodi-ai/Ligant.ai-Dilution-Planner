@@ -224,7 +224,7 @@ test('C3-FX-03 target → plan → recomputed exact concentration within the der
     for (const v of r.vessels) {
       if (v.kind !== 'point' || v.isZero) continue;
       const target = r.declarations.target.values[v.pointIndex].internal;
-      const err = ulpDistance(v.concentration.exact.value, target);
+      const err = ulpDistance(v.concentration.exact.internalUnrounded, target);
       assert.ok(err <= ROUND_TRIP_ULP_PER_STEP * v.stepsFromStock, `${v.label}: ${err} ULP at ${v.stepsFromStock} steps`);
       points += 1;
     }

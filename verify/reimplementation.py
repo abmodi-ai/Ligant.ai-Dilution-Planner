@@ -210,6 +210,7 @@ def main(path):
     worst_ulp = 0.0
     worst_where = 'none'
     displayed_mismatches = 0
+    unit_mismatches = 0
     for name, case in ref.items():
         mine = {v['label']: v for v in plan(case['input'])}
         tol = case['ulpPerStep']
@@ -220,6 +221,30 @@ def main(path):
                 failures += 1
                 print(f'{name} {rv["label"]}: structure differs: {mv and (mv["source"], mv["steps"], mv["g"])} vs {(rv["source"], rv["steps"], rv["g"])}')
                 continue
+            # B1 (Agent Nadira, SS7 build review): the labels are compared, not only
+            # the numbers. Both implementations emitted the same number when the
+            # label was wrong, which is why 0-ULP agreement could not see it.
+            # The display unit is the target's unit for concentrations and the
+            # stated volume's unit for volumes; value must be the number in that
+            # unit, and cExact the internal-unit number.
+            expected_conc_unit = case['input']['target']['unit']
+            expected_vol_unit = case['input']['volume']['unit']
+            if rv.get('cUnit') != expected_conc_unit:
+                failures += 1
+                unit_mismatches += 1
+                print(f'{name} {rv["label"]}: concentration labelled {rv.get("cUnit")}, expected {expected_conc_unit}')
+            if rv.get('volumeUnit') != expected_vol_unit:
+                failures += 1
+                unit_mismatches += 1
+                print(f'{name} {rv["label"]}: volume labelled {rv.get("volumeUnit")}, expected {expected_vol_unit}')
+            # value x unit is the same quantity as the internal number
+            scale = CONC_SCALE[expected_conc_unit]
+            expected_display_value = rv['cExact'] / scale if scale != 1 else rv['cExact']
+            got = rv.get('cDisplayValue')
+            if got is None or abs(got - expected_display_value) > abs(expected_display_value) * 1e-12:
+                failures += 1
+                unit_mismatches += 1
+                print(f'{name} {rv["label"]}: {got} {rv.get("cUnit")} is not {expected_display_value} {expected_conc_unit}')
             # unrounded values within the round-trip tolerance (ULP of the reference value)
             for key in ('T', 'V', 'cExact'):
                 a, b = mv[key], rv[key]
@@ -242,6 +267,7 @@ def main(path):
     print(f'compared {compared} vessels in {len(ref)} cases; failures: {failures}')
     print(f'observed maximum difference on the unrounded values: {worst_ulp:.4g} ULP ({worst_where})')
     print(f'displayed values differing: {displayed_mismatches} of {compared * 3}')
+    print(f'unit-label and value-in-unit mismatches: {unit_mismatches} of {compared * 3}')
     print(f'pass criterion: within {tol}k ULP at a point k steps from stock, and every displayed value equal')
     sys.exit(1 if failures else 0)
 
