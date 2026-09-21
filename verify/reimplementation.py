@@ -205,6 +205,11 @@ def main(path):
     ref = json.load(open(path))
     failures = 0
     compared = 0
+    # The result of the comparison is the observed difference; 6k ULP is the pass
+    # criterion, not the finding (owner's item 2e, 21 September 2026).
+    worst_ulp = 0.0
+    worst_where = 'none'
+    displayed_mismatches = 0
     for name, case in ref.items():
         mine = {v['label']: v for v in plan(case['input'])}
         tol = case['ulpPerStep']
@@ -219,19 +224,25 @@ def main(path):
             for key in ('T', 'V', 'cExact'):
                 a, b = mv[key], rv[key]
                 d = abs(a - b) / ulp(b) if b else abs(a - b)
+                if d > worst_ulp:
+                    worst_ulp, worst_where = d, f'{name} {rv["label"]} {key} at {rv["steps"]} step(s)'
                 if d > tol * rv['steps']:
                     failures += 1
                     print(f'{name} {rv["label"]} {key}: {a} vs {b} = {d:.2f} ULP > {tol * rv["steps"]}')
             # displayed values exactly
             for key, ref_key in (('Td', 'Td'), ('Dd', 'Dd'), ('total', 'total')):
                 if Decimal(fmt(mv[key])) != Decimal(rv[ref_key]):
+                    displayed_mismatches += 1
                     failures += 1
                     print(f'{name} {rv["label"]} {key}: displayed {fmt(mv[key])} vs {rv[ref_key]}')
             if rv['residual'] is not None:
                 if mv['residual'] is None or Decimal(rv['residual']) != mv['residual']:
                     failures += 1
                     print(f'{name} {rv["label"]} residual: {mv["residual"]} vs {rv["residual"]}')
-    print(f'compared {compared} vessels in {len(ref)} cases; failures: {failures}; tolerance {tol} ULP per step')
+    print(f'compared {compared} vessels in {len(ref)} cases; failures: {failures}')
+    print(f'observed maximum difference on the unrounded values: {worst_ulp:.4g} ULP ({worst_where})')
+    print(f'displayed values differing: {displayed_mismatches} of {compared * 3}')
+    print(f'pass criterion: within {tol}k ULP at a point k steps from stock, and every displayed value equal')
     sys.exit(1 if failures else 0)
 
 
