@@ -21,7 +21,7 @@ import {
   isConcentrationUnit, isVolumeUnit, DIMENSION,
 } from './units.js';
 import { ENGINE_VERSION, URS_VERSION, TOOL_ID } from './version.js';
-import { vesselDepartureBound, compoundBound, ROUND_TRIP_ULP_PER_STEP, ACHIEVED_BOUND_PER_STEP_WORST, ACHIEVED_BOUND_PER_STEP_EXACT_CLOSURE } from './tolerances.js';
+import { vesselDepartureBound, compoundBound } from './tolerances.js';
 
 export const VOLUME_SF = 3; // C3-UN-04
 export const CONCENTRATION_SF = 6; // C3-UN-05
@@ -1061,8 +1061,8 @@ function assemble(ctx, n, plan) {
     scope: 'Research use. Not qualified for GxP decision-making.',
     plansNotVerifies: 'This tool plans preparation. It does not verify what was prepared.',
     tolerances: {
-      roundTrip: { status: 'derived', ulpPerStep: ROUND_TRIP_ULP_PER_STEP, statement: `Round-trip tolerance, exact concentration: ${ROUND_TRIP_ULP_PER_STEP} ULP of the target per step from stock, a planned intermediate counting as a step (derived over the stated operation set; docs/tolerance-memo.md).` },
-      achievedBound: { status: 'derived', perStepWorst: ACHIEVED_BOUND_PER_STEP_WORST, perStepExactClosure: ACHIEVED_BOUND_PER_STEP_EXACT_CLOSURE, statement: 'Achieved-concentration bound: per vessel (1 + h_T/(Tᵈ − h_T))/(1 − h_D/V) − 1 with h the half-unit of the last displayed place; compounded along the chain as Π(1 + bᵢ) − 1; worst case 1.01 × 10⁻² per step at leading digit 1, 5.03 × 10⁻³ where closure is exact or under the diluent-volume basis.' },
+      roundTrip: { status: 'open', ulpPerStep: null, statement: 'Round-trip tolerance, exact concentration: open. A derivation over the stated operation set exists (docs/tolerance-memo.md) but is not registered — it awaits NADIRA\'s signature at the §7 build review — so no value is stated here.' },
+      achievedBound: { status: 'open', perStepWorst: null, perStepExactClosure: null, statement: 'Achieved-concentration bound: open. Every point carries the bound computed from its own displayed values — per vessel (1 + h_T/(Tᵈ − h_T))/(1 − h_D/V) − 1 with h the half-unit of the last displayed place, compounded along the chain as Π(1 + bᵢ) − 1 (C3-OUT-03, C3-IV-07). No worst case over leading digit is registered while the derivation is unsigned (docs/tolerance-memo.md).' },
       closureResidual: { status: 'derived', statement: '±½ unit in the last displayed place of the one derived volume per vessel; zero under the diluent-volume basis.' },
     },
     vessels: [],
@@ -1105,7 +1105,10 @@ function assemble(ctx, n, plan) {
         exact: { value: v.cExact, unit: n.display.concUnit, display: v.isZero ? '0' : concDisp(v.cExact) },
         achieved: { value: v.cAchieved, unit: n.display.concUnit, display: v.isZero ? '0' : concDisp(v.cAchieved) },
         achievedDeparture: v.isZero || v.cExactNominal === 0 ? null : { relative: v.cAchieved / v.cExactNominal - 1 },
-        bound: v.isZero ? { status: 'derived', relative: null, display: null } : { status: 'derived', relative: v.bound, own: v.boundOwn, display: sf3sci(v.bound) },
+        // The per-point bound is required on the output (C3-OUT-03, C3-IV-07) and is
+        // computed from this point's own displayed values; its registration is open
+        // until the derivation is signed (docs/tolerance-memo.md).
+        bound: v.isZero ? { status: 'open', relative: null, display: null } : { status: 'open', relative: v.bound, own: v.boundOwn, display: sf3sci(v.bound) },
       };
       rec.factorFromSource = v.isZero ? null : { value: v.factorFromSource, display: sf6(v.factorFromSource), exact: vol.totalUnrounded / vol.T, exactDisplay: vol.T === 0 ? null : sf6(vol.totalUnrounded / vol.T) };
       const onwardTotalDec = v.onward.reduce((acc, o) => Dec.add(acc, o.Td), Dec.ZERO);

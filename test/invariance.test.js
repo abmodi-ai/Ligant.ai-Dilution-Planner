@@ -252,7 +252,7 @@ test('acceptance 7 — the achieved point value departs from the target by no mo
     for (const v of r.vessels) {
       if (v.kind === 'stock' || v.isZero) continue;
       const b = v.concentration.bound;
-      assert.equal(b.status, 'derived');
+      assert.equal(b.status, 'open');
       assert.ok(typeof b.display === 'string' && /10/.test(b.display), `${v.label}: bound displayed`);
       if (v.kind === 'point') {
         const dep = Math.abs(v.concentration.achievedDeparture.relative);

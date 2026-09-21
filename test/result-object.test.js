@@ -28,10 +28,10 @@ test('acceptance 4 — every plan validates against the C3 draft of the shared f
       if (v.kind === 'stock') continue;
       for (const k of ['transferIn', 'diluent', 'total', 'remaining']) assert.equal(typeof v.volumes[k].unit, 'string', `${name} ${v.label} ${k}`);
       assert.equal(typeof v.concentration.exact.unit, 'string');
-      assert.equal(v.concentration.bound.status, 'derived');
+      assert.equal(v.concentration.bound.status, 'open');
     }
-    assert.equal(r.tolerances.roundTrip.status, 'derived');
-    assert.equal(r.tolerances.achievedBound.status, 'derived');
+    assert.equal(r.tolerances.roundTrip.status, 'open');
+    assert.equal(r.tolerances.achievedBound.status, 'open');
   }
 });
 

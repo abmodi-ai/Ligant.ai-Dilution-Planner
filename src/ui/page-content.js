@@ -32,7 +32,7 @@ export function renderPageContent(config) {
 <p class="lede">${esc(config.toolTitle)} plans the volumes to combine to reach a stated target concentration, or an ordered set of them, from a stated stock, including any single intermediate dilution a step needs to be pipettable. It plans preparation; it does not verify what was prepared. <strong>Research use. Not qualified for GxP decision-making.</strong></p>
 <p>Entirely client-side: no user-entered data leaves the browser, and the page makes no request to any third party. No account. Nothing persists across a reload.</p>
 
-<p><strong>A 3-significant-figure plan can carry up to about 1% rounding error per step before any pipetting error.</strong> That is larger than most users expect and is why the achieved point value is shown beside every target: it is the concentration the displayed volumes make, and its bound is stated per point.</p>
+<p><strong>A 3-significant-figure plan carries rounding error at every step, before any pipetting error.</strong> That is why the achieved point value is shown beside every target: it is the concentration the displayed volumes make, and the bound on its departure is computed from those volumes and stated at that point. No worst case is published here: the derivation of the two tolerances is open until it is signed (C3-CN-01 is waived while it is).</p>
 
 <h3>Assumption — volume additivity</h3>
 <table>
