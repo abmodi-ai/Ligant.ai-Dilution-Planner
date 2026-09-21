@@ -42,7 +42,9 @@
     "Td": "29.1",
     "Dd": "846",
     "total": "875.1",
-    "residual": "0.1"
+    "residual": "0.1",
+    "boundStatus": "derived",
+    "bound": "2.29 × 10⁻³"
    }
   ]
  },
@@ -89,7 +91,9 @@
     "Td": "12.4",
     "Dd": "988",
     "total": "1000.4",
-    "residual": "0.4"
+    "residual": "0.4",
+    "boundStatus": "derived",
+    "bound": "4.55 × 10⁻³"
    }
   ]
  },
@@ -136,7 +140,9 @@
     "Td": "12.6",
     "Dd": "987",
     "total": "999.6",
-    "residual": "-0.4"
+    "residual": "-0.4",
+    "boundStatus": "derived",
+    "bound": "4.49 × 10⁻³"
    }
   ]
  },
@@ -190,7 +196,9 @@
     "Td": "4.44",
     "Dd": "40.0",
     "total": "44.44",
-    "residual": "0.04"
+    "residual": "0.04",
+    "boundStatus": "derived",
+    "bound": "2.26 × 10⁻³"
    },
    {
     "label": "P2",
@@ -204,7 +212,9 @@
     "Td": "4.40",
     "Dd": "39.6",
     "total": "44.0",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "4.54 × 10⁻³"
    },
    {
     "label": "P3",
@@ -218,7 +228,9 @@
     "Td": "4.00",
     "Dd": "36.0",
     "total": "40.0",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "7.05 × 10⁻³"
    }
   ]
  },
@@ -272,7 +284,9 @@
     "Td": "10.0",
     "Dd": "90.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "5.53 × 10⁻³"
    },
    {
     "label": "P2",
@@ -286,7 +300,9 @@
     "Td": "50.0",
     "Dd": "50.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "7.04 × 10⁻³"
    },
    {
     "label": "P3",
@@ -300,7 +316,9 @@
     "Td": "50.0",
     "Dd": "50.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "8.55 × 10⁻³"
    }
   ]
  },
@@ -354,7 +372,9 @@
     "Td": "10.0",
     "Dd": "90.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "5.53 × 10⁻³"
    },
    {
     "label": "P2",
@@ -368,7 +388,9 @@
     "Td": "5.00",
     "Dd": "95.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.50 × 10⁻³"
    },
    {
     "label": "P3",
@@ -382,7 +404,9 @@
     "Td": "2.50",
     "Dd": "97.5",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "2.51 × 10⁻³"
    }
   ]
  },
@@ -436,7 +460,9 @@
     "Td": "2.00",
     "Dd": "18.0",
     "total": "20.0",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "5.02 × 10⁻³"
    },
    {
     "label": "P1",
@@ -450,7 +476,9 @@
     "Td": "10.0",
     "Dd": "90.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.06 × 10⁻²"
    },
    {
     "label": "P2",
@@ -464,7 +492,9 @@
     "Td": "10.0",
     "Dd": "90.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.62 × 10⁻²"
    },
    {
     "label": "P3",
@@ -478,7 +508,9 @@
     "Td": "10.0",
     "Dd": "90.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "2.18 × 10⁻²"
    }
   ]
  },
@@ -530,7 +562,9 @@
     "Td": "2.00",
     "Dd": "198",
     "total": "200",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "5.02 × 10⁻³"
    },
    {
     "label": "P1",
@@ -544,7 +578,9 @@
     "Td": "10.0",
     "Dd": "90.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.06 × 10⁻²"
    },
    {
     "label": "P2",
@@ -558,7 +594,9 @@
     "Td": "5.00",
     "Dd": "95.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "6.53 × 10⁻³"
    }
   ]
  },
@@ -605,7 +643,9 @@
     "Td": "10.0",
     "Dd": "90",
     "total": "100",
-    "residual": null
+    "residual": null,
+    "boundStatus": "derived",
+    "bound": "5.03 × 10⁻³"
    }
   ]
  },
@@ -661,7 +701,9 @@
     "Td": "10.0",
     "Dd": "90.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "5.53 × 10⁻³"
    },
    {
     "label": "P2",
@@ -675,7 +717,9 @@
     "Td": "10.0",
     "Dd": "90.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.11 × 10⁻²"
    },
    {
     "label": "P3",
@@ -689,7 +733,9 @@
     "Td": "10.0",
     "Dd": "90.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.67 × 10⁻²"
    },
    {
     "label": "P4",
@@ -703,7 +749,9 @@
     "Td": "10.0",
     "Dd": "90.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "2.23 × 10⁻²"
    }
   ]
  },
@@ -761,7 +809,9 @@
     "Td": "109",
     "Dd": "766",
     "total": "875",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "5.18 × 10⁻³"
    },
    {
     "label": "P2",
@@ -775,7 +825,9 @@
     "Td": "324",
     "Dd": "551",
     "total": "875",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "7.31 × 10⁻³"
    },
    {
     "label": "P3",
@@ -789,7 +841,9 @@
     "Td": "151",
     "Dd": "724",
     "total": "875",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.12 × 10⁻²"
    },
    {
     "label": "P4",
@@ -803,7 +857,9 @@
     "Td": "13.6",
     "Dd": "861",
     "total": "874.6",
-    "residual": "-0.4"
+    "residual": "-0.4",
+    "boundStatus": "derived",
+    "bound": "1.55 × 10⁻²"
    },
    {
     "label": "P5",
@@ -817,7 +873,9 @@
     "Td": "87.5",
     "Dd": "788",
     "total": "875.5",
-    "residual": "0.5"
+    "residual": "0.5",
+    "boundStatus": "derived",
+    "bound": "1.67 × 10⁻²"
    }
   ]
  },
@@ -873,7 +931,9 @@
     "Td": "12.8",
     "Dd": "90",
     "total": "102.8",
-    "residual": null
+    "residual": null,
+    "boundStatus": "derived",
+    "bound": "3.92 × 10⁻³"
    },
    {
     "label": "P2",
@@ -887,7 +947,9 @@
     "Td": "53.0",
     "Dd": "90",
     "total": "143",
-    "residual": null
+    "residual": null,
+    "boundStatus": "derived",
+    "bound": "4.87 × 10⁻³"
    },
    {
     "label": "P3",
@@ -901,7 +963,9 @@
     "Td": "18.8",
     "Dd": "90",
     "total": "108.8",
-    "residual": null
+    "residual": null,
+    "boundStatus": "derived",
+    "bound": "7.55 × 10⁻³"
    },
    {
     "label": "I1",
@@ -915,7 +979,9 @@
     "Td": "2.00",
     "Dd": "18.0",
     "total": "20.0",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.26 × 10⁻²"
    },
    {
     "label": "P4",
@@ -929,7 +995,9 @@
     "Td": "16.6",
     "Dd": "90",
     "total": "106.6",
-    "residual": null
+    "residual": null,
+    "boundStatus": "derived",
+    "bound": "1.57 × 10⁻²"
    }
   ]
  },
@@ -983,7 +1051,9 @@
     "Td": "4.20",
     "Dd": "37.8",
     "total": "42.0",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "2.39 × 10⁻³"
    },
    {
     "label": "I1",
@@ -997,7 +1067,9 @@
     "Td": "2.00",
     "Dd": "18.0",
     "total": "20.0",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "7.42 × 10⁻³"
    },
    {
     "label": "P2",
@@ -1011,7 +1083,9 @@
     "Td": "4.40",
     "Dd": "39.6",
     "total": "44.0",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "9.71 × 10⁻³"
    },
    {
     "label": "P3",
@@ -1025,7 +1099,9 @@
     "Td": "4.00",
     "Dd": "36.0",
     "total": "40.0",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.22 × 10⁻²"
    }
   ]
  },
@@ -1079,7 +1155,9 @@
     "Td": "29.1",
     "Dd": "846",
     "total": "875.1",
-    "residual": "0.1"
+    "residual": "0.1",
+    "boundStatus": "derived",
+    "bound": "2.29 × 10⁻³"
    },
    {
     "label": "P2",
@@ -1093,7 +1171,9 @@
     "Td": "2.91",
     "Dd": "872",
     "total": "874.91",
-    "residual": "-0.09"
+    "residual": "-0.09",
+    "boundStatus": "derived",
+    "bound": "2.29 × 10⁻³"
    },
    {
     "label": "I1",
@@ -1107,7 +1187,9 @@
     "Td": "2.00",
     "Dd": "18.0",
     "total": "20.0",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "5.02 × 10⁻³"
    },
    {
     "label": "P3",
@@ -1121,7 +1203,9 @@
     "Td": "2.91",
     "Dd": "872",
     "total": "874.91",
-    "residual": "-0.09"
+    "residual": "-0.09",
+    "boundStatus": "derived",
+    "bound": "7.32 × 10⁻³"
    }
   ]
  },
@@ -1174,7 +1258,9 @@
     "Td": "30.0",
     "Dd": "270",
     "total": "300",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "3.34 × 10⁻³"
    },
    {
     "label": "P2",
@@ -1188,7 +1274,9 @@
     "Td": "100",
     "Dd": "200",
     "total": "300",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.01 × 10⁻²"
    },
    {
     "label": "P3",
@@ -1202,7 +1290,9 @@
     "Td": "100",
     "Dd": "200",
     "total": "300",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.68 × 10⁻²"
    },
    {
     "label": "P4",
@@ -1216,7 +1306,9 @@
     "Td": "100",
     "Dd": "200",
     "total": "300",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "2.37 × 10⁻²"
    }
   ]
  }

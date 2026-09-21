@@ -36,6 +36,10 @@ for (const [name, input] of Object.entries(cases)) {
       label: v.label, kind: v.kind, source: v.sourceLabel, steps: v.stepsFromStock, g: v.intermediateFactor,
       T: v.volumes.transferIn.internalUnrounded, V: v.volumes.total.internalUnrounded, cExact: v.concentration.exact.value,
       Td: v.volumes.transferIn.display, Dd: v.volumes.diluent.display, total: v.volumes.total.display, residual: v.volumes.residual,
+      // The displayed bound is part of the reference table from engine 1.0.0: a
+      // MAJOR release re-checks it before release (C3-NF-07), and it is a
+      // displayed number only while the register status is derived.
+      boundStatus: v.concentration.bound.status, bound: v.concentration.bound.display,
     })),
   };
 }
