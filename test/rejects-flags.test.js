@@ -371,7 +371,8 @@ test('R1 — every reject condition that holds is reported together, not just th
   assert.deepEqual(rejectCodes(r).sort(), ['C3-HI-09', 'C3-HI-10']);
   const ten = r.rejections.find((x) => x.code === 'C3-HI-10');
   const nine = r.rejections.find((x) => x.code === 'C3-HI-09');
-  assert.equal(ten.quantities.statedDiluent, '1 µL');
+  assert.equal(ten.quantities.statedDiluent, '1');
+  assert.equal(ten.quantities.unit, 'µL');
   assert.match(ten.message, /The remedy is the stated diluent volume\./);
   assert.equal(nine.quantities.bound, 'series floor');
   // Each vessel that fails C3-HI-10 is named, not only the first.
@@ -384,8 +385,12 @@ test('R1 — every reject condition that holds is reported together, not just th
   // declarations whatever the stock is; no step-level reject is invented, since
   // there is nothing to compute past a stock of zero.
   const undefinedPlan = plan({ stock: { value: '0', unit: 'µg/mL' }, target: { form: 'single', value: '0', unit: 'µg/mL' }, basis: 'diluent', volume: { value: '1', unit: 'µL' } });
-  assert.deepEqual(rejectCodes(undefinedPlan).sort(), ['C3-HI-01', 'C3-HI-10']);
+  assert.deepEqual(rejectCodes(undefinedPlan), ['C3-HI-01']);
   assert.ok(!rejectCodes(undefinedPlan).includes('C3-HI-09'));
+  // The stated diluent is not reported here, and correctly: the only point is a
+  // zero point, so no point receives D as diluent from a declaration the tool
+  // can evaluate (U1 knock-on (a)). Where the plan is computable, the zero
+  // point's own diluent is reported against the vessel — see the U1 fixtures.
 });
 
 test('K1 — rejection quantities carry the displayed precision and the unit the number is in', () => {
@@ -411,4 +416,120 @@ test('K1 — rejection quantities carry the displayed precision and the unit the
   const hi10 = at('100', '99', '150').rejections[0];
   assert.equal(hi10.quantities.diluent, '1.00');
   assert.equal(hi10.quantities.unit, 'µL');
+  assert.equal(hi10.quantities.minimum, '2');
+  assert.equal(hi10.quantities.minimumUnit, 'µL');
+});
+
+// ---------------------------------------------------------------------------
+// U1: an undiluted point under the diluent-volume basis (Agent Nadira's rule)
+// ---------------------------------------------------------------------------
+
+test('U1 — under the diluent-volume basis an undiluted point is the stated volume of stock (C3-FX-12)', () => {
+  const at = (D, targets) => plan({
+    stock: { value: '100', unit: 'µg/mL' },
+    target: Array.isArray(targets) ? { form: 'list', values: targets, unit: 'µg/mL' } : { form: 'single', value: targets, unit: 'µg/mL' },
+    route: Array.isArray(targets) ? 'serial' : null,
+    basis: 'diluent', volume: { value: D, unit: 'µL' },
+  });
+
+  // D = 10 µL: prepared as 10.0 µL of stock, no diluent, and C3-FL-09 says so.
+  const ten = at('10', '100');
+  assert.equal(ten.status, 'plan', JSON.stringify(ten.rejections));
+  const p1 = vessel(ten, 'P1');
+  assert.equal(p1.volumes.transferIn.display, '10.0');
+  assert.equal(p1.volumes.diluent.display, '0');
+  assert.equal(p1.isUndiluted, true);
+  const fl09 = ten.flags.find((f) => f.code === 'C3-FL-09');
+  assert.match(fl09.message, /the stated diluent volume is taken as the volume of stock for this point/);
+  // Knock-on (b): C3-FL-05 no longer claims every vessel exceeds the stated volume.
+  const fl05 = ten.flags.find((f) => f.code === 'C3-FL-05');
+  assert.match(fl05.message, /each diluted vessel/);
+  assert.match(fl05.message, /an undiluted point \(target = stock\) is the stated volume of stock/);
+
+  // D = 1 µL: refused, and for the true reason. The 1 µL of STOCK cannot be
+  // pipetted; at f = 1 no intermediate exists, so it is the series floor. Not
+  // C3-HI-10, which would name a diluent volume this plan never pipettes.
+  const one = at('1', '100');
+  assert.deepEqual(rejectCodes(one), ['C3-HI-09']);
+  assert.equal(one.rejections[0].quantities.bound, 'series floor');
+  assert.match(one.rejections[0].message, /undiluted stock/);
+  assert.match(one.rejections[0].message, /below the declared minimum of 2 µL/);
+  assert.doesNotMatch(one.rejections[0].message, /diluent/);
+
+  // Mixed: one undiluted point and one diluted point at D = 1 µL. The diluted
+  // point does receive the stated diluent, so the declaration-level C3-HI-10
+  // fires again — beside the step-level reject (R1).
+  const mixed = at('1', ['100', '50']);
+  assert.deepEqual(rejectCodes(mixed).sort(), ['C3-HI-09', 'C3-HI-10']);
+  const stated = mixed.rejections.find((x) => x.code === 'C3-HI-10');
+  assert.equal(stated.quantities.statedDiluent, '1');
+  assert.equal(stated.quantities.unit, 'µL');
+
+  // A zero point does pipette the stated diluent, so where it is the only point
+  // the vessel itself is named — the declaration-level rule (a) does not hide it.
+  const zero = at('1', ['0']);
+  assert.deepEqual(rejectCodes(zero), ['C3-HI-10']);
+  assert.equal(zero.rejections[0].quantities.vessel, 'P1');
+});
+
+test('U1 — the undiluted transfer is checked against the minimum under every basis', () => {
+  const undiluted = (basis, volume) => plan({
+    stock: { value: '100', unit: 'µg/mL' }, target: { form: 'single', value: '100', unit: 'µg/mL' },
+    basis, volume: { value: volume, unit: 'µL' },
+  });
+  for (const basis of ['final', 'diluent']) {
+    assert.equal(undiluted(basis, '10').status, 'plan', basis);
+    assert.deepEqual(rejectCodes(undiluted(basis, '1')), ['C3-HI-09'], `${basis} at 1 µL`);
+    assert.equal(undiluted(basis, '2').status, 'plan', `${basis} exactly at the minimum`);
+  }
+});
+
+test('R1 — the three lists, as they go into URS v0.4.3', () => {
+  // Each case below pairs its §7 condition with a step-level condition that
+  // would also hold (a sub-minimum transfer at a factor below the series floor),
+  // so the classification is visible: a condition that stops the calculation
+  // admits no step-level reject beside it; one that does not, does.
+  const withStepLevelAlsoHolding = (over) => plan({
+    stock: { value: '100', unit: 'µg/mL' }, target: { form: 'single', value: '50', unit: 'µg/mL' },
+    basis: 'diluent', volume: { value: '1', unit: 'µL' }, ...over,
+  });
+  const stepLevel = (r) => rejectCodes(r).filter((c) => c === 'C3-HI-06' || c === 'C3-HI-09');
+
+  // 1. Stop the calculation — the plan is undefined and nothing is computed past it.
+  const stops = {
+    'C3-HI-01': { stock: { value: '0', unit: 'µg/mL' }, target: { form: 'single', value: '0', unit: 'µg/mL' } },
+    'C3-HI-02': { target: { form: 'single', value: '-1', unit: 'µg/mL' } },
+    'C3-HI-03': { target: { form: 'single', value: '150', unit: 'µg/mL' } },
+    'C3-HI-04': { volume: { value: '0', unit: 'µL' } },
+    'C3-HI-05': { target: { form: 'top-factor-count', top: '50', unit: 'µg/mL', factor: 1, count: 3 }, route: 'serial' },
+    'C3-HI-07': { target: { form: 'list', values: ['50', '50'], unit: 'µg/mL' }, route: 'serial' },
+    'C3-HI-08': { target: { form: 'single', value: '1', unit: 'µM' } },
+  };
+  for (const [code, over] of Object.entries(stops)) {
+    const r = withStepLevelAlsoHolding(over);
+    assert.ok(rejectCodes(r).includes(code), `${code} raised`);
+    assert.deepEqual(stepLevel(r), [], `${code} stops the calculation, so no step-level reject is reported beside it`);
+    assert.equal(r.vessels.length, 0, `${code}: no vessels`);
+  }
+
+  // 2. Declaration-level — reported beside whatever else holds.
+  const declaration = withStepLevelAlsoHolding({});
+  assert.deepEqual(rejectCodes(declaration).sort(), ['C3-HI-09', 'C3-HI-10']);
+  assert.equal(declaration.rejections.find((x) => x.code === 'C3-HI-10').quantities.statedDiluent, '1');
+
+  // 3. Step-level — every instance, and only where the plan is defined.
+  //    C3-HI-10 on derived diluents, across a series: every failing vessel.
+  const manyTen = plan({ stock: { value: '100', unit: 'µg/mL' }, target: { form: 'list', values: ['99', '99.5'], unit: 'µg/mL' }, route: 'independent', volume: { value: '150', unit: 'µL' } });
+  assert.deepEqual(manyTen.rejections.map((x) => `${x.code}@${x.quantities.vessel}`), ['C3-HI-10@P1', 'C3-HI-10@P2']);
+  //    C3-HI-09 in independent mode: the points are independent, so each is judged.
+  const manyNine = plan({ stock: { value: '100', unit: 'µg/mL' }, target: { form: 'list', values: ['9.9', '9.8'], unit: 'µg/mL' }, route: 'independent', volume: { value: '10', unit: 'µL' } });
+  assert.deepEqual(manyNine.rejections.map((x) => `${x.code}@${x.scope.vessel}`), ['C3-HI-09@P1', 'C3-HI-09@P2']);
+  //    In serial mode the chain cannot be computed past a step with no plan, so
+  //    it stops there. This is the one place "all of them" is bounded, and it is
+  //    bounded by what can be computed, not by a choice to report less.
+  const serial = plan({ stock: { value: '100', unit: 'µg/mL' }, target: { form: 'list', values: ['9.9', '1'], unit: 'µg/mL' }, route: 'serial', volume: { value: '10', unit: 'µL' } });
+  assert.deepEqual(serial.rejections.map((x) => `${x.code}@${x.scope.vessel}`), ['C3-HI-09@P1']);
+  //    C3-HI-06 reports every offending transfer.
+  const hi06 = plan({ target: { form: 'list', values: ['750', '601'], unit: 'µg/mL' }, route: 'serial', basis: 'diluent', volume: { value: '10', unit: 'µL' } });
+  assert.deepEqual(rejectCodes(hi06), ['C3-HI-06']);
 });
