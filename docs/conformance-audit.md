@@ -264,3 +264,31 @@ The §7 review did not pass 1.0.0. Two blocking findings and two required before
 **Gates after the fixes:** 68 tests, 0 failures · acceptance 3 as above · viewport 0 violations over 0..5236, 24 requests, 0 off-origin · contrast 47 combinations, 0 failures · browser checks 9/9 · build clean.
 
 **R2 (Agent Nadira).** Her source-level reading of the served modules agrees with this build: no storage API in any of them. Acceptance 22 and 24 run on the **deployed** artefact with instrumentation installed before load; `scripts/browser-checks.mjs` installs it via `addInitScript`, before any page script, and takes a URL, so it runs against the deployed address unchanged.
+
+### A-11 — U1, the import decision, and the R1 lists, 22 September 2026
+
+§7 closed on A-10's fixes. This is what stands between the build and the tag, all folded into 1.0.0 since nothing is tagged.
+
+| # | Change | Evidence |
+|---|---|---|
+| **U1** | Under the diluent-volume basis an undiluted point is prepared as the stated volume of **stock**, mirroring C3-DT-09's zero point. C3-FL-09 says so at the point. The volume is pipetted, so it is checked against the minimum like any transfer; at f = 1 no intermediate exists, so a sub-minimum volume is rejected at the series floor — the true reason. Before this the tool refused at D = 1 µL under C3-HI-10, naming a diluent the plan never pipettes: the right refusal for a false reason | `rejects-flags › U1` (two tests): D = 10 plans as 10.0 µL stock with 0 diluent and the new C3-FL-09 text; D = 1 is rejected under C3-HI-09 at the series floor, and the message names stock, not diluent; the undiluted transfer is checked under every basis, either side of and exactly on the minimum |
+| **U1 (a)** | The declaration-level C3-HI-10 fires only where some non-zero point actually receives the stated D as diluent. Where every non-zero point is undiluted it does not fire; where the plan also has a diluted point it still does | Mixed case in the same test: D = 1 µL with one undiluted and one diluted point reports the stated-diluent C3-HI-10 **and** the step-level C3-HI-09 |
+| **U1 (b)** | C3-FL-05 no longer claims every vessel's final volume exceeds the stated volume. It names the two points that do not: an undiluted point is the stated volume of stock, a zero point the stated volume of diluent | asserted in the same test |
+| **Import** | The import section is **hidden** in 1.0.0, code and validation intact behind it (`#import-panel[hidden]`). The path is genuinely dark, so C1 v0.6 and the transport check are off the critical path | `check:browser` and the viewport run render the page without it; the importer's tests still run |
+| **Import message** | `tool "[object Object]"` was a coercion artefact. The message now names what the object carried: *the object's "tool" is an object naming "C1", with keys id, name, engineVersion*. Also covers a missing tool, a null, a list and a non-string scalar | `import › C3-ST-01`, which now asserts the live-C1 shape is described and that `[object Object]` never appears |
+| **K3** | A concentration needing more integer digits than the stated six significant figures is written in scientific notation — 2 mg/mL in ng/mL was `2000000`, seven figures against a stated six, and is now `2.00000 × 10⁶`. Checked across pairings: `1 g/L → ng/mL`, `1 M → nM`, `5 mM → pM` likewise; `0.5 mg/mL → ng/mL` stays `500000`, which is six | `result-object › K3`, which also asserts no displayed concentration states more than six figures and that the value beside it is still the same quantity |
+| **Quantities** | Rejection quantities carry the number in the string and the unit in its own field throughout: `statedDiluent: '1'` with `unit: 'µL'`, and the minimum keeps its entered unit as `minimumUnit`, which may differ from the display unit | `rejects-flags › U1`, `› K1` |
+
+**The R1 lists, confirmed against the build and made executable** (`rejects-flags › R1 — the three lists, as they go into URS v0.4.3`). Each case pairs its condition with a step-level condition that would also hold, so the classification is observable rather than asserted:
+
+| List | Codes | Confirmed |
+|---|---|---|
+| Stops the calculation — the plan is undefined | C3-HI-01, 02, 03, 04, 05, 07, 08 | Yes. Each raises its own code, admits no step-level reject beside it, and produces no vessels |
+| Declaration-level — reported beside any other reject | C3-HI-10 on the stated diluent, subject to U1 (a) | Yes |
+| Step-level — every instance, only where the plan is defined | C3-HI-06, C3-HI-09, C3-HI-10 on a derived diluent | Yes, with one bound worth writing into v0.4.3: **in serial mode the chain stops at the first step that has no plan**, because no later step can be computed from a vessel that does not exist. In independent mode the points are independent and every failing point is reported — that was not true before this change and now is |
+
+**C3-HI-10 across a series names every failing vessel**: `['C3-HI-10@P1', 'C3-HI-10@P2']` on two points that each leave 1.00 µL of diluent. (Agent Nadira's browser hung on that run.)
+
+**Gates:** 72 tests, 0 failures · acceptance 3: 46 vessels, 0 failures, 0 ULP, 0 of 138 unit mismatches · viewport 0 violations over 0..5002, 24 requests, 0 off-origin · contrast 47 / 0 · browser checks 9/9 · build clean.
+
+**Not in 1.0.0:** K2, by owner decision. **Still owed:** the standing privacy text v1.0, then deploy, then acceptances 22 and 24 on the deployed artefact before the tag is announced.
