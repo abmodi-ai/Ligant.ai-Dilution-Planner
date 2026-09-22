@@ -185,3 +185,31 @@ test('T11 — the page publishes the rule the engine applies: same steps, same c
     assert.ok(html.includes(phrase), `the published rule states: ${phrase}`);
   }
 });
+
+test('K3 — a displayed concentration never shows more significant figures than the tool states', () => {
+  const shown = (stockValue, stockUnit, targetUnit) => {
+    const r = plan({ stock: { value: stockValue, unit: stockUnit }, target: { form: 'single', value: '1', unit: targetUnit }, volume: { value: '1000', unit: 'µL' } });
+    assert.equal(r.status, 'plan', `${stockValue} ${stockUnit} → ${targetUnit}: ${JSON.stringify(r.rejections)}`);
+    return r.vessels.find((v) => v.kind === 'stock').concentration.exact;
+  };
+  // Past six integer digits the value is written in scientific notation, so the
+  // figures shown are exactly the significant ones. "2000000" claimed seven.
+  assert.equal(shown('2', 'mg/mL', 'ng/mL').display, '2.00000 × 10⁶');
+  assert.equal(shown('1', 'g/L', 'ng/mL').display, '1.00000 × 10⁶');
+  assert.equal(shown('1', 'M', 'nM').display, '1.00000 × 10⁹');
+  assert.equal(shown('5', 'mM', 'pM').display, '5.00000 × 10⁹');
+  // Six or fewer integer digits stay as plain decimals.
+  assert.equal(shown('0.5', 'mg/mL', 'ng/mL').display, '500000');
+  assert.equal(shown('2', 'mg/mL', 'µg/mL').display, '2000.00');
+  assert.equal(shown('100', 'µg/mL', 'µg/mL').display, '100.000');
+  // Whatever the form, no displayed concentration states more than six figures,
+  // and the value beside it is still the same quantity in the labelled unit.
+  for (const [v, su, tu, expected] of [['2', 'mg/mL', 'ng/mL', 2e6], ['1', 'M', 'nM', 1e9], ['0.5', 'mg/mL', 'ng/mL', 5e5]]) {
+    const q = shown(v, su, tu);
+    // Count the mantissa's figures, not the exponent's.
+    const mantissa = q.display.split(' × ')[0];
+    const digits = mantissa.replace(/[^0-9]/g, '').replace(/^0+/, '');
+    assert.ok(digits.length <= 6, `${q.display} shows ${digits.length} figures`);
+    assert.ok(Math.abs(q.value - expected) <= expected * 1e-12, `${q.display} is ${q.value} ${q.unit}`);
+  }
+});
