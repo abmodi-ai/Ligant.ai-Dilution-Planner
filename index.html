@@ -36,7 +36,16 @@
     <div class="stack">
       <form id="plan-form" class="stack" autocomplete="off" novalidate>
 
-        <section class="panel">
+        <!-- The import path is dark in 1.0.0 (owner's decision, 22 September 2026).
+             The only real C1 object that exists is refused: the deployed C1 emits
+             `tool` as an object and the importer expects a string, so a user
+             pasting genuine C1 output would be told it is not from C1. The
+             transport format is open item 2, a decision for the specification,
+             not for the field names this importer happens to assume. C3-NF-05
+             already requires the tool to work standalone, so nothing else
+             changes. The importer and its validation stay behind this section:
+             the work is not deleted, only not exposed. -->
+        <section class="panel" id="import-panel" hidden>
           <div class="panel-head">
             <div class="titles"><h2>Import from C4 or C1</h2></div>
             <span class="optional">optional</span>
