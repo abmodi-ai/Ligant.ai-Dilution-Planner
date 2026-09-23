@@ -1,7 +1,21 @@
-// Register tolerances — derived (docs/tolerance-memo.md), under owner delegation
-// of open items 6 and 7 on 15 September 2026. Each is the analytic bound over
+// Tolerance derivations for open items 6 and 7 (docs/tolerance-memo.md), taken
+// under owner delegation on 15 September 2026. Each is the analytic bound over
 // the stated operation set (docs/operation-sequence.md); the empirical maxima in
 // the memo are evidence the bounds are not loose, never the tolerance.
+//
+// REGISTRATION. Agent Nadira signed the memo on 21 September 2026: §2 (the
+// achieved-concentration bound) without condition, §1 (the round-trip
+// tolerance) effective on the insertion of M1, which is in the memo. Both rows
+// are therefore derived, and the object publishes their values.
+//
+// This is the single switch the C3-OUT-03 display gate reads. Setting a row
+// back to 'open' nulls its value in the result object and replaces the number
+// on every point with "bound: derivation memo unsigned", with no other edit
+// (V1, acceptance 32).
+export const TOLERANCE_REGISTRATION = Object.freeze({
+  roundTrip: 'derived',
+  achievedBound: 'derived',
+});
 
 import * as Dec from './decimal.js';
 

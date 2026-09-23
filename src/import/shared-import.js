@@ -21,6 +21,28 @@ function q(x) {
   return x && x.value !== undefined && x.unit ? { value: String(x.value), unit: String(x.unit) } : null;
 }
 
+/**
+ * What the object actually carried, in words. `tool` is a string here; the
+ * deployed C1 emits an object ({ id, name, engineVersion }), and template
+ * coercion turned that into `tool "[object Object]"` — a description of
+ * JavaScript, not of the paste in front of the user. Naming what was found is
+ * the same requirement the rejection messages carry: say the quantity.
+ */
+function describeTool(tool) {
+  if (tool === undefined) return 'the object states no "tool"';
+  if (tool === null) return 'the object\'s "tool" is null';
+  if (typeof tool === 'string') return `the object\'s "tool" is the string "${tool}"`;
+  if (Array.isArray(tool)) return `the object\'s "tool" is a list of ${tool.length}`;
+  if (typeof tool === 'object') {
+    const id = tool.id ?? tool.name ?? tool.tool;
+    const keys = Object.keys(tool).slice(0, 4).join(', ') || 'none';
+    return id !== undefined
+      ? `the object\'s "tool" is an object naming "${String(id)}", with keys ${keys}`
+      : `the object\'s "tool" is an object with keys ${keys}`;
+  }
+  return `the object\'s "tool" is a ${typeof tool}, ${String(tool)}`;
+}
+
 export function parseSharedObject(text) {
   let obj;
   try {
@@ -29,7 +51,9 @@ export function parseSharedObject(text) {
     return { error: `not valid JSON: ${e.message}` };
   }
   if (!obj || typeof obj !== 'object') return { error: 'not an object' };
-  if (obj.tool !== 'C4' && obj.tool !== 'C1') return { error: `tool "${obj.tool}" is not C4 or C1` };
+  if (obj.tool !== 'C4' && obj.tool !== 'C1') {
+    return { error: `${describeTool(obj.tool)}. This tool reads an object whose "tool" is the string "C4" or "C1".` };
+  }
   if (!Array.isArray(obj.flags)) return { error: 'the object carries no flags array; a series or value stripped of its flags is not accepted (C3-ST-01, C3-ST-03)' };
   return obj.tool === 'C4' ? mapC4(obj) : mapC1(obj);
 }

@@ -1,0 +1,74 @@
+/*
+ * Ligant Bench Tools: shared design tokens.
+ *
+ * The suite's `:root` block, copied whole from benchtools.ligant.ai/tokens.css
+ * (itself copied from the Molarity Converter's src/tokens.css, read from the
+ * Antigen Density Calculator as deployed on 4 September 2026). The suite has no
+ * single canonical location for this file yet: it is edited wherever it is
+ * currently held and copied whole to the others. Nothing C3-specific goes in
+ * it, including the tokens this tool does not use itself; C3's own additions
+ * live in styles.css.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Brand */
+  --brand-navy: #1B2A4A;
+  --brand-teal: #0D7C66;
+  --brand-teal-pale: #B5D4CC;
+  --brand-amber: #B8860B;
+  --brand-amber-mark: #E0A416;
+  --brand-offwhite: #FAF7F2;
+  --brand-error: #C0392B;
+
+  /* Warm neutrals. The whole scale carries a yellow-brown cast, which is what
+     sits it with the off-white ground; a cool grey scale reads as a different
+     product even before the accent is noticed. */
+  --neutral-900: #4F4943;
+  --neutral-700: #6B6357;
+  --neutral-500: #8B8678;
+  --neutral-300: #D8D2C5;
+  --neutral-200: #E5DFD3;
+
+  /* Surfaces */
+  --page: var(--brand-offwhite);
+  --surface: #FFFFFF;
+  --surface-sunken: var(--brand-offwhite);
+  --surface-inset: var(--neutral-200);
+
+  /* Text. Navy is the TEXT colour; teal is the action and evidence colour.
+     Using navy for both leaves a page with no accent at all. */
+  --text-primary: var(--brand-navy);
+  --text-secondary: var(--neutral-900);
+  --text-muted: var(--neutral-700);
+  --text-caption: var(--neutral-500);
+
+  /* Lines */
+  --border: var(--neutral-300);
+  --border-strong: var(--neutral-500);
+  --grid: var(--neutral-200);
+
+  /* Data series and magnitude ramps. The catalog plots nothing and uses none
+     of these; they are here because this block is copied whole rather than
+     filtered. */
+  --series-evidence: var(--brand-teal);
+  --series-decision: var(--brand-amber);
+  --band-fill: rgba(13, 124, 102, .14);
+  --magnitude-1: var(--neutral-300);
+  --magnitude-2: var(--neutral-500);
+  --magnitude-3: var(--neutral-700);
+  --magnitude-4: var(--brand-navy);
+
+  /* Washes */
+  --attention-wash: rgba(184, 134, 11, .1);
+  --error-wash: rgba(192, 57, 43, .08);
+
+  /* Shape */
+  --radius: 10px;
+  --radius-sm: 6px;
+
+  /* Type */
+  --font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}

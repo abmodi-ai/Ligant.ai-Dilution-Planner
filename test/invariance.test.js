@@ -13,7 +13,7 @@ const PRELIMINARY_ROUND_TRIP_ULP = (stepsFromStock) => roundTripToleranceUlp(ste
 function roundTripErrorsUlp(r) {
   return r.vessels.filter((v) => v.kind === 'point' && !v.isZero).map((v) => {
     const target = r.declarations.target.values[v.pointIndex].internal;
-    return { label: v.label, steps: v.stepsFromStock, ulp: ulpDistance(v.concentration.exact.value, target) };
+    return { label: v.label, steps: v.stepsFromStock, ulp: ulpDistance(v.concentration.exact.internalUnrounded, target) };
   });
 }
 

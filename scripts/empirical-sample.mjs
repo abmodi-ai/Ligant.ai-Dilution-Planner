@@ -30,7 +30,7 @@ for (let i = 0; i < N; i++) {
   for (const v of r.vessels) {
     if (v.kind !== 'point' || v.isZero) continue;
     const target = r.declarations.target.values[v.pointIndex].internal;
-    const u = Math.abs(v.concentration.exact.value - target) / ulp(target);
+    const u = Math.abs(v.concentration.exact.internalUnrounded - target) / ulp(target);
     const k = v.stepsFromStock;
     maxRoundTrip[k] = Math.max(maxRoundTrip[k] || 0, u);
     const lead = String(v.volumes.transferIn.display).replace(/[^1-9]/g, '')[0];

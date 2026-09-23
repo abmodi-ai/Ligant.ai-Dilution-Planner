@@ -3,12 +3,20 @@
 // against innerHeight at each scroll position rather than comparing screenshots.
 // Usage: node scripts/viewport-check.mjs [url]   (default http://localhost:5173/)
 // Requires the globally installed playwright and the pre-installed Chromium.
+import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
-const { chromium } = require('/opt/node22/lib/node_modules/playwright');
+// Resolve Playwright from the project first and fall back to the global install
+// the original build environment carried, so the script runs in both.
+const { chromium } = (() => {
+  try { return require('playwright'); } catch { return require('/opt/node22/lib/node_modules/playwright'); }
+})();
+// Likewise the browser: Playwright finds its own download; /opt/pw-browsers is
+// the pre-installed one where it exists.
+const PW_LAUNCH = existsSync('/opt/pw-browsers/chromium') ? { executablePath: '/opt/pw-browsers/chromium' } : {};
 
 const url = process.argv[2] || 'http://localhost:5173/';
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium', args: ['--force-device-scale-factor=1'] });
+const browser = await chromium.launch({ ...PW_LAUNCH, args: ['--force-device-scale-factor=1'] });
 const context = await browser.newContext({ viewport: { width: 1366, height: 650 }, deviceScaleFactor: 1 });
 const page = await context.newPage();
 const requests = [];
@@ -17,6 +25,9 @@ await page.goto(url, { waitUntil: 'networkidle' });
 
 // Fill a serial plan with an intermediate and flags so that every structural element exists.
 await page.fill('#stock-value', '1000');
+// C3-UN-01: the concentration units start unselected, so the harness chooses them.
+await page.selectOption('#stock-unit', 'µg/mL');
+await page.selectOption('#target-unit', 'µg/mL');
 await page.selectOption('#stock-provenance', 'not-recorded');
 await page.check('input[name="target-form"][value="list"]');
 await page.fill('#target-list-values', '10\n1\n0.1\n0');

@@ -55,7 +55,15 @@ test('C3-ST-01 a series stripped of its flags is not accepted', () => {
   const { flags, ...stripped } = C4_OBJECT;
   assert.match(parseSharedObject(JSON.stringify(stripped)).error, /stripped of its flags/);
   assert.match(parseSharedObject('not json').error, /not valid JSON/);
-  assert.match(parseSharedObject(JSON.stringify({ tool: 'C9', flags: [] })).error, /not C4 or C1/);
+  assert.match(parseSharedObject(JSON.stringify({ tool: 'C9', flags: [] })).error, /"tool" is the string "C9"/);
+  // The message names what the object actually carried. The deployed C1 emits
+  // `tool` as an object, and template coercion used to report that as
+  // tool "[object Object]" — a description of JavaScript, not of the paste.
+  const liveC1Shape = { tool: { id: 'C1', name: 'Molarity Converter', engineVersion: '0.6.0' }, flags: [] };
+  const err = parseSharedObject(JSON.stringify(liveC1Shape)).error;
+  assert.doesNotMatch(err, /\[object Object\]/);
+  assert.match(err, /an object naming "C1", with keys id, name, engineVersion/);
+  assert.match(parseSharedObject(JSON.stringify({ flags: [] })).error, /states no "tool"/);
   assert.match(parseSharedObject(JSON.stringify({ ...C4_OBJECT, stainingVolume: undefined })).error, /staining volume/);
 });
 

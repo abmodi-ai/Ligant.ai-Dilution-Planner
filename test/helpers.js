@@ -43,7 +43,7 @@ export function unroundedSnapshot(r) {
       T: v.volumes.transferIn.internalUnrounded,
       D: v.volumes.diluent.internalUnrounded,
       V: v.volumes.total.internalUnrounded,
-      c: v.concentration.exact.value,
+      c: v.concentration.exact.internalUnrounded,
       source: v.sourceLabel,
     };
   }

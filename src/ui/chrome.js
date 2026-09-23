@@ -1,28 +1,27 @@
-// Standard Ligant Bench Tools chrome: the header and the footer, identical in
-// structure across the tool set. Only the strings in src/config.js differ
-// between tools. Taken from the shipped Antigen Density Calculator, Molarity
-// Converter and Antibody Titration Planner.
+// Standard Ligant Bench Tools chrome: the masthead, the footer, the disclaimer
+// and the colophon, identical in structure and class names to the shipped
+// Antibody Titration Planner and Antigen Density Calculator. Only the strings in
+// src/config.js differ between tools.
 import { CONFIG, toolUrl, citationText } from '../config.js';
 import { markSvg, lockupHtml } from './mark.js';
 import { escapeHtml as esc } from './page-content.js';
 
+const RESEARCH_USE = 'Research use only. Not qualified for GxP decision-making.';
+
 export function renderHeader() {
-  const nav = CONFIG.tools.map((t) => (t.slug === CONFIG.slug
-    ? `<span class="tool-nav-item current" aria-current="page">${esc(t.label)}</span>`
-    : `<a class="tool-nav-item" href="${esc(toolUrl(t.slug))}">${esc(t.label)}</a>`)).join('');
+  const nav = CONFIG.tools.map((t) => `<li>${t.slug === CONFIG.slug
+    ? `<span aria-current="page">${esc(t.label)}</span>`
+    : `<a href="${esc(toolUrl(t.slug))}">${esc(t.label)}</a>`}</li>`).join('');
   return `
-    <div class="header-row">
-      <a class="lockup" href="${esc(CONFIG.publicBase)}" aria-label="${esc(CONFIG.publisher)}">${markSvg({ size: 28 })}<span class="wordmark">${esc(CONFIG.publisher)}</span></a>
-      <div class="header-right">
-        <nav class="tool-nav" aria-label="Bench tools">${nav}</nav>
-        <span class="bench-tools-mark">Bench tools</span>
-      </div>
-    </div>
-    <h1 class="tool-h1">${esc(CONFIG.toolTitle)}</h1>
-    <div class="hero-copy">
+    <div>
+      <a class="lockup-link" href="${esc(CONFIG.homeUrl)}">${lockupHtml(28)}</a>
+      <h1>${esc(CONFIG.toolTitle)}</h1>
       <p>${esc(CONFIG.tagline)}</p>
-      <p>${esc(CONFIG.standfirst)}</p>
-    </div>`;
+    </div>
+    <nav class="tool-nav" aria-label="Bench tools">
+      <ul>${nav}</ul>
+      <a class="eyebrow suite-mark" href="${esc(CONFIG.publicBase)}">${esc(CONFIG.suiteLabel)}</a>
+    </nav>`;
 }
 
 export function renderFooter() {
@@ -37,37 +36,32 @@ export function renderFooter() {
         <p>Every figure on this page comes from code you can read, download or run yourself, at ${repo}. Clone it and <code>npm run dev</code> for a local copy.</p>
         <p>These tools are standalone calculators. Ligant's enterprise platform adds reference databases, connected agentic workflows, on-premise language models, and full GxP validation. If your lab needs that, please email us ${mail}.</p>
         <p>Ligant Bench Tools are free and open source, under the licence below.</p>
-
-        <div class="cite">
-          <div class="cite-head">
-            <div>
-              <p class="eyebrow">How to cite</p>
-              <p class="cite-lede">Cite the software as below.</p>
-            </div>
-            <button type="button" id="copy-citation" class="quiet">Copy</button>
-          </div>
-          <p class="cite-text num" id="citation-text">${esc(citationText())}</p>
-          <p class="cite-note">${CONFIG.doi ? 'The identifier is given as text, not as a link: a link that navigated to a publisher would disclose a visit that the rest of the tool is built to prevent.' : 'No identifier is stated: one is minted when the tool is released, and a placeholder would read as a record that does not exist.'}</p>
-        </div>
-
-        <p class="licence">Licensed under the Apache License, Version 2.0. You may obtain a copy of the License in the <a href="./LICENSE"><code>LICENSE</code></a> file served with this page and distributed with the source. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" basis, without warranties or conditions of any kind, either express or implied. <strong>Research use only. Not qualified for GxP decision-making.</strong></p>
       </div>
-
-      <address class="footer-org">
-        <p class="eyebrow">${esc(CONFIG.legalEntity)}</p>
-        ${CONFIG.address.map((l) => `<p>${esc(l)}</p>`).join('')}
-        <p>${mail}</p>
+      <address class="footer-address">
+        <span class="eyebrow">${esc(CONFIG.legalEntity)}</span>
+        ${CONFIG.address.map(esc).join('<br>')}<br>
+        ${mail}
       </address>
     </div>
 
-    <div class="scope-callout">
-      <p><strong>Research use only. Not qualified for GxP decision-making.</strong> ${esc(CONFIG.scopeNote)}</p>
+    <div class="footer-citation">
+      <span class="eyebrow">How to cite</span>
+      <p class="footer-citation-note">Cite the software as below.</p>
+      <div class="footer-citation-row">
+        <p id="citation-text">${esc(citationText())}</p>
+        <button type="button" id="copy-citation" aria-label="Copy the software citation" aria-live="polite">Copy</button>
+      </div>
+      <p class="footer-citation-note">${CONFIG.doi ? 'The identifier is given as text, not as a link: a link that navigated to a publisher would disclose a visit that the rest of the tool is built to prevent.' : 'No identifier is stated: one is minted when the tool is released, and a placeholder would read as a record that does not exist.'}</p>
     </div>
 
-    <div class="footer-bar">
-      ${markSvg({ size: 20 })}
-      <span>${esc(CONFIG.publisher)} · ${esc(CONFIG.toolTitle)} v${esc(CONFIG.version)}</span>
-    </div>`;
+    <p class="footer-licence">Licensed under the Apache License, Version 2.0. You may obtain a copy of the License in the <a href="./LICENSE"><code>LICENSE</code></a> file served with this page and distributed with the source. Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" basis, without warranties or conditions of any kind, either express or implied. <strong>${RESEARCH_USE}</strong></p>`;
 }
 
-export { lockupHtml };
+/** The scope statement under the footer, in this tool's own terms. */
+export function renderDisclaimer() {
+  return `<strong>${RESEARCH_USE}</strong> ${esc(CONFIG.scopeNote)}`;
+}
+
+export function renderColophon() {
+  return `${markSvg({ size: 16 })}<span>${esc(CONFIG.publisher)} · ${esc(CONFIG.toolTitle)} v${esc(CONFIG.version)}</span>`;
+}

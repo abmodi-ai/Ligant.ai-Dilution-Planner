@@ -10,19 +10,31 @@ import { renderBenchSheet } from './sheet.js';
 import { renderPageContent } from './page-content.js';
 import { parseSharedObject } from '../import/shared-import.js';
 import { markDataUri } from './mark.js';
-import { renderHeader, renderFooter } from './chrome.js';
+import { renderHeader, renderFooter, renderDisclaimer, renderColophon } from './chrome.js';
 
 const $ = (id) => document.getElementById(id);
 
-function fillUnits(select, units, preferred) {
+/**
+ * C3-UN-01. The two concentration selectors start unselected and no plan is
+ * computed until each is chosen (acceptance 31), as in C1: a wrong
+ * concentration unit is a factor-of-1000 error with nothing on screen to show
+ * it. Volume selectors follow the convention C4 shipped and carry µL.
+ */
+function fillUnits(select, units, preferred, { unselected = false } = {}) {
   select.innerHTML = '';
+  if (unselected) {
+    const o = document.createElement('option');
+    o.value = '';
+    o.textContent = '— select —';
+    select.appendChild(o);
+  }
   for (const u of units) {
     const o = document.createElement('option');
     o.value = u.symbol;
     o.textContent = u.symbol;
     select.appendChild(o);
   }
-  select.value = preferred;
+  select.value = unselected ? '' : preferred;
 }
 
 function val(id) {
@@ -155,7 +167,8 @@ function syncConditionalFields(input) {
   document.querySelector('.target-form-single').hidden = form !== 'single';
   document.querySelector('.target-form-list').hidden = form !== 'list';
   document.querySelector('.target-form-tfc').hidden = form !== 'tfc';
-  document.querySelector('.target-origin').hidden = !(input.targetProvenance && input.targetProvenance !== 'user');
+  const originShown = !!(input.targetProvenance && input.targetProvenance !== 'user');
+  for (const el of document.querySelectorAll('.target-origin')) el.hidden = !originShown;
   const n = pointCount(input);
   const multi = n > 1;
   $('route-field').hidden = !multi;
@@ -165,7 +178,15 @@ function syncConditionalFields(input) {
   availableRadio.disabled = !serialMulti;
   $('basis-available-label').classList.toggle('disabled', !serialMulti);
   $('basis-available-reason').hidden = serialMulti;
-  if (!serialMulti && availableRadio.checked) availableRadio.checked = false; // C3-ST-07: no basis silently carried
+  // C3-ST-07: no basis silently carried. The test is on the state at this instant,
+  // which is what C3-VB-02 asks for, and it makes the outcome order-dependent: a
+  // basis change processed BEFORE the route change that would make the third basis
+  // available clears the selection, and the later route event enables the radio
+  // without re-checking it. A user cannot produce that order — each click's handler
+  // runs to completion before the next — but a script setting basis before route can
+  // (owner's T7, 17 September 2026; reproduced, four orderings, real clicks safe).
+  // Set the route before the basis in automation; do not defer this clear.
+  if (!serialMulti && availableRadio.checked) availableRadio.checked = false;
   $('min-suggested').hidden = val('min-value').trim() !== '2' || val('min-unit') !== 'µL';
   $('diluent-name').disabled = $('diluent-not-recorded').checked;
 }
@@ -184,20 +205,26 @@ function compute() {
   }
   const r = planDilution(final);
   lastResult = r;
+  const derivation = renderDerivation(r);
   $('declarations-content').innerHTML = renderDeclarations(r);
   $('plan-region').innerHTML = renderPlanRegion(r);
-  $('derivation').innerHTML = renderDerivation(r);
+  $('derivation').innerHTML = derivation;
   $('bench-sheet').innerHTML = renderBenchSheet(r, CONFIG);
-  $('plan-actions').hidden = r.status === 'incomplete';
-  $('object-text').value = r.status === 'incomplete' ? '' : JSON.stringify(r, null, 2);
-  $('notebook-text').value = r.status === 'incomplete' ? '' : notebookText(r);
+  const noPlan = r.status === 'incomplete';
+  $('plan-actions').hidden = noPlan;
+  $('object-panel').hidden = noPlan;
+  $('derivation-panel').hidden = !derivation;
+  $('object-text').textContent = noPlan ? '' : JSON.stringify(r, null, 2);
+  $('notebook-text').value = noPlan ? '' : notebookText(r);
 }
 
 function init() {
-  document.title = CONFIG.toolTitle;
+  document.title = `${CONFIG.publisher} · ${CONFIG.toolTitle}`;
   // Standard chrome; the mark is drawn inline (§03) so no asset request leaves the page.
   $('site-header').innerHTML = renderHeader();
   $('site-footer').innerHTML = renderFooter();
+  $('disclaimer').innerHTML = renderDisclaimer();
+  $('colophon').innerHTML = renderColophon();
   $('favicon').href = markDataUri();
   $('copy-citation').addEventListener('click', async () => {
     try {
@@ -214,8 +241,8 @@ function init() {
   });
   $('page-content-body').innerHTML = renderPageContent(CONFIG);
 
-  fillUnits($('stock-unit'), CONCENTRATION_UNITS, 'µg/mL');
-  fillUnits($('target-unit'), CONCENTRATION_UNITS, 'µg/mL');
+  fillUnits($('stock-unit'), CONCENTRATION_UNITS, 'µg/mL', { unselected: true });
+  fillUnits($('target-unit'), CONCENTRATION_UNITS, 'µg/mL', { unselected: true });
   for (const id of ['stock-available-unit', 'volume-unit', 'min-unit', 'max-unit', 'capacity-unit']) fillUnits($(id), VOLUME_UNITS, 'µL');
 
   const form = $('plan-form');
@@ -228,19 +255,18 @@ function init() {
     const text = notebookText(lastResult);
     try {
       await navigator.clipboard.writeText(text);
-      $('copy-status').textContent = 'Copied.';
+      $('copy-notebook').textContent = 'Copied';
+      setTimeout(() => { $('copy-notebook').textContent = 'Copy for notebook'; }, 2000);
       $('notebook-fallback').hidden = true;
+      $('copy-status').hidden = true;
     } catch {
+      // The text still has to reach the notebook, so it is shown to be copied by hand.
       $('notebook-fallback').hidden = false;
-      $('copy-status').textContent = 'Clipboard unavailable; text shown below.';
+      $('copy-status').hidden = false;
+      $('copy-status').textContent = 'Clipboard unavailable; the text is below.';
     }
   });
   $('print-sheet').addEventListener('click', () => window.print());
-  $('toggle-object').addEventListener('click', () => {
-    const v = $('object-view');
-    v.hidden = !v.hidden;
-    $('toggle-object').textContent = v.hidden ? 'Show result object' : 'Hide result object';
-  });
   compute();
 }
 

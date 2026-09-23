@@ -8,9 +8,13 @@ export const CONFIG = Object.freeze({
   productLine: 'Ligant Bench Tools',
   publisher: 'Ligant',
   legalEntity: 'Ligant AI Incorporated',
-  version: '0.2.0',
+  version: '1.0.0', // moves with the engine; URS v0.4.2, engine 1.0.0
   slug: 'dilution-planner',
   publicBase: 'https://benchtools.ligant.ai/',
+  // The lockup links to the company site and the suite mark to the catalog, as
+  // on the shipped siblings.
+  homeUrl: 'https://ligant.ai/',
+  suiteLabel: 'Bench Tools',
   repositoryUrl: 'https://github.com/abmodi-ai/Ligant.ai-Dilution-Planner',
   repositoryLabel: 'github.com/abmodi-ai/Ligant.ai-Dilution-Planner',
   contactEmail: 'hello@ligant.ai',

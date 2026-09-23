@@ -39,10 +39,15 @@
     "T": 29.08783783783784,
     "V": 875,
     "cExact": 123000,
+    "cUnit": "mg/mL",
+    "cDisplayValue": 0.123,
+    "volumeUnit": "µL",
     "Td": "29.1",
     "Dd": "846",
     "total": "875.1",
-    "residual": "0.1"
+    "residual": "0.1",
+    "boundStatus": "derived",
+    "bound": "2.29 × 10⁻³"
    }
   ]
  },
@@ -86,10 +91,15 @@
     "T": 12.4,
     "V": 1000,
     "cExact": 12400,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 12.4,
+    "volumeUnit": "µL",
     "Td": "12.4",
     "Dd": "988",
     "total": "1000.4",
-    "residual": "0.4"
+    "residual": "0.4",
+    "boundStatus": "derived",
+    "bound": "4.55 × 10⁻³"
    }
   ]
  },
@@ -133,10 +143,15 @@
     "T": 12.6,
     "V": 1000,
     "cExact": 12600,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 12.6,
+    "volumeUnit": "µL",
     "Td": "12.6",
     "Dd": "987",
     "total": "999.6",
-    "residual": "-0.4"
+    "residual": "-0.4",
+    "boundStatus": "derived",
+    "bound": "4.49 × 10⁻³"
    }
   ]
  },
@@ -187,10 +202,15 @@
     "T": 4.44,
     "V": 44.4,
     "cExact": 10000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 10,
+    "volumeUnit": "µL",
     "Td": "4.44",
     "Dd": "40.0",
     "total": "44.44",
-    "residual": "0.04"
+    "residual": "0.04",
+    "boundStatus": "derived",
+    "bound": "2.26 × 10⁻³"
    },
    {
     "label": "P2",
@@ -201,10 +221,15 @@
     "T": 4.4,
     "V": 44,
     "cExact": 1000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 1,
+    "volumeUnit": "µL",
     "Td": "4.40",
     "Dd": "39.6",
     "total": "44.0",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "4.54 × 10⁻³"
    },
    {
     "label": "P3",
@@ -215,10 +240,15 @@
     "T": 4,
     "V": 40,
     "cExact": 100,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 0.1,
+    "volumeUnit": "µL",
     "Td": "4.00",
     "Dd": "36.0",
     "total": "40.0",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "7.05 × 10⁻³"
    }
   ]
  },
@@ -269,10 +299,15 @@
     "T": 10,
     "V": 100,
     "cExact": 100000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 100,
+    "volumeUnit": "µL",
     "Td": "10.0",
     "Dd": "90.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "5.53 × 10⁻³"
    },
    {
     "label": "P2",
@@ -283,10 +318,15 @@
     "T": 50,
     "V": 100,
     "cExact": 50000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 50,
+    "volumeUnit": "µL",
     "Td": "50.0",
     "Dd": "50.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "7.04 × 10⁻³"
    },
    {
     "label": "P3",
@@ -297,10 +337,15 @@
     "T": 50,
     "V": 100,
     "cExact": 25000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 25,
+    "volumeUnit": "µL",
     "Td": "50.0",
     "Dd": "50.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "8.55 × 10⁻³"
    }
   ]
  },
@@ -351,10 +396,15 @@
     "T": 10,
     "V": 100,
     "cExact": 100000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 100,
+    "volumeUnit": "µL",
     "Td": "10.0",
     "Dd": "90.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "5.53 × 10⁻³"
    },
    {
     "label": "P2",
@@ -365,10 +415,15 @@
     "T": 5,
     "V": 100,
     "cExact": 50000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 50,
+    "volumeUnit": "µL",
     "Td": "5.00",
     "Dd": "95.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.50 × 10⁻³"
    },
    {
     "label": "P3",
@@ -379,10 +434,15 @@
     "T": 2.5,
     "V": 100,
     "cExact": 25000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 25,
+    "volumeUnit": "µL",
     "Td": "2.50",
     "Dd": "97.5",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "2.51 × 10⁻³"
    }
   ]
  },
@@ -433,10 +493,15 @@
     "T": 2,
     "V": 20,
     "cExact": 100000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 100,
+    "volumeUnit": "µL",
     "Td": "2.00",
     "Dd": "18.0",
     "total": "20.0",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "5.02 × 10⁻³"
    },
    {
     "label": "P1",
@@ -447,10 +512,15 @@
     "T": 10,
     "V": 100,
     "cExact": 10000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 10,
+    "volumeUnit": "µL",
     "Td": "10.0",
     "Dd": "90.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.06 × 10⁻²"
    },
    {
     "label": "P2",
@@ -461,10 +531,15 @@
     "T": 10,
     "V": 100,
     "cExact": 1000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 1,
+    "volumeUnit": "µL",
     "Td": "10.0",
     "Dd": "90.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.62 × 10⁻²"
    },
    {
     "label": "P3",
@@ -475,10 +550,15 @@
     "T": 10,
     "V": 100,
     "cExact": 100,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 0.1,
+    "volumeUnit": "µL",
     "Td": "10.0",
     "Dd": "90.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "2.18 × 10⁻²"
    }
   ]
  },
@@ -527,10 +607,15 @@
     "T": 2,
     "V": 200,
     "cExact": 10000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 10,
+    "volumeUnit": "µL",
     "Td": "2.00",
     "Dd": "198",
     "total": "200",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "5.02 × 10⁻³"
    },
    {
     "label": "P1",
@@ -541,10 +626,15 @@
     "T": 10,
     "V": 100,
     "cExact": 1000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 1,
+    "volumeUnit": "µL",
     "Td": "10.0",
     "Dd": "90.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.06 × 10⁻²"
    },
    {
     "label": "P2",
@@ -555,10 +645,15 @@
     "T": 5,
     "V": 100,
     "cExact": 500,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 0.5,
+    "volumeUnit": "µL",
     "Td": "5.00",
     "Dd": "95.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "6.53 × 10⁻³"
    }
   ]
  },
@@ -602,10 +697,15 @@
     "T": 10,
     "V": 100,
     "cExact": 100000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 100,
+    "volumeUnit": "µL",
     "Td": "10.0",
     "Dd": "90",
     "total": "100",
-    "residual": null
+    "residual": null,
+    "boundStatus": "derived",
+    "bound": "5.03 × 10⁻³"
    }
   ]
  },
@@ -658,10 +758,15 @@
     "T": 10,
     "V": 100,
     "cExact": 100000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 100,
+    "volumeUnit": "µL",
     "Td": "10.0",
     "Dd": "90.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "5.53 × 10⁻³"
    },
    {
     "label": "P2",
@@ -672,10 +777,15 @@
     "T": 10,
     "V": 100,
     "cExact": 10000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 10,
+    "volumeUnit": "µL",
     "Td": "10.0",
     "Dd": "90.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.11 × 10⁻²"
    },
    {
     "label": "P3",
@@ -686,10 +796,15 @@
     "T": 10,
     "V": 100,
     "cExact": 1000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 1,
+    "volumeUnit": "µL",
     "Td": "10.0",
     "Dd": "90.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.67 × 10⁻²"
    },
    {
     "label": "P4",
@@ -700,10 +815,15 @@
     "T": 10,
     "V": 100,
     "cExact": 100,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 0.1,
+    "volumeUnit": "µL",
     "Td": "10.0",
     "Dd": "90.0",
     "total": "100",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "2.23 × 10⁻²"
    }
   ]
  },
@@ -758,10 +878,15 @@
     "T": 108.97630619684082,
     "V": 875,
     "cExact": 123000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 123,
+    "volumeUnit": "µL",
     "Td": "109",
     "Dd": "766",
     "total": "875",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "5.18 × 10⁻³"
    },
    {
     "label": "P2",
@@ -772,10 +897,15 @@
     "T": 324.390243902439,
     "V": 875,
     "cExact": 45600,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 45.6,
+    "volumeUnit": "µL",
     "Td": "324",
     "Dd": "551",
     "total": "875",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "7.31 × 10⁻³"
    },
    {
     "label": "P3",
@@ -786,10 +916,15 @@
     "T": 151.39802631578948,
     "V": 875,
     "cExact": 7890.000000000001,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 7.890000000000001,
+    "volumeUnit": "µL",
     "Td": "151",
     "Dd": "724",
     "total": "875",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.12 × 10⁻²"
    },
    {
     "label": "P4",
@@ -800,10 +935,15 @@
     "T": 13.640684410646388,
     "V": 875,
     "cExact": 123.00000000000003,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 0.12300000000000003,
+    "volumeUnit": "µL",
     "Td": "13.6",
     "Dd": "861",
     "total": "874.6",
-    "residual": "-0.4"
+    "residual": "-0.4",
+    "boundStatus": "derived",
+    "bound": "1.55 × 10⁻²"
    },
    {
     "label": "P5",
@@ -814,10 +954,15 @@
     "T": 87.5,
     "V": 875,
     "cExact": 12.300000000000004,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 0.012300000000000004,
+    "volumeUnit": "µL",
     "Td": "87.5",
     "Dd": "788",
     "total": "875.5",
-    "residual": "0.5"
+    "residual": "0.5",
+    "boundStatus": "derived",
+    "bound": "1.67 × 10⁻²"
    }
   ]
  },
@@ -870,10 +1015,15 @@
     "T": 12.803608605135322,
     "V": 102.80360860513532,
     "cExact": 123000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 123,
+    "volumeUnit": "µL",
     "Td": "12.8",
     "Dd": "90",
     "total": "102.8",
-    "residual": null
+    "residual": null,
+    "boundStatus": "derived",
+    "bound": "3.92 × 10⁻³"
    },
    {
     "label": "P2",
@@ -884,10 +1034,15 @@
     "T": 53.02325581395349,
     "V": 143.02325581395348,
     "cExact": 45600.00000000001,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 45.60000000000001,
+    "volumeUnit": "µL",
     "Td": "53.0",
     "Dd": "90",
     "total": "143",
-    "residual": null
+    "residual": null,
+    "boundStatus": "derived",
+    "bound": "4.87 × 10⁻³"
    },
    {
     "label": "P3",
@@ -898,10 +1053,15 @@
     "T": 18.83054892601432,
     "V": 108.83054892601432,
     "cExact": 7890.000000000002,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 7.8900000000000015,
+    "volumeUnit": "µL",
     "Td": "18.8",
     "Dd": "90",
     "total": "108.8",
-    "residual": null
+    "residual": null,
+    "boundStatus": "derived",
+    "bound": "7.55 × 10⁻³"
    },
    {
     "label": "I1",
@@ -912,10 +1072,15 @@
     "T": 2,
     "V": 20,
     "cExact": 789.0000000000002,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 0.7890000000000003,
+    "volumeUnit": "µL",
     "Td": "2.00",
     "Dd": "18.0",
     "total": "20.0",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.26 × 10⁻²"
    },
    {
     "label": "P4",
@@ -926,10 +1091,15 @@
     "T": 16.62162162162162,
     "V": 106.62162162162161,
     "cExact": 123.00000000000004,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 0.12300000000000004,
+    "volumeUnit": "µL",
     "Td": "16.6",
     "Dd": "90",
     "total": "106.6",
-    "residual": null
+    "residual": null,
+    "boundStatus": "derived",
+    "bound": "1.57 × 10⁻²"
    }
   ]
  },
@@ -980,10 +1150,15 @@
     "T": 4.2,
     "V": 42,
     "cExact": 10000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 10,
+    "volumeUnit": "µL",
     "Td": "4.20",
     "Dd": "37.8",
     "total": "42.0",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "2.39 × 10⁻³"
    },
    {
     "label": "I1",
@@ -994,10 +1169,15 @@
     "T": 2,
     "V": 20,
     "cExact": 1000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 1,
+    "volumeUnit": "µL",
     "Td": "2.00",
     "Dd": "18.0",
     "total": "20.0",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "7.42 × 10⁻³"
    },
    {
     "label": "P2",
@@ -1008,10 +1188,15 @@
     "T": 4.4,
     "V": 44,
     "cExact": 100,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 0.1,
+    "volumeUnit": "µL",
     "Td": "4.40",
     "Dd": "39.6",
     "total": "44.0",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "9.71 × 10⁻³"
    },
    {
     "label": "P3",
@@ -1022,10 +1207,15 @@
     "T": 4,
     "V": 40,
     "cExact": 10,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 0.01,
+    "volumeUnit": "µL",
     "Td": "4.00",
     "Dd": "36.0",
     "total": "40.0",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.22 × 10⁻²"
    }
   ]
  },
@@ -1076,10 +1266,15 @@
     "T": 29.08783783783784,
     "V": 875,
     "cExact": 123000,
+    "cUnit": "mg/mL",
+    "cDisplayValue": 0.123,
+    "volumeUnit": "µL",
     "Td": "29.1",
     "Dd": "846",
     "total": "875.1",
-    "residual": "0.1"
+    "residual": "0.1",
+    "boundStatus": "derived",
+    "bound": "2.29 × 10⁻³"
    },
    {
     "label": "P2",
@@ -1090,10 +1285,15 @@
     "T": 2.9087837837837838,
     "V": 875,
     "cExact": 12300,
+    "cUnit": "mg/mL",
+    "cDisplayValue": 0.0123,
+    "volumeUnit": "µL",
     "Td": "2.91",
     "Dd": "872",
     "total": "874.91",
-    "residual": "-0.09"
+    "residual": "-0.09",
+    "boundStatus": "derived",
+    "bound": "2.29 × 10⁻³"
    },
    {
     "label": "I1",
@@ -1104,10 +1304,15 @@
     "T": 2,
     "V": 20,
     "cExact": 370000,
+    "cUnit": "mg/mL",
+    "cDisplayValue": 0.37,
+    "volumeUnit": "µL",
     "Td": "2.00",
     "Dd": "18.0",
     "total": "20.0",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "5.02 × 10⁻³"
    },
    {
     "label": "P3",
@@ -1118,10 +1323,15 @@
     "T": 2.9087837837837838,
     "V": 875,
     "cExact": 1230,
+    "cUnit": "mg/mL",
+    "cDisplayValue": 0.00123,
+    "volumeUnit": "µL",
     "Td": "2.91",
     "Dd": "872",
     "total": "874.91",
-    "residual": "-0.09"
+    "residual": "-0.09",
+    "boundStatus": "derived",
+    "bound": "7.32 × 10⁻³"
    }
   ]
  },
@@ -1171,10 +1381,15 @@
     "T": 30,
     "V": 300,
     "cExact": 100000,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 100,
+    "volumeUnit": "µL",
     "Td": "30.0",
     "Dd": "270",
     "total": "300",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "3.34 × 10⁻³"
    },
    {
     "label": "P2",
@@ -1185,10 +1400,15 @@
     "T": 100,
     "V": 300,
     "cExact": 33333.33333333333,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 33.33333333333333,
+    "volumeUnit": "µL",
     "Td": "100",
     "Dd": "200",
     "total": "300",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.01 × 10⁻²"
    },
    {
     "label": "P3",
@@ -1199,10 +1419,15 @@
     "T": 100,
     "V": 300,
     "cExact": 11111.11111111111,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 11.111111111111109,
+    "volumeUnit": "µL",
     "Td": "100",
     "Dd": "200",
     "total": "300",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "1.68 × 10⁻²"
    },
    {
     "label": "P4",
@@ -1213,10 +1438,15 @@
     "T": 100.00000000000001,
     "V": 300,
     "cExact": 3703.7037037037035,
+    "cUnit": "µg/mL",
+    "cDisplayValue": 3.7037037037037033,
+    "volumeUnit": "µL",
     "Td": "100",
     "Dd": "200",
     "total": "300",
-    "residual": "0"
+    "residual": "0",
+    "boundStatus": "derived",
+    "bound": "2.37 × 10⁻²"
    }
   ]
  }

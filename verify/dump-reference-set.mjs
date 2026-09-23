@@ -1,6 +1,10 @@
 // Dumps the reference set (inputs + the engine's unrounded and displayed values)
 // for the independent reimplementation (acceptance 3). Run: node verify/dump-reference-set.mjs > verify/reference-set.json
 import { planDilution } from '../src/engine/plan.js';
+// The round-trip ULP count is the engine's derivation constant. It is no longer
+// published in the result object: its registration is open until the memo is
+// signed (docs/tolerance-memo.md), but acceptance 3 still compares against it.
+import { ROUND_TRIP_ULP_PER_STEP } from '../src/engine/tolerances.js';
 
 const base = { stock: { value: '1000', unit: 'µg/mL' }, stockProvenance: 'coa', targetProvenance: 'user', diluent: { name: 'PBS' }, minTransfer: { value: '2', unit: 'µL' }, volume: { value: '100', unit: 'µL' }, basis: 'final' };
 const cases = {
@@ -26,12 +30,20 @@ for (const [name, input] of Object.entries(cases)) {
   if (r.status !== 'plan') throw new Error(`${name}: ${r.status}`);
   out[name] = {
     input,
-    ulpPerStep: r.tolerances.roundTrip.ulpPerStep,
+    ulpPerStep: ROUND_TRIP_ULP_PER_STEP,
     targets: r.declarations.target.values.map((t) => t.internal),
     vessels: r.vessels.filter((v) => v.kind !== 'stock').map((v) => ({
       label: v.label, kind: v.kind, source: v.sourceLabel, steps: v.stepsFromStock, g: v.intermediateFactor,
-      T: v.volumes.transferIn.internalUnrounded, V: v.volumes.total.internalUnrounded, cExact: v.concentration.exact.value,
+      T: v.volumes.transferIn.internalUnrounded, V: v.volumes.total.internalUnrounded, cExact: v.concentration.exact.internalUnrounded,
+      // B1: the units travel with the numbers, so acceptance 3 compares labels
+      // as well as values (Agent Nadira, §7 build review).
+      cUnit: v.concentration.exact.unit, cDisplayValue: v.concentration.exact.value,
+      volumeUnit: v.volumes.transferIn.unit,
       Td: v.volumes.transferIn.display, Dd: v.volumes.diluent.display, total: v.volumes.total.display, residual: v.volumes.residual,
+      // The displayed bound is part of the reference table from engine 1.0.0: a
+      // MAJOR release re-checks it before release (C3-NF-07), and it is a
+      // displayed number only while the register status is derived.
+      boundStatus: v.concentration.bound.status, bound: v.concentration.bound.display,
     })),
   };
 }

@@ -1,19 +1,6 @@
 // The tool page's own statements (C3-CN-01, C3-FC-01, acceptance 25–26).
-// The two tolerance rows are OPEN with no numeric value until the memo is signed.
 import { ENGINE_VERSION, URS_VERSION } from '../engine/version.js';
-import { SUGGESTED_MIN_TRANSFER_UL, ADDITIVITY } from '../engine/plan.js';
-
-export const REGISTER = [
-  { threshold: 'Achieved-concentration bound', value: '1.01 × 10⁻² per step, worst case', basis: 'Analytic, over the displayed-precision rounding of the stated operation set, worst case over leading digit, including the C3-IV-01 residual, compounded along a serial chain. Computed per vessel as (1 + h_T/(Tᵈ − h_T))/(1 − h_D/V) − 1, where h is the half-unit of the last displayed place, compounded along the chain as Π(1 + bᵢ) − 1, and stated per point on the output. 5.03 × 10⁻³ where closure is exact or under the diluent-volume basis. Empirical maximum over 200,000 random plans, 8.06 × 10⁻³ at one step, as evidence only. Derivation in the tolerance memo, 15 September 2026.', status: 'derived' },
-  { threshold: 'Round-trip tolerance, exact concentration', value: '6 ULP per step from stock', basis: "Analytic over this tool's operation set: at most six unit roundings per step — the transfer, the recomputation, and under the diluent-volume basis the subtraction and the sum — and k unit roundings are fewer than k ULP of the target. A planned intermediate counts as a step. Not assumed from C1. Empirical maximum 3 ULP at one step and 11 at ten, as evidence only.", status: 'derived' },
-  { threshold: 'Closure residual, displayed volumes', value: '±½ unit, last displayed place', basis: "Analytic, from C3-DT-04: with D = F − Tᵈ and Dᵈ = D + ρ, the sum Tᵈ + Dᵈ is F + ρ exactly, so |ρ| ≤ ½ unit in D's last displayed place, of either sign. It applies to the one derived volume per vessel, and is zero under the diluent-volume basis, where nothing is derived.", status: 'derived' },
-  { threshold: 'Minimum reliable transfer volume', value: 'user-declared; 2 µL suggested', basis: 'Disclosed default, carried from C4. Any pre-fill is marked as a suggestion.', status: 'disclosed' },
-  { threshold: 'Maximum single-transfer volume', value: 'user-declared, optional, no default', basis: 'Disclosed. Never alters a planned volume (C3-IV-08 a).', status: 'disclosed' },
-  { threshold: 'Vessel working capacity', value: 'user-declared, optional, no default', basis: 'Disclosed.', status: 'disclosed' },
-  { threshold: 'Intermediate factor series', value: '{10, 100, 1000, …}', basis: 'Inspection: checkable by eye. The consequence of the series is published below (C3-DT-06 step 5).', status: 'proposed', note: 'open item 16' },
-  { threshold: 'Displayed precision, volumes', value: '3 significant figures', basis: 'Tool-set principle: precision matches the resolution of the physical act the number drives.', status: 'disclosed' },
-  { threshold: 'Displayed precision, concentrations', value: '6 significant figures', basis: 'Matches C1; a concentration drives a record, not an act. Shown on values that carry information; a target reached by construction is echoed as entered.', status: 'disclosed' },
-];
+import { SUGGESTED_MIN_TRANSFER_UL, ADDITIVITY, INTERMEDIATE_RULE_STEPS, INTERMEDIATE_CONSEQUENCE } from '../engine/plan.js';
 
 export const FAILURE_CLASSES = [
   'A stock concentration that is wrong — mislabelled, degraded, from a different lot, or correct for a different formulation.',
@@ -28,31 +15,19 @@ export const FAILURE_CLASSES = [
 
 export const HI06_SENTENCE = 'Under the diluent-volume basis a step factor close to 1 requires a transfer many times the stated volume: the transfer into a vessel is D/(f − 1), which is unbounded by the stated volume as the step factor approaches 1.';
 
-export const INTERMEDIATE_RULE = [
-  'For a step from a source at concentration cₐ — the stock, or the preceding vessel in serial mode — to a point b with factor f = cₐ/cᵦ whose direct transfer falls below the declared minimum m:',
-  'Let Tᵦ(g) be the transfer into vessel b at the remaining factor f/g under the declared basis: F·g/f (final volume); D·g/(f − g) (diluent volume); Vᵦ·g/f with Vᵦ the backward-solved total of b (volume available after onward transfer). Each is increasing in g.',
-  'Take the smallest g from the series {10, 100, 1000, …} with g < f such that (i) Tᵦ(g) ≥ m; (iii) where a capacity C is declared, the intermediate\'s total ≤ C; and, in serial mode, (iv) the intermediate\'s transfer from its source does not exceed the source vessel\'s total.',
-  'Size the intermediate as max(g·m, the sum of every onward transfer taken from it). Its own transfer from its source is then at or above m by construction.',
-  'In serial mode the intermediate sits between the source and b; the source\'s onward transfer is to the intermediate. In independent mode every point requiring the same g shares one intermediate, sized over all of them, and each such point is recorded as drawn from it.',
-  'If no g satisfies these conditions the plan is rejected naming the bound that failed; a second intermediate is never chained.',
-];
-
-export const INTERMEDIATE_CONSEQUENCE = 'Published consequence of the decade series: a step whose factor does not exceed the smallest series value (f ≤ 10) has no intermediate, since the intermediate would be the point itself. Such a step is rejected under C3-HI-09, and the remedy is the stated volume, not an intermediate. The message names the bound that failed; it recommends no value.';
+// C3-DT-06 is published from the engine's own constants, so the page cannot
+// state a rule the engine does not apply (T11).
+export { INTERMEDIATE_RULE_STEPS as INTERMEDIATE_RULE, INTERMEDIATE_CONSEQUENCE } from '../engine/plan.js';
 
 export function renderPageContent(config) {
   const esc = escapeHtml;
-  const rows = REGISTER.map((r) => `<tr><td>${esc(r.threshold)}</td><td class="num">${esc(r.value)}</td><td>${esc(r.basis)}</td><td><span class="status ${r.status}">${esc(r.status)}</span>${r.note ? ` <span class="help-inline">(${esc(r.note)})</span>` : ''}</td></tr>`).join('');
   return `
 <p class="lede">${esc(config.toolTitle)} plans the volumes to combine to reach a stated target concentration, or an ordered set of them, from a stated stock, including any single intermediate dilution a step needs to be pipettable. It plans preparation; it does not verify what was prepared. <strong>Research use. Not qualified for GxP decision-making.</strong></p>
+<p>${esc(config.standfirst)}</p>
 <p>Entirely client-side: no user-entered data leaves the browser, and the page makes no request to any third party. No account. Nothing persists across a reload.</p>
 
-<h3>Constants register</h3>
-<table>
-<thead><tr><th>Threshold</th><th>Value</th><th>Basis</th><th>Status</th></tr></thead>
-<tbody>${rows}</tbody>
-</table>
-<p class="help">Statuses are derived, measured, disclosed, proposed or open. The two tolerances were derived on 15 September 2026 under owner delegation of open items 6 and 7 (memo in the repository); they are analytic bounds over the stated operation set, with the empirical maxima recorded only as evidence that the bounds are not loose.</p>
-<p><strong>A 3-significant-figure plan can carry up to about 1% rounding error per step before any pipetting error.</strong> That is larger than most users expect and is why the achieved point value is shown beside every target: it is the concentration the displayed volumes make, and its bound is stated per point.</p>
+<p><strong>A 3-significant-figure plan can carry up to about 1% rounding error per step, before any pipetting error.</strong> That is larger than most users expect, and it is why the achieved point value is shown beside every target: it is the concentration the displayed volumes make, and the bound on its departure is computed from those volumes and stated at that point.</p>
+<p class="help">Every threshold at which this tool changes behaviour — its value, its basis and its status — travels in the structured result object beside the plan, generated by the same computation that produced the plan, and is in the repository at the tagged engine version: <a href="${esc(config.repositoryUrl)}">${esc(config.repositoryLabel)}</a>.</p>
 
 <h3>Assumption — volume additivity</h3>
 <table>
@@ -62,7 +37,7 @@ export function renderPageContent(config) {
 <p>The stated volume is a volume of solution under the final-volume and available-volume bases and a volume of diluent under the diluent-volume basis. The diluent volume the tool computes is always a volume of diluent; the final volume it computes is always a volume of solution. Every basis describes pipetted volumes: the tool does not plan volumetric preparation in which the diluent is added to a mark rather than pipetted.</p>
 
 <h3>Intermediate selection rule</h3>
-<ol>${INTERMEDIATE_RULE.map((s) => `<li>${esc(s)}</li>`).join('')}</ol>
+<ol>${INTERMEDIATE_RULE_STEPS.map((s) => `<li>${esc(s)}</li>`).join('')}</ol>
 <p><strong>${esc(INTERMEDIATE_CONSEQUENCE)}</strong></p>
 
 <h3>On the diluent-volume basis</h3>

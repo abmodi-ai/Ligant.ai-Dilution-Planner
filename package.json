@@ -18,9 +18,11 @@
     "check:contrast": "node scripts/contrast-audit.mjs",
     "deploy:pages": "wrangler pages deploy dist --project-name ligant-dilution-planner",
     "deploy:router": "wrangler deploy --config deploy/router/wrangler.toml",
-    "deploy:check": "wrangler deploy --config deploy/router/wrangler.toml --dry-run --outdir .wrangler/dry-run"
+    "deploy:check": "wrangler deploy --config deploy/router/wrangler.toml --dry-run --outdir .wrangler/dry-run",
+    "check:browser": "node scripts/browser-checks.mjs"
   },
   "devDependencies": {
+    "playwright": "^1.63.0",
     "vite": "^8.3.0",
     "wrangler": "^4.132.0"
   },
