@@ -19,8 +19,12 @@ const url = process.argv[2] || 'http://localhost:5173/';
 const browser = await chromium.launch({ ...PW_LAUNCH, args: ['--force-device-scale-factor=1'] });
 const context = await browser.newContext({ viewport: { width: 1366, height: 650 }, deviceScaleFactor: 1 });
 const page = await context.newPage();
+// Acceptance 22 (C3-NF-01). Every request is recorded at the context, so a
+// beacon fired as the page is left is caught too, and its body is kept: the
+// requirement is that no user-entered data leaves the browser, and that is only
+// shown by looking at what was sent.
 const requests = [];
-page.on('request', (req) => requests.push(req.url()));
+context.on('request', (req) => requests.push({ url: req.url(), body: req.postData() || '' }));
 await page.goto(url, { waitUntil: 'networkidle' });
 
 // Fill a serial plan with an intermediate and flags so that every structural element exists.
@@ -37,6 +41,10 @@ await page.check('input[name="route"][value="serial"]');
 await page.check('input[name="basis"][value="final"]');
 await page.check('#diluent-not-recorded');
 await page.fill('#max-value', '5');
+// A value no page, beacon or timing figure could contain by chance. If it ever
+// appears in a request, something is sending what the user typed.
+const SENTINEL = 'zqx-sentinel-typed-7Q3P';
+await page.fill('#stock-formulation', SENTINEL);
 
 const info = await page.evaluate(() => ({
   ua: navigator.userAgent, innerWidth: innerWidth, innerHeight: innerHeight, dpr: devicePixelRatio,
@@ -45,8 +53,15 @@ const info = await page.evaluate(() => ({
 }));
 console.log(JSON.stringify(info));
 
-const external = requests.filter((u) => !u.startsWith(new URL(url).origin));
-console.log(`requests: ${requests.length}; to other origins: ${external.length}${external.length ? ' ' + JSON.stringify(external) : ''}`);
+// The one third-party request the owner has allowed (24 September 2026):
+// Cloudflare Web Analytics' beacon script, injected by the host. It reports to
+// this origin's /cdn-cgi/rum, so its data requests are same-origin.
+const ANALYTICS = [/^https:\/\/static\.cloudflareinsights\.com\/beacon\.min\.js(\/|$|\?)/];
+const origin = new URL(url).origin;
+const external = requests.filter((r) => !r.url.startsWith(origin));
+const allowed = external.filter((r) => ANALYTICS.some((re) => re.test(r.url)));
+const disallowed = external.filter((r) => !ANALYTICS.some((re) => re.test(r.url)));
+console.log(`requests: ${requests.length}; to other origins: ${external.length} (${allowed.length} Cloudflare Web Analytics, ${disallowed.length} other)${disallowed.length ? ' ' + JSON.stringify(disallowed.map((r) => r.url)) : ''}`);
 
 const scrollMax = await page.evaluate(() => document.documentElement.scrollHeight - innerHeight);
 let violations = 0;
@@ -71,5 +86,14 @@ for (let y = 0; y <= scrollMax + 50; y += 50) {
 }
 console.log(`scroll range 0..${scrollMax}; step visibility violations: ${violations}`);
 await page.screenshot({ path: 'scripts/out/viewport-1366x650.png' }).catch(() => {});
+
+// Leave the page, so any beacon sent on pagehide is sent now and recorded.
+await page.goto('about:blank').catch(() => {});
+await new Promise((r) => setTimeout(r, 1500));
+const leaks = requests.filter((r) => r.url.includes(SENTINEL) || r.body.includes(SENTINEL));
+const rum = requests.filter((r) => r.url.startsWith(`${origin}/cdn-cgi/rum`));
+console.log(`analytics reports sent: ${rum.length}; requests carrying what the user typed: ${leaks.length}${leaks.length ? ' ' + JSON.stringify(leaks.map((r) => r.url)) : ''}`);
 await browser.close();
-process.exit(violations ? 1 : 0);
+const acceptance22 = disallowed.length === 0 && leaks.length === 0;
+console.log(`acceptance 22 (no user-entered data leaves; no third party but the named analytics): ${acceptance22 ? 'PASS' : 'FAIL'}`);
+process.exit(violations || !acceptance22 ? 1 : 0);

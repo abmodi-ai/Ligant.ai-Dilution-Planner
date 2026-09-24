@@ -5,11 +5,11 @@ ordered set of them, from a stated stock — including the intermediate dilution
 step needs when the transfer it asks for is too small to pipette.
 
 A free bench tool from [Ligant](https://ligant.ai), part of Ligant Bench Tools.
-It runs entirely in your browser and contacts no third party.
+It runs entirely in your browser. The one third party it loads is Cloudflare
+Web Analytics, which counts visits and reads nothing you enter.
 
-**Not yet deployed.** The address is decided —
-`benchtools.ligant.ai/dilution-planner/` — and does not serve this tool yet.
-Until it does, run it locally: see [Running it](#running-it).
+**Use it at [benchtools.ligant.ai/dilution-planner/](https://benchtools.ligant.ai/dilution-planner/)**
+(also announced as `/Dilution-Planner`, which redirects there).
 
 ## Why this exists
 
@@ -148,10 +148,23 @@ persists between runs.
 
 ## Privacy
 
-Everything is computed in your browser. Nothing you enter is transmitted, there
-is no account, and the page contacts no third party at all: the typefaces are
-self-hosted, there is no analytics script, and the source contains no network
-call of any kind. The built page makes 8 requests, all to its own origin.
+Everything is computed in your browser. Nothing you enter is transmitted, and
+there is no account. The typefaces are self-hosted and the source contains no
+network call of any kind.
+
+**One third-party script runs on the page: Cloudflare Web Analytics**, injected
+by the host to count visits. It records which page was opened, how often,
+roughly where from, and how quickly it loaded; by Cloudflare's documentation it
+uses no cookie or `localStorage` and does not fingerprint by IP or User-Agent.
+It reports to this site's own `/cdn-cgi/rum`. The page's content security policy
+allows that one script and that one endpoint, and nothing else outside `'self'`;
+a test fails the build if either copy of the policy admits anything more.
+
+"Reads nothing you enter" is checked rather than asserted: the acceptance-22 run
+types a sentinel value into the form, leaves the page so any pending beacon is
+sent, and fails if the sentinel appears in any request URL or body. It was
+confirmed capable of failing by planting a leak that sent the value, and seeing
+it caught.
 
 **Nothing is stored in your browser either.** No cookie, no site data of any
 kind. A reload starts an empty page rather than returning declarations you made
@@ -233,7 +246,7 @@ it lapses the moment that page changes.
 
 ## Status and limitations
 
-Built against **C3 URS v0.4.2**, engine **1.0.0**, tagged `v1.0.0`. The §7
+Built against **C3 URS v0.4.2**, engine **1.0.1**. `v1.0.0` is tagged at the §7-closed build; 1.0.1 is a PATCH that admits Cloudflare Web Analytics and changes no number. The §7
 scientific build review closed on 22 September 2026. `docs/conformance-audit.md`
 is the row-by-row status and `docs/decisions.md` records every decision with its
 reasoning.
@@ -255,7 +268,7 @@ named, and the remedy is the stated volume rather than a deeper chain.
 
 ## How to cite
 
-> Modi, A.B. (2026). Dilution Planner (v1.0.0) [Computer software].
+> Modi, A.B. (2026). Dilution Planner (v1.0.1) [Computer software].
 > Ligant AI Incorporated. benchtools.ligant.ai/dilution-planner/
 
 The footer of the tool carries this same line with a one-click copy button,
@@ -264,7 +277,7 @@ page and this README cannot disagree.
 
 **There is no DOI yet.** One is minted when the tool is released, and the page
 says so rather than showing a placeholder that would read as a record that does
-not exist. Cite the version: `v1.0.0` names the exact artefact, and the engine
+not exist. Cite the version: `v1.0.1` names the exact artefact, and the engine
 version is on the output, in the structured object and on the bench sheet, so a
 plan can be traced back to the code that produced it.
 
