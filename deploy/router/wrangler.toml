@@ -2,7 +2,13 @@ name = "ligant-dilution-planner-router"
 main = "src/index.js"
 compatibility_date = "2026-09-16"
 
-# Same route shape as the sibling tools. The zone is benchtools.ligant.ai.
+# Same route shape as the sibling tools, on the ligant.ai zone.
+# The second pattern exists so that the announced address /Dilution-Planner
+# reaches this worker, which redirects it to the canonical lowercase path. If
+# Cloudflare matches route paths case-insensitively it will reject the second
+# pattern as a duplicate of the first on deploy; delete it then, and the
+# redirect in the worker still covers every casing.
 routes = [
-  { pattern = "benchtools.ligant.ai/dilution-planner*", zone_name = "ligant.ai" }
+  { pattern = "benchtools.ligant.ai/dilution-planner*", zone_name = "ligant.ai" },
+  { pattern = "benchtools.ligant.ai/Dilution-Planner*", zone_name = "ligant.ai" }
 ]
