@@ -292,3 +292,34 @@ The §7 review did not pass 1.0.0. Two blocking findings and two required before
 **Gates:** 72 tests, 0 failures · acceptance 3: 46 vessels, 0 failures, 0 ULP, 0 of 138 unit mismatches · viewport 0 violations over 0..5002, 24 requests, 0 off-origin · contrast 47 / 0 · browser checks 9/9 · build clean.
 
 **Not in 1.0.0:** K2, by owner decision. **Still owed:** the standing privacy text v1.0, then deploy, then acceptances 22 and 24 on the deployed artefact before the tag is announced.
+
+### A-12 — deployed, 24 September 2026: acceptance 22 fails on a host-injected beacon, blocked by the page's CSP
+
+Deployed from `Main` at `826b8b3` (engine 1.0.0, tag `v1.0.0`'s code plus the router and deploy-config changes of PRs #5 and #6) to the **Ligant.ai** Cloudflare account, the one holding the sibling tools.
+
+| Step | Result |
+|---|---|
+| Pages project `ligant-dilution-planner` | Created with `Main` as its production branch. `wrangler pages project create` now delegates to Workers-based Pages and fails with "Missing entry-point"; the classic path the siblings use needs `--force`, once, at creation. Later commands do not |
+| `npm run deploy:pages` | 9 files, production deployment live at `ligant-dilution-planner.pages.dev` |
+| `npm run deploy:router` | Both routes accepted, `benchtools.ligant.ai/dilution-planner*` and `/Dilution-Planner*`. So route matching is case-sensitive, and the runbook's fallback (delete the second route) was not needed |
+| `/Dilution-Planner` and `/Dilution-Planner/` | **301** to `https://benchtools.ligant.ai/dilution-planner/` |
+| `/dilution-planner/` | **200**, with the full CSP including `frame-ancestors 'none'`, `referrer-policy: no-referrer`, `x-content-type-options: nosniff` |
+
+**Acceptances at the public address**, run by the scripts themselves:
+
+| Acceptance | Result |
+|---|---|
+| **22, no transmission** | **FAILS as written.** `scripts/viewport-check.mjs` records 9 requests, **1 to another origin**: `https://static.cloudflareinsights.com/beacon.min.js/…`. Not in the build: Cloudflare's edge injects the Web Analytics beacon into the HTML **for browser user agents only**, which is why `curl` without a browser User-Agent does not see it. It is injected on the shared `benchtools.ligant.ai` hostname and **not** on `ligant-dilution-planner.pages.dev` served directly, so it is a zone or hostname setting rather than this project's. **The live C4 page carries the same injection.** The page's CSP (`script-src 'self'`) blocks it: the load fails with reason `csp`, there is no response, and the script never loads or runs, so no data reaches Cloudflare Insights. The defence held; the host default is still wrong, and the check fails on a single cross-origin request by design |
+| 29, the reference viewport | **Passes.** 1366 × 650, DPR 1, HeadlessChrome 153: 0 step-visibility violations over 0..5002 |
+| 24, storage | **Passes.** Instrumentation installed before any page script; only the seeded key remains, unchanged; session storage empty; no read |
+| 31, concentration units | **Passes**, all four checks |
+| Contrast, WCAG 2.1 AA | **Passes.** 47 combinations, 0 failures |
+| 28, the bench sheet printed | Not run: it needs a person and a printer |
+
+**The footer sentence stays.** "Not yet verified at this address" is removed only when acceptance 22 passes, and it has not. It is, today, the accurate statement.
+
+**To pass acceptance 22**, the Web Analytics automatic injection has to stop on `benchtools.ligant.ai`. That is a setting on the owner's Cloudflare account, shared by every tool on the hostname, and is the owner's decision. The re-run afterwards is the same command:
+
+```
+node scripts/viewport-check.mjs https://benchtools.ligant.ai/dilution-planner/
+```
