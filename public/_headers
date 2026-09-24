@@ -1,0 +1,23 @@
+# Response headers for the Pages project. The page also carries a meta CSP, but
+# frame-ancestors cannot be delivered from a meta element, so the policy has to
+# be sent here as well. The route worker passes upstream headers through.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com/beacon.min.js https://static.cloudflareinsights.com/beacon.min.js/; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src https://benchtools.ligant.ai/cdn-cgi/rum; object-src 'none'; base-uri 'self'; form-action 'none'; frame-ancestors 'none'
+  Referrer-Policy: no-referrer
+  X-Content-Type-Options: nosniff
+  Cross-Origin-Opener-Policy: same-origin
+  Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(), usb=(), interest-cohort=()
+
+# index.html must not outlive a deploy; the hashed assets can be cached hard.
+/
+  Cache-Control: public, max-age=0, must-revalidate
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Served without an extension, so the type has to be stated or it downloads
+# instead of displaying. The footer links to it.
+/LICENSE
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600

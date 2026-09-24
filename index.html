@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://static.cloudflareinsights.com/beacon.min.js https://static.cloudflareinsights.com/beacon.min.js/; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src https://benchtools.ligant.ai/cdn-cgi/rum; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <!-- frame-ancestors cannot be set from a meta element; it is set in the response header, public/_headers. -->
+  <link rel="icon" id="favicon" href="data:,">
+  <meta name="referrer" content="no-referrer">
+  <title>Ligant · Dilution Planner</title>
+  <meta name="description" content="Plan the volumes to combine to reach a target concentration, or an ordered series of them, from a stated stock, including any intermediate a step needs to be pipettable. A free, deterministic bench tool. Runs entirely in your browser.">
+  <link rel="canonical" href="https://benchtools.ligant.ai/dilution-planner/">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#FAF7F2">
+
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://benchtools.ligant.ai/dilution-planner/">
+  <meta property="og:site_name" content="Ligant Bench Tools">
+  <meta property="og:title" content="Ligant · Dilution Planner">
+  <meta property="og:description" content="The volumes to combine for a dilution or a dilution series, with the volume basis, the route and whether the plan is preparable recorded. Free, deterministic, runs entirely in your browser.">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Ligant · Dilution Planner">
+  <meta name="twitter:description" content="Dilution and serial dilution planning that records what the stated volume is the volume of. Free bench tool.">
+  <link rel="stylesheet" href="./src/tokens.css">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+<div class="app">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="masthead" id="site-header"></header>
+
+  <div id="system-error" class="system-error" hidden role="alert"></div>
+
+  <main id="main">
+    <div class="layout">
+    <div class="stack">
+      <form id="plan-form" class="stack" autocomplete="off" novalidate>
+
+        <!-- The import path is dark in 1.0.0 (owner's decision, 22 September 2026).
+             The only real C1 object that exists is refused: the deployed C1 emits
+             `tool` as an object and the importer expects a string, so a user
+             pasting genuine C1 output would be told it is not from C1. The
+             transport format is open item 2, a decision for the specification,
+             not for the field names this importer happens to assume. C3-NF-05
+             already requires the tool to work standalone, so nothing else
+             changes. The importer and its validation stay behind this section:
+             the work is not deleted, only not exposed. -->
+        <section class="panel" id="import-panel" hidden>
+          <div class="panel-head">
+            <div class="titles"><h2>Import from C4 or C1</h2></div>
+            <span class="optional">optional</span>
+          </div>
+          <div class="panel-body stack">
+            <div class="field">
+              <label for="import-text">Paste the result object (JSON) from C4 or C1</label>
+              <textarea id="import-text" rows="3" class="num" placeholder='{"tool":"C4", …}'></textarea>
+              <p class="help" id="import-status">Nothing is fetched; the object is read here and nowhere else. A C4 series fixes the targets, the staining volume and the final-volume basis; a C1 value fixes the stock. Every imported flag is restated on the output.</p>
+              <label class="check" id="import-override-label" hidden><input type="checkbox" id="import-override"> replace imported declarations manually (the replacement is named on the output)</label>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="titles"><span class="step">1</span><h2>Stock</h2></div>
+          </div>
+          <div class="panel-body stack">
+            <div class="field-row">
+              <div class="field">
+                <label for="stock-value">Stock concentration</label>
+                <input id="stock-value" name="stock-value" type="text" inputmode="decimal" class="num" aria-describedby="stock-help">
+              </div>
+              <div class="field">
+                <label for="stock-unit">Unit</label>
+                <select id="stock-unit" name="stock-unit" class="num"></select>
+              </div>
+            </div>
+            <p class="help" id="stock-help">Required. Not inferred, defaulted or suggested.</p>
+            <div class="field">
+              <label for="stock-provenance">Source of the stock concentration</label>
+              <select id="stock-provenance" name="stock-provenance">
+                <option value="">— select —</option>
+                <option value="coa">certificate of analysis</option>
+                <option value="vendor-datasheet">vendor datasheet</option>
+                <option value="measured">measured</option>
+                <option value="c1">computed by C1</option>
+                <option value="c7">computed by C7</option>
+                <option value="not-recorded">not recorded</option>
+              </select>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="stock-available-value">Available stock volume <span class="optional">optional</span></label>
+                <input id="stock-available-value" type="text" inputmode="decimal" class="num">
+              </div>
+              <div class="field">
+                <label for="stock-available-unit">Unit</label>
+                <select id="stock-available-unit" class="num"></select>
+              </div>
+            </div>
+            <div class="field">
+              <label for="stock-formulation">Stock formulation <span class="optional">optional, recorded not assessed</span></label>
+              <input id="stock-formulation" type="text" placeholder="e.g. PBS, 50% glycerol">
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="titles"><span class="step">2</span><h2>Target</h2></div>
+          </div>
+          <div class="panel-body stack">
+            <div class="field">
+              <span class="label">Form</span>
+              <div class="radios">
+                <label><input type="radio" name="target-form" value="single" checked> single concentration</label>
+                <label><input type="radio" name="target-form" value="list"> explicit list</label>
+                <label><input type="radio" name="target-form" value="tfc"> top concentration, factor and count</label>
+              </div>
+            </div>
+            <div class="field target-form-single">
+              <label for="target-single-value">Target concentration</label>
+              <input id="target-single-value" type="text" inputmode="decimal" class="num">
+            </div>
+            <div class="field target-form-list" hidden>
+              <label for="target-list-values">Target concentrations, one per line, in the order to be prepared</label>
+              <textarea id="target-list-values" rows="4" class="num"></textarea>
+              <p class="help">A serial chain must decrease strictly; 0 is a diluent-only control.</p>
+            </div>
+            <div class="field target-form-tfc" hidden>
+              <label for="tfc-top">Top concentration</label>
+              <input id="tfc-top" type="text" inputmode="decimal" class="num">
+              <label for="tfc-factor">Dilution factor <span class="help-inline">(final volume ÷ stock volume; 1:100 is 100)</span></label>
+              <input id="tfc-factor" type="text" inputmode="decimal" class="num">
+              <label for="tfc-count">Number of points</label>
+              <input id="tfc-count" type="text" inputmode="numeric" class="num">
+            </div>
+            <div class="field">
+              <label for="target-unit">Unit</label>
+              <select id="target-unit" class="num"></select>
+              <p class="help">The unit of every target above, whichever form is used.</p>
+            </div>
+            <div class="field">
+              <label for="target-provenance">Source of the target set</label>
+              <select id="target-provenance">
+                <option value="">— select —</option>
+                <option value="user">user-specified</option>
+                <option value="c4">imported from C4</option>
+                <option value="other">imported from another tool</option>
+              </select>
+            </div>
+            <div class="field-row target-origin" hidden>
+              <div class="field">
+                <label for="target-origin-tool">Origin tool</label>
+                <input id="target-origin-tool" type="text" placeholder="tool">
+              </div>
+              <div class="field">
+                <label for="target-origin-id">Result identifier</label>
+                <input id="target-origin-id" type="text" placeholder="result identifier" class="num">
+              </div>
+            </div>
+            <p class="help target-origin" hidden>The import transport is not yet specified (open item 2); the origin is recorded here.</p>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="titles"><span class="step">3</span><h2>Volume and route</h2></div>
+          </div>
+          <div class="panel-body stack">
+            <div class="field-row">
+              <div class="field">
+                <label for="volume-value">One preparation volume per plan, applied to every point</label>
+                <input id="volume-value" type="text" inputmode="decimal" class="num">
+              </div>
+              <div class="field">
+                <label for="volume-unit">Unit</label>
+                <select id="volume-unit" class="num"></select>
+              </div>
+            </div>
+            <div class="field">
+              <span class="label">What the stated volume is the volume of</span>
+              <div class="radios stacked" id="basis-radios">
+                <label><input type="radio" name="basis" value="final"> <span><strong>final volume</strong> — the sum of the diluent and the stock pipetted into each vessel</span></label>
+                <label><input type="radio" name="basis" value="diluent"> <span><strong>diluent volume</strong> — the diluent pipetted into each vessel; the stock is added to it, and the final volume is the sum</span></label>
+                <label id="basis-available-label"><input type="radio" name="basis" value="available"> <span><strong>volume available after onward transfer</strong> — the volume that remains in each vessel once the transfer to the next point has been taken</span></label>
+              </div>
+              <p class="help" id="basis-available-reason" hidden>The third option is available only for a serial route with more than one point.</p>
+              <p class="help">Every option describes pipetted volumes. Volumetric preparation — diluent added to a mark — is out of scope.</p>
+            </div>
+            <div class="field" id="route-field" hidden>
+              <span class="label">Route <span class="help-inline">(more than one point is planned; no route is pre-selected)</span></span>
+              <div class="radios stacked">
+                <label><input type="radio" name="route" value="serial"> <span>serial — each point from the previous</span></label>
+                <label><input type="radio" name="route" value="independent"> <span>independent — each point from stock</span></label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="titles"><span class="step">4</span><h2>Diluent</h2></div>
+          </div>
+          <div class="panel-body stack">
+            <div class="field">
+              <label for="diluent-name">Diluent <span class="help-inline">(recorded, not assessed)</span></label>
+              <input id="diluent-name" type="text" placeholder="e.g. PBS with 0.1% BSA">
+              <label class="check"><input type="checkbox" id="diluent-not-recorded"> not recorded</label>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="titles"><span class="step">5</span><h2>Pipetting capability</h2></div>
+          </div>
+          <div class="panel-body stack">
+            <div class="field-row">
+              <div class="field">
+                <label for="min-value">Minimum reliable transfer volume</label>
+                <input id="min-value" type="text" inputmode="decimal" class="num" value="2" aria-describedby="min-suggested">
+              </div>
+              <div class="field">
+                <label for="min-unit">Unit</label>
+                <select id="min-unit" class="num"></select>
+              </div>
+            </div>
+            <p class="help" id="min-suggested"><span class="suggested-dot" aria-hidden="true"></span>suggested, not chosen — 2 µL, carried from C4. Replace it with your pipette's value.</p>
+            <div class="field-row">
+              <div class="field">
+                <label for="max-value">Maximum single-transfer volume <span class="optional">optional, no default</span></label>
+                <input id="max-value" type="text" inputmode="decimal" class="num">
+              </div>
+              <div class="field">
+                <label for="max-unit">Unit</label>
+                <select id="max-unit" class="num"></select>
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="capacity-value">Vessel working capacity <span class="optional">optional, no default</span></label>
+                <input id="capacity-value" type="text" inputmode="decimal" class="num">
+              </div>
+              <div class="field">
+                <label for="capacity-unit">Unit</label>
+                <select id="capacity-unit" class="num"></select>
+              </div>
+            </div>
+          </div>
+        </section>
+        <p class="hint">Nothing entered here is stored or transmitted. Reloading the page clears every field.</p>
+      </form>
+
+      <section class="panel method-panel" id="page-content" aria-labelledby="about-heading">
+        <div class="panel-head">
+          <div class="titles"><h2 id="about-heading">Method, conventions and limits</h2></div>
+        </div>
+        <div class="panel-body prose" id="page-content-body"></div>
+      </section>
+    </div>
+
+    <div class="rail">
+      <section class="panel panel-series" aria-labelledby="output-heading">
+        <div class="panel-head">
+          <div class="titles"><h2 id="output-heading">The plan</h2></div>
+          <div class="button-row" id="plan-actions" hidden>
+            <button type="button" id="copy-notebook">Copy for notebook</button>
+            <button type="button" id="print-sheet">Print bench sheet</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="series-sticky">
+            <div class="rail-declarations" id="declarations-bar" aria-label="declarations the plan was computed under">
+              <div id="declarations-content" class="declarations-content"></div>
+            </div>
+          </div>
+          <div id="plan-region" class="plan-region" aria-live="polite"></div>
+          <p id="copy-status" class="hint" aria-live="polite" hidden></p>
+          <div id="notebook-fallback" hidden>
+            <p class="hint">Copy the text below into your notebook.</p>
+            <textarea id="notebook-text" rows="14" readonly class="num"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="derivation-panel" hidden>
+        <div class="panel-head">
+          <div class="titles"><h2>Derivation</h2></div>
+        </div>
+        <div class="panel-body">
+          <div id="derivation" class="derivation"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="object-panel" hidden>
+        <div class="panel-head">
+          <div class="titles"><h2>Structured result</h2></div>
+        </div>
+        <div class="panel-body">
+          <p class="hint">The machine-readable object (shared format, C3 expression 1-c3), carrying the unrounded value of every quantity with its unit, every flag and every declaration the plan rests on. The plan above is rendered from it, so the two cannot disagree.</p>
+          <details class="options">
+            <summary>Show the object</summary>
+            <pre id="object-text"></pre>
+          </details>
+        </div>
+      </section>
+    </div>
+    </div>
+  </main>
+
+  <footer class="site-footer" id="site-footer"></footer>
+  <p class="disclaimer" id="disclaimer"></p>
+  <div class="colophon" id="colophon"></div>
+</div>
+
+  <section class="bench-sheet" id="bench-sheet" aria-label="bench sheet"></section>
+
+  <script type="module" src="./src/ui/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "ligant-dilution-planner",
+  "version": "0.1.0",
+  "description": "Dilution Planner, a Ligant Bench Tool: plans the volumes to combine to reach a stated concentration, entirely in the browser.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "vite --port 5173",
+    "build": "vite build",
+    "preview": "vite preview",
+    "serve": "npx http-server . -p 5173 -c-1"
+  },
+  "devDependencies": {
+    "vite": "^8.3.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

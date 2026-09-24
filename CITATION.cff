@@ -1,0 +1,36 @@
+# Citation metadata, read by GitHub ("Cite this repository") and by Zenodo,
+# which archives each GitHub release and gives it a DOI.
+#
+# At each release, set version to the release tag and date-released to the day
+# the tag is cut. The DOI is added once Zenodo has archived a release: a
+# placeholder that looks like an identifier is worse than an absent one.
+cff-version: 1.2.0
+message: If you use this software, please cite it as below.
+type: software
+title: Dilution Planner
+abstract: >-
+  A deterministic browser tool that plans the volumes to combine to reach a
+  stated target concentration, or an ordered set of them, from a stated stock,
+  including the single intermediate dilution a step needs when its transfer is
+  too small to pipette. It requires the user to declare what the stated volume
+  is the volume of, the route, the diluent and the minimum reliable transfer
+  volume, and withholds any plan the bench could not execute, naming the bound
+  that failed. It plans preparation; it does not verify what was prepared. No
+  model and no inference is applied to any reported value, and no data entered
+  by a user leaves the browser.
+authors:
+  - family-names: Modi
+    given-names: A.B.
+    affiliation: Ligant AI Incorporated
+version: v1.1.1
+date-released: '2026-09-24'
+license: Apache-2.0
+repository-code: https://github.com/abmodi-ai/Ligant.ai-Dilution-Planner
+url: https://benchtools.ligant.ai/dilution-planner/
+keywords:
+  - dilution
+  - serial dilution
+  - intermediate dilution
+  - pipetting
+  - laboratory calculator
+  - reproducible research

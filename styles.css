@@ -1,0 +1,270 @@
+/* Ligant Bench Tools — C3 Dilution Planner.
+   Brand Guidelines v1.1 (June 2026): §04 colour, §05 typography, §03 the mark.
+   Self-hosted type only. The page makes one third-party request, Cloudflare Web
+   Analytics, by the owner's decision of 24 September 2026; nothing else, and no
+   user-entered data in any request (C3-NF-01). Every colour below is a §04 value; §08
+   grants no off-palette colour.
+
+   The shell, the panels and the control primitives are C4's
+   (`C4-Antibody-Titration-Planner/src/styles.css`), read from the source rather
+   than from the deployed bundle, so the two tools are one system. What is C3's
+   own — the vessel cards, the withheld state, the bench sheet — is built from
+   the same tokens and the same spacing. */
+
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 400; font-display: swap; src: url('./fonts/Inter-Regular.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 600; font-display: swap; src: url('./fonts/Inter-SemiBold.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-style: normal; font-weight: 700; font-display: swap; src: url('./fonts/Inter-Bold.woff2') format('woff2'); }
+/* Five faces, as C4 loads: Inter 400/600/700 and Plex Mono 400/600. Nothing
+   sets mono at 700, so no Bold is served for it. */
+@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url('./fonts/IBMPlexMono-Regular.woff2') format('woff2'); }
+@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 600; font-display: swap; src: url('./fonts/IBMPlexMono-SemiBold.woff2') format('woff2'); }
+
+/* Shared suite tokens are in src/tokens.css, linked ahead of this file. */
+:root { --tile-radius: 22%; }
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--text-primary); font-family: var(--font); font-size: 14px; font-weight: 400; line-height: 1.55; -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; }
+/* Weight contrast is 700 against 400, never 600 against 500 (§05). */
+h1, h2, h3, h4 { margin: 0; letter-spacing: -0.011em; color: var(--text-primary); text-wrap: balance; }
+h1 { font-size: 25px; font-weight: 700; }
+h2 { font-size: 15px; font-weight: 600; }
+h3 { font-size: 13px; font-weight: 600; }
+p { margin: 0; }
+a { color: var(--brand-teal); }
+strong, b { font-weight: 700; }
+/* Digits, identifiers and aligned columns are Plex Mono (§05). */
+.num, code, input.num, select.num, textarea.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+[hidden] { display: none !important; }
+
+.eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
+a.eyebrow { text-decoration: none; }
+a.eyebrow:hover { color: var(--text-primary); }
+
+.skip-link { position: absolute; left: 12px; top: -60px; z-index: 100; padding: 9px 14px; background: var(--surface); color: var(--brand-teal); border: 1px solid var(--brand-teal); border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; text-decoration: none; transition: top .12s ease; }
+.skip-link:focus { top: 12px; }
+
+/* ---------- shell ---------- */
+
+.app { max-width: 1400px; margin: 0 auto; padding: 0 24px 72px; }
+
+/* §03 The mark — Council · Ringed. Never recoloured, rotated or stretched. */
+.lockup { display: inline-flex; align-items: center; gap: 9px; }
+.ligant-mark { display: block; flex: none; border-radius: var(--tile-radius); }
+.wordmark { font-size: 19px; font-weight: 700; letter-spacing: -0.015em; color: var(--text-primary); }
+.lockup-link { color: inherit; text-decoration: none; }
+.lockup-link:hover .wordmark { color: var(--brand-teal); }
+
+.masthead { display: flex; align-items: flex-start; justify-content: space-between; gap: 32px; padding: 26px 0 22px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.masthead p { color: var(--text-secondary); max-width: 62ch; margin-top: 8px; }
+.masthead h1 { margin-top: 14px; }
+.tool-nav { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; flex-shrink: 0; }
+.tool-nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 4px; }
+.tool-nav li { display: flex; }
+.tool-nav a, .tool-nav [aria-current] { display: block; font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 999px; border: 1px solid transparent; text-decoration: none; white-space: nowrap; }
+.tool-nav a { color: var(--text-muted); }
+.tool-nav a:hover { color: var(--text-primary); background: var(--surface-inset); }
+.tool-nav [aria-current] { color: var(--brand-teal); background: var(--surface); border-color: var(--border); }
+.suite-mark { white-space: nowrap; color: var(--text-secondary); }
+@media (max-width: 760px) {
+  .masthead { flex-direction: column; gap: 16px; }
+  .tool-nav { align-items: flex-start; }
+}
+
+/* System error only, never a bad result: the one place the restricted red is used. */
+.system-error { background: var(--brand-error); color: #fff; padding: 8px 20px; margin-bottom: 16px; border-radius: var(--radius-sm); font-weight: 700; }
+
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+@media (max-width: 1060px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+.rail { display: flex; flex-direction: column; gap: 16px; }
+/* One column: inputs, then the plan, then the method. Flattening the left
+   column promotes its panels to layout children, which `order` can arrange. */
+@media (max-width: 1060px) {
+  .layout { gap: 16px; }
+  .layout > .stack { display: contents; }
+  .layout > .rail { order: 1; }
+  .layout .method-panel { order: 2; }
+}
+.stack { display: flex; flex-direction: column; gap: 16px; }
+
+/* ---------- panels ---------- */
+
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+/* The declarations line inside this panel is sticky, and a clipping ancestor
+   would silently kill it (C3-NF-03, acceptance 29). */
+.panel-series { overflow: visible; }
+.panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 16px; border-bottom: 1px solid var(--border); }
+.panel-head .step { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--brand-teal); color: #fff; font-family: var(--mono); font-size: 11px; font-weight: 600; margin-right: 10px; flex-shrink: 0; }
+.panel-head .titles { display: flex; align-items: center; min-width: 0; }
+.panel-head .optional { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+.panel-body { padding: 16px; }
+.panel-body.stack { gap: 14px; }
+
+.hint { color: var(--text-muted); font-size: 12px; line-height: 1.5; }
+
+/* ---------- forms ---------- */
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > label, .field > .label { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.field > label.check { flex-direction: row; align-items: center; gap: 6px; display: inline-flex; font-weight: 400; color: var(--text-primary); font-size: 13px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.optional, .help-inline { color: var(--text-muted); font-weight: 400; }
+.help { color: var(--text-muted); font-size: 12px; line-height: 1.5; }
+
+select, input[type=text], textarea { font-family: inherit; font-size: 13px; color: var(--text-primary); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 7px 9px; width: 100%; }
+select.num, input.num, textarea.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+input::placeholder, textarea::placeholder { color: var(--text-muted); font-family: var(--font); }
+select:focus-visible, input:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visible, summary:focus-visible { outline: 2px solid var(--brand-teal); outline-offset: 1px; }
+input:disabled, select:disabled, textarea:disabled { background: var(--surface-inset); color: var(--text-muted); }
+input[type=checkbox], input[type=radio] { accent-color: var(--brand-teal); width: 14px; height: 14px; margin: 0; cursor: pointer; flex: none; }
+.radios { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.radios label { font-size: 13px; font-weight: 400; color: var(--text-primary); display: inline-flex; gap: 7px; align-items: center; }
+.radios.stacked { flex-direction: column; }
+.radios.stacked label { align-items: flex-start; line-height: 1.45; }
+.radios.stacked label input { margin-top: 2px; }
+.radios label > span { flex: 1 1 auto; }
+label.disabled { color: var(--text-muted); }
+.suggested-dot { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: var(--brand-amber); margin-right: 6px; vertical-align: middle; }
+
+button { font-family: inherit; font-size: 12px; font-weight: 600; color: var(--text-secondary); background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 7px 12px; cursor: pointer; }
+button:hover { background: var(--surface-inset); color: var(--text-primary); }
+button.primary { color: #fff; background: var(--brand-teal); border-color: transparent; }
+button.primary:hover { background: #0a6353; color: #fff; }
+.button-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+details.options > summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--text-secondary); padding: 4px 0; list-style: none; }
+details.options > summary::-webkit-details-marker { display: none; }
+details.options > summary::before { content: "+ "; color: var(--text-muted); font-family: var(--mono); }
+details.options[open] > summary::before { content: "−  "; }
+details.options pre { margin: 11px 0 0; padding: 11px 13px; max-height: 340px; overflow: auto; background: var(--surface-sunken); border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: var(--mono); font-size: 12px; line-height: 1.5; color: var(--text-primary); white-space: pre; }
+
+/* ---------- the plan ---------- */
+
+/* C3-NF-03: no step is read without the declarations it was computed under, so
+   the declaration line sticks to the table it describes, as C4's does. */
+.series-sticky { position: sticky; top: 16px; z-index: 2; background: var(--surface); padding-top: 2px; }
+.rail-declarations { margin: 0 0 12px; padding-bottom: 12px; border-bottom: 1px solid var(--grid); font-size: 11.5px; }
+.declarations-content { display: flex; flex-wrap: wrap; column-gap: 16px; row-gap: 3px; }
+.decl { white-space: nowrap; color: var(--text-secondary); }
+.decl b { font-weight: 400; color: var(--text-muted); margin-right: 3px; }
+.decl.absent { color: var(--text-muted); }
+.decl.fixed { border-bottom: 1px dotted var(--border-strong); }
+.decl.empty { color: var(--text-muted); white-space: normal; }
+
+/* Nothing computed yet: a statement, not a result. */
+.state-block.incomplete { text-align: center; padding: 22px 20px 26px; color: var(--text-muted); font-size: 13px; }
+.state-block.incomplete h3 { color: var(--text-primary); margin-bottom: 6px; }
+.state-block.incomplete ul { display: inline-block; text-align: left; margin: 0; padding-left: 18px; font-size: 12px; line-height: 1.6; }
+/* Withheld: no plan is shown; the reason occupies the plan's position. Not an
+   error, so never red (§04) — the distinction is structural, a double rule. */
+.state-block.withheld { border-left: 6px double var(--text-primary); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 10px 14px; margin: 0 0 10px; background: var(--surface-sunken); font-size: 12.5px; line-height: 1.5; color: var(--text-secondary); }
+.state-block.withheld h3 { margin-bottom: 4px; }
+.state-block.withheld ul { margin: 0; padding-left: 18px; }
+.state-block .code { font-weight: 700; color: var(--text-primary); margin-right: 6px; }
+
+.vessel { border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 0 0 10px; padding: 12px 14px; background: var(--surface); break-inside: avoid; }
+.vessel.intermediate { border-style: dashed; background: var(--surface-sunken); }
+.vessel.zero { border-style: dotted; }
+.vessel-head { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; font-size: 13px; }
+.vessel-head .label { font-family: var(--mono); font-weight: 600; font-size: 14px; color: var(--text-primary); }
+.vessel-head .kind { font-weight: 600; color: var(--text-primary); }
+.vessel-head .meta { color: var(--text-muted); font-size: 12px; }
+.vessel-head .flags { margin-left: auto; display: inline-flex; gap: 4px; }
+.flag-chip { font-size: 11px; font-weight: 700; background: var(--attention-wash); color: var(--text-primary); border-left: 2px solid var(--brand-amber); border-radius: var(--radius-sm); padding: 1px 6px; }
+.vessel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 6px 14px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--grid); }
+.vg { font-size: 12px; }
+.vg .k { display: block; color: var(--text-muted); font-size: 11px; }
+.vg .v { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: 13px; color: var(--text-primary); }
+.vg .sub { display: block; color: var(--text-muted); font-size: 11px; font-family: var(--font); letter-spacing: 0; text-transform: none; font-weight: 400; line-height: 1.45; }
+/* §07 the amber rule: a flag is a human decision moment, marked by the rule on
+   the attention wash, as C4 and C1 mark theirs. */
+.vessel-flags, .plan-flags { margin: 10px 0 0; padding: 0; list-style: none; }
+.plan-flags { margin: 10px 0; }
+.vessel-flags li, .plan-flags li { border-left: 2px solid var(--brand-amber); border-radius: var(--radius-sm); background: var(--attention-wash); padding: 10px 12px; font-size: 12px; line-height: 1.5; margin-top: 10px; color: var(--text-primary); }
+.vessel-flags .code, .plan-flags .code { font-weight: 700; margin-right: 6px; color: var(--text-primary); }
+.plan-summary { font-size: 12px; margin: 10px 0 0; color: var(--text-muted); }
+#notebook-text { margin-top: 8px; font-size: 12px; white-space: pre; background: var(--surface-sunken); }
+
+/* ---------- derivation ---------- */
+
+.derivation { font-size: 12.5px; line-height: 1.6; color: var(--text-secondary); }
+.derivation h3 { color: var(--text-primary); margin: 16px 0 6px; }
+.derivation h3:first-child { margin-top: 0; }
+.derivation ul { margin: 0; padding-left: 18px; }
+.derivation p { margin-top: 9px; }
+.derivation .echo { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; margin-top: 13px; padding-top: 13px; border-top: 1px solid var(--grid); font-size: 12px; }
+.derivation .echo dt { color: var(--text-muted); }
+.derivation .echo dd { margin: 0; color: var(--text-secondary); }
+.notes { color: var(--text-muted); }
+
+/* ---------- the method panel ---------- */
+
+.prose h3 { color: var(--text-primary); margin: 18px 0 7px; }
+.prose h3:first-child { margin-top: 0; }
+.prose p, .prose li { color: var(--text-secondary); font-size: 13px; line-height: 1.6; }
+.prose p + p { margin-top: 9px; }
+.prose ul, .prose ol { margin: 7px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; }
+.prose strong { color: var(--text-primary); font-weight: 700; }
+.prose table { width: 100%; border-collapse: collapse; margin-top: 9px; font-size: 12px; }
+.prose th { text-align: left; font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); padding: 10px 10px 10px 0; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.prose td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--grid); vertical-align: top; color: var(--text-secondary); line-height: 1.5; }
+.prose td:first-child { font-weight: 600; color: var(--text-primary); }
+.prose tr:last-child td { border-bottom: none; }
+.prose .lede { border-left: 2px solid var(--brand-amber); padding: 2px 0 2px 12px; color: var(--text-primary); }
+.status { font-family: var(--mono); font-size: 11px; }
+.status.derived, .status.disclosed { color: var(--brand-teal); font-weight: 600; }
+
+/* ---------- footer ---------- */
+
+.site-footer { max-width: 1400px; margin: 40px auto 0; padding: 26px 24px 40px; border-top: 1px solid var(--border); font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
+.footer-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 32px; align-items: start; }
+@media (max-width: 760px) { .footer-grid { grid-template-columns: minmax(0, 1fr); gap: 20px; } }
+.footer-prose { max-width: 68ch; }
+.footer-prose p + p { margin-top: 10px; }
+.footer-prose code { font-family: var(--mono); font-size: 12px; background: var(--surface-inset); color: var(--text-primary); padding: 1px 5px; border-radius: 3px; }
+.footer-address { font-style: normal; color: var(--text-muted); }
+.footer-address .eyebrow { display: block; margin-bottom: 6px; color: var(--text-secondary); }
+.footer-citation { margin: 14px 0 0; padding: 10px 12px; border-left: 2px solid var(--border); background: var(--surface-sunken); }
+.footer-citation-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.footer-citation-row button { padding: 4px 10px; font-size: 11px; flex: none; }
+.footer-citation p { margin: 4px 0 0; font-family: var(--mono); font-size: 12px; line-height: 1.6; color: var(--text-secondary); word-break: break-word; }
+.footer-citation p.footer-citation-note { font-family: var(--font); color: var(--text-muted); margin: 4px 0 10px; }
+.footer-citation .footer-citation-row + p.footer-citation-note { margin: 10px 0 0; }
+.footer-licence { margin: 22px 0 0; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); max-width: 92ch; }
+.footer-licence code { font-family: var(--mono); font-size: 11px; padding: 1px 4px; margin: 0 3px; }
+.footer-licence strong { color: var(--text-secondary); }
+.site-footer a { color: var(--text-primary); text-decoration: underline; text-underline-offset: 2px; }
+.site-footer a:hover { color: var(--brand-teal); }
+
+.disclaimer { margin-top: 24px; padding: 15px 17px; border: 1px solid var(--border); border-left: 2px solid var(--brand-amber); border-radius: var(--radius); background: var(--surface); font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
+.disclaimer strong { color: var(--text-primary); font-weight: 700; }
+.colophon { margin-top: 16px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-muted); }
+
+/* Bench sheet: hidden on screen, the only thing printed. The withheld/flagged
+   distinction is carried by position and presence, never colour, so the sheet
+   survives greyscale and photocopying. */
+.bench-sheet { display: none; }
+@media print {
+  @page { margin: 14mm; }
+  html, body { background: #fff; color: #000; font-size: 11pt; }
+  .app, .skip-link, .system-error { display: none !important; }
+  .bench-sheet { display: block; color: #000; }
+  .bench-sheet .sheet-head { display: flex; align-items: flex-start; gap: 8pt; border-bottom: 1.5pt solid #000; padding-bottom: 5pt; margin-bottom: 8pt; }
+  .bench-sheet .sheet-head .ligant-mark { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .bench-sheet h1 { font-size: 15pt; margin: 0 0 1pt; color: #000; }
+  .bench-sheet h2 { font-size: 12pt; margin: 10pt 0 3pt; color: #000; }
+  .bench-sheet .pub { font-size: 9pt; margin: 0; }
+  .bench-sheet table { border-collapse: collapse; width: 100%; font-size: 9.5pt; }
+  .bench-sheet th, .bench-sheet td { border: 0.75pt solid #000; padding: 3pt 4pt; vertical-align: top; text-align: left; }
+  .bench-sheet th { background: #eee; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-weight: 700; }
+  .bench-sheet .num { font-family: var(--mono); }
+  .bench-sheet tr { break-inside: avoid; }
+  .bench-sheet .flag { display: block; margin-top: 2pt; padding-left: 4pt; border-left: 2pt solid #000; }
+  .bench-sheet .flag::before { content: 'FLAG '; font-weight: 700; }
+  .bench-sheet .withheld { border: 3pt double #000; padding: 6pt; }
+  .bench-sheet .decls dt { font-weight: 700; float: left; clear: left; width: 40mm; }
+  .bench-sheet .decls dd { margin: 0 0 1pt 42mm; }
+  .bench-sheet .decls { font-size: 10pt; }
+  .bench-sheet .handfill { margin-top: 8pt; font-size: 10pt; }
+  .bench-sheet .small { font-size: 9pt; }
+}
