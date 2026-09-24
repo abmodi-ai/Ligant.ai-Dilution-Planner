@@ -23,6 +23,9 @@
 //     withheld per-point bound into a displayed number.
 // 0.3.0 stated both tolerances open and published no value (MINOR: the object
 // changed, no number did). 0.2.0 added the per-point bound and the import path.
-export const ENGINE_VERSION = '1.0.0';
+// 1.0.1 (24 September 2026), PATCH: the page allows Cloudflare Web Analytics
+// through its CSP and says so. No number changes and the object does not change
+// beyond this label; the reference table is identical.
+export const ENGINE_VERSION = '1.0.1';
 export const URS_VERSION = '0.4.2';
 export const TOOL_ID = 'C3';

@@ -17,7 +17,7 @@
     "verify:reimpl": "node verify/dump-reference-set.mjs > verify/reference-set.json && python3 verify/reimplementation.py verify/reference-set.json",
     "check:contrast": "node scripts/contrast-audit.mjs",
     "deploy:pages": "wrangler pages deploy dist --project-name ligant-dilution-planner --branch Main",
-    "deploy:pages:create": "wrangler pages project create ligant-dilution-planner --production-branch Main",
+    "deploy:pages:create": "wrangler pages project create ligant-dilution-planner --production-branch Main --force",
     "deploy:router": "wrangler deploy --config deploy/router/wrangler.toml",
     "deploy:check": "wrangler deploy --config deploy/router/wrangler.toml --dry-run --outdir .wrangler/dry-run",
     "check:browser": "node scripts/browser-checks.mjs"

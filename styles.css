@@ -1,7 +1,8 @@
 /* Ligant Bench Tools — C3 Dilution Planner.
    Brand Guidelines v1.1 (June 2026): §04 colour, §05 typography, §03 the mark.
-   Self-hosted type only; zero third-party requests, which is both C3-NF-01 and
-   the brand's own published claim. Every colour below is a §04 value; §08
+   Self-hosted type only. The page makes one third-party request, Cloudflare Web
+   Analytics, by the owner's decision of 24 September 2026; nothing else, and no
+   user-entered data in any request (C3-NF-01). Every colour below is a §04 value; §08
    grants no off-palette colour.
 
    The shell, the panels and the control primitives are C4's

@@ -8,11 +8,15 @@ The canonical address is **`https://benchtools.ligant.ai/dilution-planner/`**: l
 
 The owner also announces it as **`https://benchtools.ligant.ai/Dilution-Planner`**. URL paths are case-sensitive, so the route worker redirects that address, and any other casing of the prefix, with a single 301 to the canonical one. The rest of the path keeps its casing, because asset names are content hashes. `test/router.test.js` covers the redirect and the proxying, and fails against the router without the redirect.
 
-`wrangler.toml` carries a route for each spelling, because the redirect can only run if the request reaches the worker. The Cloudflare documentation available here does not say whether route patterns match case-sensitively. **If the deploy rejects the second route as a duplicate of the first, matching is case-insensitive: delete that line and deploy again.** The worker's redirect covers every casing either way.
+`wrangler.toml` carries a route for each spelling, because the redirect can only run if the request reaches the worker. **Route patterns match case-sensitively**: the first deploy, on 24 September 2026, accepted both routes as distinct, and `/Dilution-Planner` answers with the 301.
 
-## This session could not deploy
+## First deployed 24 September 2026
 
-Nothing here was deployed. Re-checked on 24 September 2026, with the same result as on 16 September:
+From a machine with wrangler logged in to the **Ligant.ai** account, the one that holds the sibling tools. The record, with every acceptance run at the address, is `docs/conformance-audit.md` addendum A-12.
+
+### From a Claude Code cloud session
+
+A cloud session could not deploy, as checked on 16 and 24 September:
 
 | | State |
 |---|---|
@@ -34,7 +38,7 @@ Do not use wrangler's suggested `--temporary` flag: it deploys to a throwaway pr
 
 ```bash
 npm ci                         # wrangler comes with it; the tool itself has no runtime dependencies
-npm test                       # 80 tests, including the router's and the deploy config's
+npm test                       # 82 tests, including the router's, the deploy config's and the CSP's
 npm run build                  # writes dist/ (index.html, assets/, _headers, LICENSE)
 npm run deploy:check           # bundles the router without touching the network
 
@@ -45,7 +49,10 @@ wrangler login                 # or export CLOUDFLARE_API_TOKEN=...
 #    the git checkout, and from any branch but Main the upload becomes a preview
 #    that the live address never serves. --project-name must match the router's
 #    upstream host (ligant-dilution-planner.pages.dev).
-npm run deploy:pages:create    # first time only: creates the project with Main as its production branch
+npm run deploy:pages:create    # first time only: creates the project with Main as its production branch.
+                               # --force is in the script because wrangler now delegates project
+                               # creation to Workers-based Pages, which fails for a Pages project;
+                               # --force creates it on the classic path the siblings use.
 npm run deploy:pages           # wrangler pages deploy dist --project-name ligant-dilution-planner --branch Main
 
 # 2. The route worker on benchtools.ligant.ai/dilution-planner/ (and /Dilution-Planner)
@@ -62,7 +69,7 @@ Then register the tool wherever the set is listed — `ligant-benchtools-catalog
 
 Three acceptance items can only be satisfied at the public address, and one footer sentence is written to be removed by the first of them.
 
-1. **Acceptance 22, no transmission.** `node scripts/viewport-check.mjs https://benchtools.ligant.ai/dilution-planner/` reports every request the page makes, with monitoring registered before page load. It must report zero to other origins. Re-run after any CDN or headers change. **Until this passes, the footer's "Not yet verified at this address" sentence stays**; it is the one claim the build cannot make for itself.
+1. **Acceptance 22, no transmission.** `node scripts/viewport-check.mjs https://benchtools.ligant.ai/dilution-planner/` reports every request the page makes, with monitoring registered before page load. Since 24 September 2026 the owner allows one third party, Cloudflare Web Analytics: the run must report **no other-origin request except its beacon script**, and **no request carrying what the user typed** — it types a sentinel into the form, leaves the page so any pending beacon is sent, and searches every request URL and body for it. Re-run after any CDN or headers change. **Until this passes, the footer's "Not yet verified at this address" sentence stays**; it is the one claim the build cannot make for itself.
 2. **Acceptance 29, the reference viewport.** The same script checks that no step of the plan is visible without its declarations and flags, across the full scroll range at 1366 × 650. Configuration is recorded in `docs/D5-browser-configuration.md`.
 3. **Acceptance 28, the bench sheet.** Print it from the deployed page and check it is complete without the application open.
 
