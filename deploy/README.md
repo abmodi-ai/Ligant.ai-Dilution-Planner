@@ -34,15 +34,19 @@ Do not use wrangler's suggested `--temporary` flag: it deploys to a throwaway pr
 
 ```bash
 npm ci                         # wrangler comes with it; the tool itself has no runtime dependencies
-npm test                       # 77 tests, including the router's
+npm test                       # 80 tests, including the router's and the deploy config's
 npm run build                  # writes dist/ (index.html, assets/, _headers, LICENSE)
 npm run deploy:check           # bundles the router without touching the network
 
 wrangler login                 # or export CLOUDFLARE_API_TOKEN=...
 
-# 1. The Pages project. The first deploy creates it; --project-name must match
-#    the upstream host in the router (ligant-dilution-planner.pages.dev).
-npm run deploy:pages           # wrangler pages deploy dist --project-name ligant-dilution-planner
+# 1. The Pages project, deployed as the live site. The script names the
+#    production branch, Main, itself: left to wrangler, the branch comes from
+#    the git checkout, and from any branch but Main the upload becomes a preview
+#    that the live address never serves. --project-name must match the router's
+#    upstream host (ligant-dilution-planner.pages.dev).
+npm run deploy:pages:create    # first time only: creates the project with Main as its production branch
+npm run deploy:pages           # wrangler pages deploy dist --project-name ligant-dilution-planner --branch Main
 
 # 2. The route worker on benchtools.ligant.ai/dilution-planner/ (and /Dilution-Planner)
 npm run deploy:router          # wrangler deploy --config deploy/router/wrangler.toml
