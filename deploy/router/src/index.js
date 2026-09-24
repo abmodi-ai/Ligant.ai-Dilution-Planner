@@ -4,21 +4,32 @@
 // Density Calculator and the Antibody Titration Planner: strip the path prefix
 // and proxy to this tool's Pages project, letting the upstream's own headers
 // govern caching.
+//
+// One addition: the tool is also announced as /Dilution-Planner. URL paths are
+// case-sensitive, so any casing of the prefix other than the canonical one is
+// redirected, once, to the lowercase address the tool cites, links to and
+// declares as canonical. The rest of the path keeps its casing: asset names are
+// content hashes and case matters in them.
 const UPSTREAM_HOST = 'ligant-dilution-planner.pages.dev';
 const PREFIX = '/dilution-planner';
 
 export default {
   async fetch(request) {
     const url = new URL(request.url);
-    if (url.pathname === PREFIX) {
+    const path = url.pathname;
+    const folded = path.toLowerCase();
+    if ((folded === PREFIX || folded.startsWith(`${PREFIX}/`)) && !path.startsWith(PREFIX)) {
+      return Response.redirect(`${url.origin}${PREFIX}${path.slice(PREFIX.length) || '/'}${url.search}`, 301);
+    }
+    if (path === PREFIX) {
       return Response.redirect(`${url.origin}${PREFIX}/${url.search}`, 301);
     }
-    if (!url.pathname.startsWith(`${PREFIX}/`)) {
+    if (!path.startsWith(`${PREFIX}/`)) {
       return fetch(request);
     }
     const upstream = new URL(request.url);
     upstream.hostname = UPSTREAM_HOST;
-    upstream.pathname = url.pathname.slice(PREFIX.length) || '/';
+    upstream.pathname = path.slice(PREFIX.length) || '/';
     const headers = new Headers(request.headers);
     headers.delete('host');
     return fetch(
