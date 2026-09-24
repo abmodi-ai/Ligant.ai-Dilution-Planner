@@ -323,3 +323,21 @@ Deployed from `Main` at `826b8b3` (engine 1.0.0, tag `v1.0.0`'s code plus the ro
 ```
 node scripts/viewport-check.mjs https://benchtools.ligant.ai/dilution-planner/
 ```
+
+### A-13 — 1.0.1 deployed with web analytics admitted, 24 September 2026
+
+Deployed from `Main` at `70a3114` (PR #8). The response now carries the policy of D-33: `script-src` admits the Cloudflare Web Analytics beacon, `connect-src` is this origin's `/cdn-cgi/rum` alone.
+
+| Check at `https://benchtools.ligant.ai/dilution-planner/` | Result |
+|---|---|
+| The beacon script | **Loads**, `200` from `static.cloudflareinsights.com/beacon.min.js/v…` |
+| Its report | **Accepted**, `204` from `https://benchtools.ligant.ai/cdn-cgi/rum` |
+| CSP violations | **None** |
+| **Acceptance 22**, as amended by D-33 | **Passes.** 10 requests; 1 to another origin, and it is the named beacon; 0 others. 1 analytics report sent. **0 requests carrying what the user typed**: a sentinel typed into the form appears in no request URL or body, including the report sent as the page is left |
+| Acceptance 29, the reference viewport | Passes, 0 violations over 0..5085 |
+| **Acceptance 24, storage** | **Passes with the beacon running.** Only the seeded foreign key remains, unchanged; session storage empty; no read. This confirms at the address what Cloudflare documents, that the beacon keeps no client-side state |
+| Acceptance 31 | Passes |
+| Contrast, WCAG 2.1 AA | 47 combinations, 0 failures |
+| `/Dilution-Planner` | 301 to the canonical address |
+
+**The footer sentence.** "Not yet verified at this address … the no-transmission acceptance test is unrun here" was accurate until this run and now understates what has been verified. It errs on the side of claiming less, so it is left for the owner: it is removed or replaced with a dated statement on the owner's word, and the standing privacy text v1.0, which replaces that paragraph, is still to come. Acceptance 28, the printed bench sheet, needs a person.
